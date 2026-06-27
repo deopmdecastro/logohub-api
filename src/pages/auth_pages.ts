@@ -177,12 +177,12 @@ export const loginPage = () => `<!DOCTYPE html>
           else window.location.href = '/dashboard/consumer';
         }, 800);
       } catch (err) {
-        showToast('error', 'Login failed', (err as Error).message);
+        showToast('error', 'Login failed', err.message);
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in';
       }
     });
-    function showToast(type: string, title: string, msg?: string) {
+    function showToast(type, title, msg) {
       const c = document.getElementById('toastContainer');
       if (!c) return;
       const d = document.createElement('div');
@@ -346,12 +346,12 @@ export const registerPage = () => `<!DOCTYPE html>
         showToast('success', 'Account created!', 'Redirecting to login...');
         setTimeout(() => { window.location.href = '/login'; }, 1500);
       } catch (err) {
-        showToast('error', 'Registration failed', (err as Error).message);
+        showToast('error', 'Registration failed', err.message);
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-user-plus"></i> Create account';
       }
     });
-    function showToast(type: string, title: string, msg?: string) {
+    function showToast(type, title, msg) {
       const c = document.getElementById('toastContainer');
       if (!c) return;
       const d = document.createElement('div');
