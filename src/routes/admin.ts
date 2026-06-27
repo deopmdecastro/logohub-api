@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { store } from '../data/store';
+import { createNotification } from './notifications';
 
 const admin = new Hono();
 
@@ -26,6 +27,7 @@ admin.post('/keys', async (c) => {
   const body = await c.req.json().catch(() => ({}));
   if (!body.name) return bad(c, 'name is required');
   const k = store.createKey(body);
+  createNotification({ type: 'info', title: 'New API key created', message: `Key "${k.name}" has been created.`, role: 'admin', link: '/dashboard/keys' });
   return c.json({ data: k, meta: { version: 'admin-v1', timestamp: new Date().toISOString() } }, 201);
 });
 admin.patch('/keys/:id', async (c) => {
@@ -35,6 +37,7 @@ admin.patch('/keys/:id', async (c) => {
 });
 admin.post('/keys/:id/revoke', (c) => {
   const k = store.revokeKey(c.req.param('id'));
+  if (k) createNotification({ type: 'warning', title: 'API key revoked', message: `Key "${k.name}" has been revoked.`, role: 'admin', link: '/dashboard/keys' });
   return k ? ok(c, k) : bad(c, 'Key not found', 404);
 });
 admin.delete('/keys/:id', (c) => {
@@ -65,11 +68,14 @@ admin.post('/content', async (c) => {
   const body = await c.req.json().catch(() => ({}));
   if (!body.name) return bad(c, 'name is required');
   const item = store.createContent(body);
+  createNotification({ type: 'success', title: 'New content created', message: `"${item.name}" has been published.`, role: 'creator', link: '/dashboard/content' });
+  createNotification({ type: 'info', title: 'New content submitted', message: `"${item.name}" by creator.`, role: 'admin', link: '/dashboard/content' });
   return c.json({ data: item, meta: { version: 'admin-v1', timestamp: new Date().toISOString() } }, 201);
 });
 admin.patch('/content/:id', async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const item = store.updateContent(c.req.param('id'), body);
+  if (item && body.status === 'published') createNotification({ type: 'success', title: 'Content published', message: `"${item.name}" is now live.`, role: 'creator', link: '/dashboard/content' });
   return item ? ok(c, item) : bad(c, 'Content not found', 404);
 });
 admin.delete('/content/:id', (c) => {
@@ -82,7 +88,9 @@ admin.delete('/content/:id', (c) => {
 admin.get('/team', (c) => ok(c, store.listTeam()));
 admin.post('/team', async (c) => {
   const body = await c.req.json().catch(() => ({}));
-  return ok(c, store.saveTeamMember(body));
+  const member = store.saveTeamMember(body);
+  createNotification({ type: 'info', title: 'New team member', message: `${member.name} has been added to the team.`, role: 'admin', link: '/dashboard/team' });
+  return ok(c, member);
 });
 admin.delete('/team/:id', (c) => {
   return store.deleteTeamMember(Number(c.req.param('id'))) ? ok(c, { deleted: true }) : bad(c, 'Member not found', 404);

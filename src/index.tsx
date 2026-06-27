@@ -10,7 +10,7 @@ import { openApiSpec } from './swagger';
 import { landingPage, explorerPage, docsPage, adminPage } from './pages/public';
 import { overviewPage, keysPage } from './pages/dashboard';
 import { contentPage } from './pages/content';
-import { settingsPage, teamPage, billingPage, analyticsPage, activityPage, usersPage, creatorDashboardPage, consumerDashboardPage } from './pages/other';
+import { settingsPage, teamPage, billingPage, analyticsPage, activityPage } from './pages/other';
 import { playgroundPage } from './pages/playground_page';
 import {
   privacyPage, termsPage, cookiesPage,
@@ -78,11 +78,6 @@ app.get('/dashboard/content', (c) => c.html(contentPage()));
 app.get('/dashboard/analytics', (c) => c.html(analyticsPage()));
 app.get('/dashboard/activity', (c) => c.html(activityPage()));
 app.get('/dashboard/billing', (c) => c.html(billingPage()));
-// Creator & Consumer dashboards
-app.get('/dashboard/creator', (c) => c.html(creatorDashboardPage()));
-app.get('/dashboard/consumer', (c) => c.html(consumerDashboardPage()));
-// Admin user management
-app.get('/dashboard/users', (c) => c.html(usersPage()));
 app.get('/dashboard/team', (c) => c.html(teamPage()));
 app.get('/dashboard/settings', (c) => c.html(settingsPage()));
 
