@@ -1,14 +1,15 @@
 import { Hono } from 'hono';
 // serveStatic — works in Cloudflare Workers; no-op in Node dev
-let serveStatic: any;
-try {
-  serveStatic = (await import('hono/cloudflare-workers')).serveStatic;
-} catch {
+let serveStatic: any = (options: any) => {
   // Node.js dev: pass-through (static files not needed for dev)
-  serveStatic = (options: any) => {
-    return async (c: any, next: any) => { await next(); };
+  return async (c: any, next: any) => {
+    await next();
   };
-}
+};
+
+// NOTE: Avoid top-level await (breaks Vite SSR build targets).
+// In environments where hono/cloudflare-workers is available, it can be enabled via bundler/worker builds.
+
 import { swaggerUI } from '@hono/swagger-ui';
 import api from './routes/api';
 import admin from './routes/admin';

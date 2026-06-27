@@ -1,46 +1,239 @@
-// Database client — PostgreSQL via HTTP-compatible REST proxy
-// No direct pg dependency; uses fetch() to talk to a DB proxy
-// In dev: falls back to in-memory store
+// Database client — PostgreSQL via direct pg connection or HTTP-compatible REST proxy
+// In-memory mode is only allowed when explicitly configured.
 
-// Check if DB is available via fetch to a DB proxy
 let dbAvailable = false;
+let directPool: any = null;
+let initPromise: Promise<boolean> | null = null;
+
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function getEnv() {
+  return (globalThis as any).process?.env || {};
+}
+
+function getNumberEnv(name: string, fallback: number): number {
+  const value = Number(getEnv()[name]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function getProxyUrl(): string {
+  return (globalThis as any).process?.env?.DB_PROXY_URL || '';
+}
+
+function getDatabaseConfig(): {
+  databaseUrl?: string;
+  host?: string;
+  port?: number;
+  user?: string;
+  password?: string;
+  database?: string;
+} {
+  const env = getEnv();
+  const databaseUrl = env.DATABASE_URL;
+  return {
+    databaseUrl,
+    host: env.DB_HOST,
+    port: env.DB_PORT ? Number(env.DB_PORT) : undefined,
+    user: env.DB_USER,
+    password: env.DB_PASSWORD,
+    database: env.DB_NAME,
+  };
+}
+
+function fallbackAllowed(): boolean {
+  // Only allow in-memory fallback when explicitly configured.
+  // - DB_FALLBACK_MODE=memory-only
+  // - DB_ENABLE_FALLBACK=true
+  const env = getEnv();
+  return env.DB_FALLBACK_MODE === 'memory-only' || String(env.DB_ENABLE_FALLBACK).toLowerCase() === 'true';
+}
+
+export function isMemoryFallbackAllowed(): boolean {
+  return fallbackAllowed();
+}
+
+export function isDbAvailable(): boolean {
+  return dbAvailable;
+}
+
+function hasDatabaseConfig(): boolean {
+  const direct = getDatabaseConfig();
+  return Boolean(
+    getProxyUrl() ||
+    direct.databaseUrl ||
+    (direct.host && direct.port && direct.user && direct.password && direct.database)
+  );
+}
+
+function getDatabaseConfigDescription(): string {
+  const direct = getDatabaseConfig();
+  if (getProxyUrl()) return 'DB_PROXY_URL';
+  if (direct.databaseUrl) {
+    try {
+      const parsed = new URL(direct.databaseUrl);
+      return `DATABASE_URL (${parsed.hostname}:${parsed.port || '5432'}/${parsed.pathname.replace(/^\//, '')})`;
+    } catch {
+      return 'DATABASE_URL';
+    }
+  }
+  return `DB_HOST=${direct.host || ''} DB_PORT=${direct.port || ''} DB_USER=${direct.user || ''} DB_NAME=${direct.database || ''}`;
+}
+
 export async function checkDbConnection(): Promise<boolean> {
+  const proxyUrl = getProxyUrl();
+  const direct = getDatabaseConfig();
+
+
+  // Mode 1: DB proxy
+  if (proxyUrl) {
+    try {
+      const r = await fetch(proxyUrl + '/health');
+      dbAvailable = r.ok;
+      return r.ok;
+    } catch {
+      dbAvailable = false;
+      return false;
+    }
+  }
+
+  // Mode 2: direct Postgres
   try {
-    const dbUrl = getDbUrl();
-    if (!dbUrl) return false;
-    // Test connection
-    const r = await fetch(dbUrl + '/health');
-    dbAvailable = r.ok;
-    return r.ok;
-  } catch {
+    const { databaseUrl } = direct;
+    if (!databaseUrl && !(direct.host && direct.port && direct.user && direct.password && direct.database)) {
+      dbAvailable = false;
+      return false;
+    }
+
+    // Lazy-load to avoid adding dependency issues in environments that only use proxy.
+    const pgMod: any = await import('pg');
+    const Pool = pgMod.Pool;
+
+    if (!directPool) {
+      directPool = new Pool(
+        databaseUrl
+          ? { connectionString: databaseUrl }
+          : {
+              host: direct.host,
+              port: direct.port,
+              user: direct.user,
+              password: direct.password,
+              database: direct.database,
+              max: 5,
+            }
+      );
+    }
+
+    await directPool.query('SELECT 1 as ok');
+    dbAvailable = true;
+    return true;
+  } catch (error) {
+    if (directPool) {
+      await directPool.end().catch(() => undefined);
+      directPool = null;
+    }
+    if (getEnv().DB_LOG_ERRORS === 'true') {
+      console.error('[DB] PostgreSQL connection failed:', error);
+    }
     dbAvailable = false;
     return false;
   }
 }
 
-function getDbUrl(): string {
-  return (globalThis as any).process?.env?.DB_PROXY_URL || '';
+export async function waitForDbConnection(): Promise<boolean> {
+  if (initPromise) return initPromise;
+
+  initPromise = (async () => {
+    if (!hasDatabaseConfig()) {
+      if (fallbackAllowed()) {
+        console.log('[DB] No PostgreSQL configuration — using in-memory fallback');
+        return false;
+      }
+      throw new Error('[DB] PostgreSQL configuration missing. Set DATABASE_URL or DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME, or explicitly enable DB_ENABLE_FALLBACK=true.');
+    }
+
+    const attempts = getNumberEnv('DB_CONNECT_RETRIES', 30);
+    const delayMs = getNumberEnv('DB_CONNECT_RETRY_DELAY_MS', 2000);
+
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      if (await checkDbConnection()) {
+        console.log(`[DB] PostgreSQL connected via ${getDatabaseConfigDescription()}`);
+        return true;
+      }
+
+      if (attempt < attempts) {
+        console.log(`[DB] PostgreSQL not ready (${attempt}/${attempts}); retrying in ${delayMs}ms`);
+        await sleep(delayMs);
+      }
+    }
+
+    if (fallbackAllowed()) {
+      console.log('[DB] PostgreSQL not available — using in-memory fallback');
+      return false;
+    }
+
+    throw new Error(`[DB] PostgreSQL not available after ${attempts} attempts and in-memory fallback is disabled`);
+  })();
+
+  return initPromise;
+}
+
+export async function runMigrations(): Promise<void> {
+  await waitForDbConnection();
+
+  if (getProxyUrl()) return;
+  if (!directPool) return;
+
+  try {
+    const { readFile } = await import('node:fs/promises');
+    const initSql = await readFile('./docker/init.sql', 'utf8');
+    await directPool.query(initSql);
+    console.log('[DB] Database schema is ready');
+  } catch (error) {
+    console.error('[DB] Failed to initialize database schema:', error);
+    throw error;
+  }
 }
 
 async function query(sql: string, params?: any[]): Promise<{ rows: any[]; rowCount?: number }> {
-  const dbUrl = getDbUrl();
-  if (!dbUrl) return { rows: [] };
+  if (!dbAvailable) {
+    await waitForDbConnection();
+  }
+
+  const proxyUrl = getProxyUrl();
+  if (proxyUrl) {
+    try {
+      const response = await fetch(proxyUrl + '/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sql, params }),
+      });
+      if (!response.ok) return { rows: [] };
+      return await response.json();
+    } catch {
+      return { rows: [] };
+    }
+  }
+
   try {
-    const r = await fetch(dbUrl + '/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sql, params }),
-    });
-    if (!r.ok) return { rows: [] };
-    return await r.json();
+    if (!directPool) {
+      await checkDbConnection();
+    }
+    if (!directPool) return { rows: [] };
+
+    const result: any = await directPool.query(sql, params || []);
+    return { rows: result.rows || [], rowCount: result.rowCount };
   } catch {
     return { rows: [] };
   }
 }
 
-// Stubs — used when DB is not available
-function q(sql: string, params?: any[]) {
-  if (!dbAvailable || !getDbUrl()) return { rows: [] };
+// Stubs — used only when DB fallback is explicitly enabled.
+async function q(sql: string, params?: any[]): Promise<any> {
+  if (!dbAvailable) {
+    const ok = await waitForDbConnection();
+    if (!ok && fallbackAllowed()) return { rows: [] };
+  }
   return query(sql, params);
 }
 
@@ -280,5 +473,3 @@ export async function findPasswordReset(token: string) {
 }
 export async function usePasswordReset(token: string) { await q('UPDATE password_resets SET used = TRUE WHERE token = $1', [token]); }
 
-// Init
-checkDbConnection().then(ok => { console.log(ok ? '[DB] PostgreSQL connected' : '[DB] PostgreSQL not available — using in-memory fallback'); });

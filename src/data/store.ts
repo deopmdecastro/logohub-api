@@ -1,4 +1,4 @@
-// Hybrid Store — PostgreSQL (primary) with in-memory fallback
+// Hybrid Store â€” PostgreSQL (primary) with in-memory fallback
 // Tries DB first; if unavailable, falls back to memory store
 // All methods return the same shape the front-end expects
 
@@ -8,7 +8,17 @@ import { customAlphabet } from 'nanoid';
 const nanoId = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 16);
 
 let dbAvailable = false;
-db.checkDbConnection().then(ok => { dbAvailable = ok; });
+
+async function useDatabase(): Promise<boolean> {
+  if (dbAvailable || db.isDbAvailable()) {
+    dbAvailable = true;
+    return true;
+  }
+
+  const ok = await db.waitForDbConnection();
+  dbAvailable = ok;
+  return ok;
+}
 
 // ============================================================
 // IN-MEMORY FALLBACK STORES (used when DB is not connected)
@@ -32,7 +42,7 @@ const memSettings: any[] = [
   { id: 's5', key: 'plan_price_usd', label: 'Plan Price (USD)', value: '79', group_name: 'billing', type: 'number' },
   { id: 's6', key: 'plan_quota_daily', label: 'Daily Quota', value: '1000000', group_name: 'billing', type: 'number' },
   { id: 's7', key: 'plan_used_today', label: 'Used Today', value: '0', group_name: 'billing', type: 'number' },
-  { id: 's8', key: 'payment_method', label: 'Payment Method', value: 'Stripe · ending 4242', group_name: 'billing', type: 'text' },
+  { id: 's8', key: 'payment_method', label: 'Payment Method', value: 'Stripe Â· ending 4242', group_name: 'billing', type: 'text' },
   { id: 's9', key: 'next_invoice_date', label: 'Next Invoice', value: '2026-07-15', group_name: 'billing', type: 'text' },
   { id: 's10', key: 'total_requests_24h', label: 'Requests (24h)', value: '208000', group_name: 'stats', type: 'number' },
   { id: 's11', key: 'avg_latency_ms', label: 'Avg Latency', value: '18', group_name: 'stats', type: 'number' },
@@ -46,9 +56,9 @@ const memSettings: any[] = [
 ];
 const memTeam: any[] = [];
 const memActivity: any[] = [
-  { id: 1, actor: 'Zana Admin', action: 'created', target: 'API Key · Default Key', type: 'key', details: 'Created a new API key for production', ts: new Date(Date.now() - 3600000).toISOString(), created_at: new Date(Date.now() - 3600000).toISOString() },
-  { id: 2, actor: 'Zana Admin', action: 'uploaded', target: 'Content · Google Logo', type: 'create', details: 'Added new logo asset', ts: new Date(Date.now() - 7200000).toISOString(), created_at: new Date(Date.now() - 7200000).toISOString() },
-  { id: 3, actor: 'Creator Demo', action: 'published', target: 'Content · Modern UI Kit', type: 'publish', details: 'Published to the marketplace', ts: new Date(Date.now() - 14400000).toISOString(), created_at: new Date(Date.now() - 14400000).toISOString() },
+  { id: 1, actor: 'Zana Admin', action: 'created', target: 'API Key Â· Default Key', type: 'key', details: 'Created a new API key for production', ts: new Date(Date.now() - 3600000).toISOString(), created_at: new Date(Date.now() - 3600000).toISOString() },
+  { id: 2, actor: 'Zana Admin', action: 'uploaded', target: 'Content Â· Google Logo', type: 'create', details: 'Added new logo asset', ts: new Date(Date.now() - 7200000).toISOString(), created_at: new Date(Date.now() - 7200000).toISOString() },
+  { id: 3, actor: 'Creator Demo', action: 'published', target: 'Content Â· Modern UI Kit', type: 'publish', details: 'Published to the marketplace', ts: new Date(Date.now() - 14400000).toISOString(), created_at: new Date(Date.now() - 14400000).toISOString() },
 ];
 const memPasswordResets: any[] = [];
 
@@ -59,11 +69,11 @@ const memPasswordResets: any[] = [];
 export const store = {
   // --- USERS ---
   async getUserByEmail(email: string) {
-    if (dbAvailable) { const u = await db.findUserByEmail(email); if (u) return u; }
+    if (await useDatabase()) { const u = await db.findUserByEmail(email); if (u) return u; }
     return memUsers.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
   },
   async getUser(id: string) {
-    if (dbAvailable) { const u = await db.findUserById(id); if (u) return u; }
+    if (await useDatabase()) { const u = await db.findUserById(id); if (u) return u; }
     return memUsers.find(u => u.id === id) || null;
   },
   async getUserSafe(id: string) {
@@ -73,7 +83,7 @@ export const store = {
     return safe;
   },
   async createUser(data: { name: string; email: string; password_hash: string; role?: string }) {
-    if (dbAvailable) {
+    if (await useDatabase()) {
       const u = await db.createUser({ name: data.name, email: data.email, password: data.password_hash, role: data.role || 'consumer' });
       if (u) return u;
     }
@@ -93,21 +103,21 @@ export const store = {
     return user;
   },
   async updateUser(id: string, data: any) {
-    if (dbAvailable) { const u = await db.updateUser(id, data); if (u) return u; }
+    if (await useDatabase()) { const u = await db.updateUser(id, data); if (u) return u; }
     const idx = memUsers.findIndex(u => u.id === id);
     if (idx === -1) return null;
     Object.assign(memUsers[idx], data, { updated_at: new Date().toISOString() });
     return memUsers[idx];
   },
   async deleteUser(id: string) {
-    if (dbAvailable) { const ok = await db.deleteUser(id); if (ok) return true; }
+    if (await useDatabase()) { const ok = await db.deleteUser(id); if (ok) return true; }
     const idx = memUsers.findIndex(u => u.id === id);
     if (idx === -1) return false;
     memUsers.splice(idx, 1);
     return true;
   },
   async listUsers(filters?: any) {
-    if (dbAvailable) { const list = await db.listUsers(filters); if (list.length > 0) return list; }
+    if (await useDatabase()) { const list = await db.listUsers(filters); if (list.length > 0) return list; }
     let list = [...memUsers];
     if (filters?.role) list = list.filter(u => u.role === filters.role);
     if (filters?.plan) list = list.filter(u => u.plan === filters.plan);
@@ -121,23 +131,23 @@ export const store = {
   getSession(token: string) { return memSessions.get(token); },
 
   // --- PASSWORD RESETS ---
-  createPasswordReset(userId: string, token: string, expiresAt: string) {
-    if (dbAvailable) { db.createPasswordReset(userId, token, new Date(expiresAt)); return; }
+  async createPasswordReset(userId: string, token: string, expiresAt: string) {
+    if (await useDatabase()) { db.createPasswordReset(userId, token, new Date(expiresAt)); return; }
     memPasswordResets.push({ user_id: userId, token, expires_at: expiresAt, used: false });
   },
-  getPasswordReset(token: string) {
-    if (dbAvailable) return db.findPasswordReset(token);
+  async getPasswordReset(token: string) {
+    if (await useDatabase()) return db.findPasswordReset(token);
     return memPasswordResets.find(r => r.token === token && !r.used && new Date(r.expires_at) > new Date()) || null;
   },
-  usePasswordReset(token: string) {
-    if (dbAvailable) { db.usePasswordReset(token); return; }
+  async usePasswordReset(token: string) {
+    if (await useDatabase()) { db.usePasswordReset(token); return; }
     const r = memPasswordResets.find(r => r.token === token);
     if (r) r.used = true;
   },
 
   // --- API KEYS ---
   async listKeys(userId?: string) {
-    if (dbAvailable) { const list = await db.listApiKeys(userId); if (list.length > 0) return list.map(k => ({ ...k, requests_24h: k.requests || 0 })); }
+    if (await useDatabase()) { const list = await db.listApiKeys(userId); if (list.length > 0) return list.map(k => ({ ...k, requests_24h: k.requests || 0 })); }
     let keys = [...memApiKeys];
     if (userId) keys = keys.filter(k => k.user_id === userId);
     return keys.map(k => ({ ...k, requests_24h: k.requests || 0 }));
@@ -147,7 +157,7 @@ export const store = {
     return keys.find(k => k.id === id) || null;
   },
   async createKey(data: any) {
-    if (dbAvailable) {
+    if (await useDatabase()) {
       const k = await db.createApiKey({
         user_id: data.user_id, name: data.name,
         key: data.key || ('lh_' + nanoId()), prefix: data.prefix || 'lh',
@@ -166,7 +176,7 @@ export const store = {
     return { ...key, requests_24h: 0 };
   },
   async updateKey(id: string, data: any) {
-    if (dbAvailable) { const k = await db.updateApiKey(id, data); if (k) return { ...k, requests_24h: k.requests || 0 }; }
+    if (await useDatabase()) { const k = await db.updateApiKey(id, data); if (k) return { ...k, requests_24h: k.requests || 0 }; }
     const idx = memApiKeys.findIndex(k => k.id === id);
     if (idx === -1) return null;
     Object.assign(memApiKeys[idx], data, { updated_at: new Date().toISOString() });
@@ -176,7 +186,7 @@ export const store = {
     return this.updateKey(id, { status: 'revoked' });
   },
   async deleteKey(id: string) {
-    if (dbAvailable) { const ok = await db.deleteApiKey(id); if (ok) return true; }
+    if (await useDatabase()) { const ok = await db.deleteApiKey(id); if (ok) return true; }
     const idx = memApiKeys.findIndex(k => k.id === id);
     if (idx === -1) return false;
     memApiKeys.splice(idx, 1);
@@ -185,15 +195,15 @@ export const store = {
 
   // --- CONTENT ---
   async listContent(filters?: any) {
-    if (dbAvailable) { const list = await db.listContent(filters); if (list.length > 0) return list; }
+    if (await useDatabase()) { const list = await db.listContent(filters); if (list.length > 0) return list; }
     return memContent;
   },
   async getContent(id: string) {
-    if (dbAvailable) { const c = await db.getContentById(id); if (c) return c; }
+    if (await useDatabase()) { const c = await db.getContentById(id); if (c) return c; }
     return memContent.find(c => c.id === id) || null;
   },
   async createContent(data: any) {
-    if (dbAvailable) { const c = await db.createContent(data); if (c) return c; }
+    if (await useDatabase()) { const c = await db.createContent(data); if (c) return c; }
     const item = {
       id: uuidv4(), name: data.name, slug: data.slug || '', description: data.description || '',
       category: data.category || '', subcategory: '', website: '', country: '', industry: '',
@@ -210,14 +220,14 @@ export const store = {
     return item;
   },
   async updateContent(id: string, data: any) {
-    if (dbAvailable) { const c = await db.updateContent(id, data); if (c) return c; }
+    if (await useDatabase()) { const c = await db.updateContent(id, data); if (c) return c; }
     const idx = memContent.findIndex(c => c.id === id);
     if (idx === -1) return null;
     Object.assign(memContent[idx], data, { updated_at: new Date().toISOString() });
     return memContent[idx];
   },
   async deleteContent(id: string) {
-    if (dbAvailable) { const ok = await db.deleteContent(id); if (ok) return true; }
+    if (await useDatabase()) { const ok = await db.deleteContent(id); if (ok) return true; }
     const idx = memContent.findIndex(c => c.id === id);
     if (idx === -1) return false;
     memContent.splice(idx, 1);
@@ -226,17 +236,17 @@ export const store = {
 
   // --- SETTINGS ---
   async listSettings(group?: string) {
-    if (dbAvailable) { const list = await db.listSettings(group); if (list.length > 0) return list; }
+    if (await useDatabase()) { const list = await db.listSettings(group); if (list.length > 0) return list; }
     let items = [...memSettings];
     if (group) items = items.filter(s => s.group_name === group);
     return items;
   },
   async getSetting(key: string) {
-    if (dbAvailable) { const s = await db.getSetting(key); if (s) return s; }
+    if (await useDatabase()) { const s = await db.getSetting(key); if (s) return s; }
     return memSettings.find(s => s.key === key) || null;
   },
   async updateSetting(key: string, value: string) {
-    if (dbAvailable) { const s = await db.updateSetting(key, value); if (s) return s; }
+    if (await useDatabase()) { const s = await db.updateSetting(key, value); if (s) return s; }
     const idx = memSettings.findIndex(s => s.key === key);
     if (idx === -1) return null;
     memSettings[idx].value = value;
@@ -246,11 +256,11 @@ export const store = {
 
   // --- TEAM ---
   async listTeam() {
-    if (dbAvailable) { const list = await db.listTeam(); if (list.length > 0) return list; }
+    if (await useDatabase()) { const list = await db.listTeam(); if (list.length > 0) return list; }
     return memTeam;
   },
   async saveTeamMember(data: any) {
-    if (dbAvailable) { const m = await db.saveTeamMember(data); if (m) return m; }
+    if (await useDatabase()) { const m = await db.saveTeamMember(data); if (m) return m; }
     if (data.id) {
       const idx = memTeam.findIndex(t => t.id === data.id);
       if (idx === -1) return null;
@@ -262,7 +272,7 @@ export const store = {
     return member;
   },
   async deleteTeamMember(id: number) {
-    if (dbAvailable) { const ok = await db.deleteTeamMember(id); if (ok) return true; }
+    if (await useDatabase()) { const ok = await db.deleteTeamMember(id); if (ok) return true; }
     const idx = memTeam.findIndex(t => t.id === id);
     if (idx === -1) return false;
     memTeam.splice(idx, 1);
@@ -271,11 +281,11 @@ export const store = {
 
   // --- ACTIVITY ---
   async listActivity() {
-    if (dbAvailable) { const list = await db.listActivity(); if (list.length > 0) return list; }
+    if (await useDatabase()) { const list = await db.listActivity(); if (list.length > 0) return list; }
     return memActivity;
   },
   async logActivity(entry: any) {
-    if (dbAvailable) { await db.logActivity(entry); return; }
+    if (await useDatabase()) { await db.logActivity(entry); return; }
     memActivity.unshift({
       id: memActivity.length + 1,
       ...entry,
@@ -319,3 +329,4 @@ export const userStore = {
   listPlans: () => store.listPlans(),
   updatePlan: (id: string, data: any) => store.updatePlan(id, data),
 };
+
