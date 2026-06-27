@@ -3,7 +3,7 @@ export type NavItem = { id: string; icon: string; label: string; href: string; c
 
 export const DASH_NAV: NavItem[] = [
   { id: 'overview', icon: 'fa-chart-bar', label: 'Overview', href: '/dashboard', color: '#b8a9e8' },
-  { id: 'users', icon: 'fa-users', label: 'Users', href: '/dashboard/users', color: '#ff6b6b' },
+  { id: 'users', icon: 'fa-users', label: 'Users', href: '/dashboard/admin/users', color: '#ff6b6b' },
   { id: 'keys', icon: 'fa-key', label: 'API Keys', href: '/dashboard/keys', color: '#f5a623' },
   { id: 'content', icon: 'fa-images', label: 'Content', href: '/dashboard/content', color: '#4ecdc4' },
   { id: 'analytics', icon: 'fa-chart-line', label: 'Analytics', href: '/dashboard/analytics', color: '#b8a9e8' },

@@ -3,7 +3,10 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { sign, verify } from 'jsonwebtoken';
 import { hash, compare } from 'bcryptjs';
-import { userStore } from '../data/users';
+import { store } from '../data/store';
+import { userStore } from '../data/store';
+import { createNotification } from './notifications';
+import { sendEmail, welcomeEmail, passwordResetEmail } from '../services/email';
 
 const auth = new Hono();
 auth.use('/*', cors({ origin: '*', allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'], allowHeaders: ['Content-Type', 'Authorization'] }));
@@ -56,6 +59,17 @@ auth.post('/register', async (c) => {
   userStore.createSession(user.id, token);
 
   const { password_hash: _, ...safeUser } = user;
+
+  // Send welcome email (non-blocking)
+  sendEmail({
+    to: user.email,
+    subject: 'Welcome to LogoHub! 🎉',
+    html: welcomeEmail(user.name, user.role || 'consumer'),
+  }).catch(() => {});
+
+  createNotification({ type: 'success', title: 'New user registered', message: `${user.name} joined as ${user.role || 'consumer'}.`, role: 'admin', link: '/dashboard/admin/users' });
+  createNotification({ type: 'info', title: 'Welcome to LogoHub!', message: 'Start exploring 50K+ visual assets.', user_id: user.id, role: user.role, link: user.role === 'creator' ? '/dashboard/creator' : '/dashboard/consumer' });
+
   return c.json({ data: { user: safeUser, token }, meta: { version: 'v2', timestamp: new Date().toISOString() } }, 201);
 });
 
@@ -131,6 +145,18 @@ auth.get('/admin/users', authMiddleware, adminMiddleware, (c) => {
 auth.patch('/admin/users/:id', authMiddleware, adminMiddleware, async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json().catch(() => ({}));
+
+  // If password_hash is provided, hash it first
+  if (body.password_hash) {
+    const password_hash = await hash(body.password_hash, 10);
+    body.password_hash = password_hash;
+    // If it's a plain password (not hashed), mark it for notification
+    if (!body.password_hash.startsWith('$2')) {
+      // already hashed above — we can log the password for admin display
+      await store.logActivity({ actor: 'Admin', action: 'reset_password', target: 'User #' + id, type: 'security', details: 'Password reset by admin' });
+    }
+  }
+
   const updated = userStore.updateUser(id, body);
   if (!updated) return bad(c, 'User not found', 404);
   const { password_hash: _, ...safeUser } = updated;
@@ -144,6 +170,23 @@ auth.delete('/admin/users/:id', authMiddleware, adminMiddleware, (c) => {
   const id = c.req.param('id');
   if (!userStore.deleteUser(id)) return bad(c, 'User not found', 404);
   return ok(c, { deleted: true });
+});
+
+// ============================================================
+// Admin: POST /api/v1/admin/users/:id/reset-password
+// ============================================================
+auth.post('/admin/users/:id/reset-password', authMiddleware, adminMiddleware, async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+  const newPassword = body.password || body.new_password || 'Demo@2026';
+  if (newPassword.length < 8) return bad(c, 'Password must be at least 8 characters');
+
+  const password_hash = await hash(newPassword, 10);
+  const updated = userStore.updateUser(id, { password_hash });
+  if (!updated) return bad(c, 'User not found', 404);
+
+  await store.logActivity({ actor: 'Admin', action: 'reset_password', target: 'User #' + id, type: 'security', details: 'Password reset by admin' });
+  return ok(c, { message: 'Password reset', temp_password: newPassword });
 });
 
 // ============================================================
