@@ -78,16 +78,23 @@ export const loginPage = () => `<!DOCTYPE html>
       <h2 class="text-xl font-bold mb-1">Sign in</h2>
       <p class="text-sm mb-6" style="color:var(--text-soft)">Enter your credentials to continue</p>
 
-      <!-- Quick Login Buttons -->
+      <!-- Quick Login Buttons — click fills credentials, does NOT auto-submit -->
       <div class="space-y-2 mb-4">
-        <button onclick="quickLogin('admin@logohub.dev')" class="btn btn-ghost w-full text-xs py-2" style="justify-content:flex-start;border-color:rgba(184,169,232,.2)">
-          <i class="fas fa-shield-alt" style="color:#b8a9e8"></i> Login as Admin (admin@logohub.dev)
+        <p class="text-[10px] uppercase tracking-wide font-semibold mb-2" style="color:var(--text-mute)">Quick fill demo accounts</p>
+        <button data-email="admin@logohub.dev" onclick="quickLogin('admin@logohub.dev')" class="preset-btn btn btn-ghost w-full text-xs" style="justify-content:flex-start;padding:.65rem .85rem;border-color:rgba(184,169,232,.2);transition:all .2s">
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(184,169,232,.15);color:#b8a9e8"><i class="fas fa-shield-alt text-[12px]"></i></span>
+          <div class="text-left flex-1 ml-2"><span class="font-semibold text-sm" style="color:var(--text)">Admin</span><span class="text-[10px] ml-1.5" style="color:var(--text-mute)">admin@logohub.dev</span></div>
+          <i class="fas fa-chevron-right text-[9px]" style="color:var(--text-mute)"></i>
         </button>
-        <button onclick="quickLogin('creator@logohub.dev')" class="btn btn-ghost w-full text-xs py-2" style="justify-content:flex-start;border-color:rgba(245,166,35,.2)">
-          <i class="fas fa-paint-brush" style="color:#f5a623"></i> Login as Creator (creator@logohub.dev)
+        <button data-email="creator@logohub.dev" onclick="quickLogin('creator@logohub.dev')" class="preset-btn btn btn-ghost w-full text-xs" style="justify-content:flex-start;padding:.65rem .85rem;border-color:rgba(245,166,35,.2);transition:all .2s">
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(245,166,35,.12);color:#f5a623"><i class="fas fa-paint-brush text-[12px]"></i></span>
+          <div class="text-left flex-1 ml-2"><span class="font-semibold text-sm" style="color:var(--text)">Creator</span><span class="text-[10px] ml-1.5" style="color:var(--text-mute)">creator@logohub.dev</span></div>
+          <i class="fas fa-chevron-right text-[9px]" style="color:var(--text-mute)"></i>
         </button>
-        <button onclick="quickLogin('consumer@logohub.dev')" class="btn btn-ghost w-full text-xs py-2" style="justify-content:flex-start;border-color:rgba(78,205,196,.2)">
-          <i class="fas fa-user" style="color:#4ecdc4"></i> Login as Consumer (consumer@logohub.dev)
+        <button data-email="consumer@logohub.dev" onclick="quickLogin('consumer@logohub.dev')" class="preset-btn btn btn-ghost w-full text-xs" style="justify-content:flex-start;padding:.65rem .85rem;border-color:rgba(78,205,196,.2);transition:all .2s">
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(78,205,196,.12);color:#4ecdc4"><i class="fas fa-user text-[12px]"></i></span>
+          <div class="text-left flex-1 ml-2"><span class="font-semibold text-sm" style="color:var(--text)">Consumer</span><span class="text-[10px] ml-1.5" style="color:var(--text-mute)">consumer@logohub.dev</span></div>
+          <i class="fas fa-chevron-right text-[9px]" style="color:var(--text-mute)"></i>
         </button>
       </div>
 
@@ -125,10 +132,21 @@ export const loginPage = () => `<!DOCTYPE html>
 
   ${COMMON_JS}
   <script>
+    var DEMO_PASSWORD = 'Demo@2026';
     function quickLogin(email) {
       document.getElementById('loginEmail').value = email;
-      document.getElementById('loginPassword').value = 'Demo@2026';
-      document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+      document.getElementById('loginPassword').value = DEMO_PASSWORD;
+      // Flash green border
+      var el = document.getElementById('loginEmail');
+      el.style.borderColor = '#4ade80';
+      el.style.boxShadow = '0 0 0 3px rgba(74,222,128,.18)';
+      setTimeout(function(){ el.style.borderColor = ''; el.style.boxShadow = ''; }, 800);
+      // Focus password so user just hits Enter
+      document.getElementById('loginPassword').focus();
+      // Highlight active preset
+      document.querySelectorAll('.preset-btn').forEach(function(b){ b.style.background = ''; b.style.borderColor = ''; });
+      var active = document.querySelector('.preset-btn[data-email="' + email + '"]');
+      if (active) { active.style.background = 'rgba(184,169,232,.12)'; active.style.borderColor = 'rgba(184,169,232,.35)'; }
     }
     function togglePassword(id) {
       const el = document.getElementById(id);
