@@ -6,7 +6,9 @@
     "build": "vite build",
     "preview": "wrangler pages dev",
     "deploy": "npm run build && wrangler pages deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "dev:node": "tsx server.ts",
+    "dev:vite": "vite"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",
@@ -19,11 +21,13 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@hono/node-server": "^2.0.6",
     "@hono/vite-build": "^1.2.0",
     "@hono/vite-dev-server": "^0.25.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/uuid": "^10.0.0",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "vite": "^6.3.5",
     "wrangler": "^4.4.0"

@@ -1,5 +1,14 @@
 import { Hono } from 'hono';
-import { serveStatic } from 'hono/cloudflare-workers';
+// serveStatic — works in Cloudflare Workers; no-op in Node dev
+let serveStatic: any;
+try {
+  serveStatic = (await import('hono/cloudflare-workers')).serveStatic;
+} catch {
+  // Node.js dev: pass-through (static files not needed for dev)
+  serveStatic = (options: any) => {
+    return async (c: any, next: any) => { await next(); };
+  };
+}
 import { swaggerUI } from '@hono/swagger-ui';
 import api from './routes/api';
 import admin from './routes/admin';
@@ -26,7 +35,7 @@ import {
 const app = new Hono();
 
 // Static assets
-app.use('/static/*', serveStatic({ root: './' }));
+app.use('/static/*', serveStatic({ root: './public' }));
 
 // =====================================================================
 // SWAGGER / OPENAPI

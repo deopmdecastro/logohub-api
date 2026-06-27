@@ -1,0 +1,23 @@
+# LogoHub — Environment Configuration
+# Copy to .env (gitignored) and fill in your values
+
+# Database (Docker PostgreSQL)
+DATABASE_URL=postgresql://logohub:logohub_dev_2026@localhost:5432/logohub
+
+# JWT Secret (change in production!)
+JWT_SECRET=logohub-jwt-secret-change-in-production-2026
+
+# App
+APP_URL=http://localhost:3000
+NODE_ENV=development
+
+# Run with Node (not Wrangler) for local dev on Windows
+# Set USE_NODE_DEV=true to bypass Cloudflare Wrangler
+USE_NODE_DEV=true
+
+# Email (SMTP) — optional for development
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=noreply@logohub.dev
