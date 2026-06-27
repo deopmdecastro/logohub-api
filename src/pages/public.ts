@@ -23,7 +23,8 @@ export const landingPage = () => {
     </div>
     <div class="flex items-center gap-2">
       <button id="themeBtn" onclick="LH.toggleTheme()" class="btn btn-ghost btn-icon" title="Toggle theme"><i class="fas fa-sun"></i></button>
-      <a href="/dashboard" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Get API Key</a>
+      <a href="/login" class="btn btn-ghost btn-sm">Log in</a>
+      <a href="/register" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Get API Key</a>
     </div>
   </div>
 </nav>
@@ -186,7 +187,7 @@ export const landingPage = () => {
         <ul class="space-y-2 mb-6">
           ${plan.features.map(f => `<li class="text-sm flex items-center gap-2" style="color:var(--text-soft)"><i class="fas fa-check text-xs" style="color:#4ade80"></i>${f}</li>`).join('')}
         </ul>
-        <a href="/dashboard" class="btn ${plan.ctaCls} w-full justify-center">${plan.cta}</a>
+        <a href="/register" class="btn ${plan.ctaCls} w-full justify-center">${plan.cta}</a>
       </div>`).join('')}
     </div>
   </div>
@@ -202,7 +203,7 @@ export const landingPage = () => {
         <h2 class="text-4xl font-black mb-3" style="color:var(--text)">Ready to <span class="gradient-text">Build?</span></h2>
         <p class="text-lg mb-8 max-w-xl mx-auto" style="color:var(--text-soft)">Join 10,000+ developers using LogoHub API. Free plan. No credit card required.</p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="/dashboard" class="btn btn-primary text-base px-8 py-3.5">Get API Key — Free</a>
+          <a href="/register" class="btn btn-primary text-base px-8 py-3.5"><i class="fas fa-bolt mr-1.5"></i> Get your free API key</a>
           <a href="/docs" class="btn btn-ghost text-base px-8 py-3.5">Read Docs</a>
         </div>
       </div>
@@ -272,7 +273,7 @@ export const explorerPage = () => `${HEAD('Explorer — LogoHub API', COMMON_JS)
     <div class="flex items-center gap-3">
       <a href="/docs" class="text-sm hidden md:inline" style="color:var(--text-soft)">Docs</a>
       <button id="themeBtn" onclick="LH.toggleTheme()" class="btn btn-ghost btn-icon"><i class="fas fa-sun"></i></button>
-      <a href="/dashboard" class="btn btn-primary btn-sm">Dashboard</a>
+      <a href="/login" class="btn btn-primary btn-sm">Dashboard</a>
     </div>
   </div>
 </nav>
@@ -346,7 +347,7 @@ export const docsPage = () => `${HEAD('Documentation — LogoHub API', COMMON_JS
     <div class="flex items-center gap-3">
       <a href="/explorer" class="text-sm" style="color:var(--text-soft)">Explorer</a>
       <button id="themeBtn" onclick="LH.toggleTheme()" class="btn btn-ghost btn-icon"><i class="fas fa-sun"></i></button>
-      <a href="/dashboard" class="btn btn-primary btn-sm">Dashboard</a>
+      <a href="/login" class="btn btn-primary btn-sm">Dashboard</a>
     </div>
   </div>
 </nav>
