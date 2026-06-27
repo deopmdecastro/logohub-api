@@ -44,6 +44,11 @@ export const sidebar = (activeId: string, planName = 'Business', used = 248391, 
     </div>
     <a href="/dashboard/billing" class="mt-3 block text-center text-[11px] font-medium py-1.5 rounded-full btn-primary">Manage billing</a>
   </div>
+  <div class="mt-3 pt-3" style="border-top:1px solid var(--border)">
+    <a href="/dashboard/notifications" class="sidebar-item"><span class="ic" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-bell text-[10px]"></i></span>Notifications</a>
+    <a href="/dashboard/profile" class="sidebar-item"><span class="ic" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-user-circle text-[10px]"></i></span>My Profile</a>
+    <a href="#" class="sidebar-item" onclick="event.preventDefault();LH.logout()" style="color:#ff6b6b"><span class="ic" style="background:#ff6b6b22;color:#ff6b6b"><i class="fas fa-sign-out-alt text-[10px]"></i></span>Sign out</a>
+  </div>
 </aside>`;
 };
 
