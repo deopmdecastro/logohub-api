@@ -322,7 +322,7 @@ export const registerPage = () => `<!DOCTYPE html>
 
   ${COMMON_JS}
   <script>
-    function togglePassword(id: string) {
+    function togglePassword(id) {
       const el = document.getElementById(id);
       if (el) el.type = el.type === 'password' ? 'text' : 'password';
     }
