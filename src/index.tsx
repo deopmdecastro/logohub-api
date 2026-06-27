@@ -1,19 +1,45 @@
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/cloudflare-workers';
+import { swaggerUI } from '@hono/swagger-ui';
 import api from './routes/api';
 import admin from './routes/admin';
+import auth from './routes/auth';
+import apiKeys from './routes/keys';
+import playground from './routes/playground';
+import { openApiSpec } from './swagger';
 import { landingPage, explorerPage, docsPage, adminPage } from './pages/public';
 import { overviewPage, keysPage } from './pages/dashboard';
 import { contentPage } from './pages/content';
 import { settingsPage, teamPage, billingPage, analyticsPage, activityPage } from './pages/other';
+import { playgroundPage } from './pages/playground_page';
+import {
+  privacyPage, termsPage, cookiesPage,
+  aboutPage, contactPage, faqPage,
+  careersPage, blogPage,
+} from './pages/footer';
 
 const app = new Hono();
 
 // Static assets
 app.use('/static/*', serveStatic({ root: './' }));
 
-// Public API
+// =====================================================================
+// SWAGGER / OPENAPI
+// =====================================================================
+app.get('/api/openapi.json', (c) => c.json(openApiSpec));
+app.get('/api/docs', swaggerUI({ url: '/api/openapi.json' }));
+
+// =====================================================================
+// API ROUTES
+// =====================================================================
+// Public API v1
 app.route('/api/v1', api);
+// Auth (users, plans, admin users)
+app.route('/api/v1/auth', auth);
+// API Keys (with tags & files)
+app.route('/api/v1/keys', apiKeys);
+// Playground API
+app.route('/api/v1/playground', playground);
 // Admin / dashboard API
 app.route('/api/admin', admin);
 app.get('/api', (c) => c.redirect('/api/v1/stats'));
@@ -24,7 +50,24 @@ app.get('/api', (c) => c.redirect('/api/v1/stats'));
 app.get('/', (c) => c.html(landingPage()));
 app.get('/explorer', (c) => c.html(explorerPage()));
 app.get('/docs', (c) => c.html(docsPage()));
-app.get('/admin', (c) => c.html(adminPage())); // redirects to /dashboard
+app.get('/admin', (c) => c.html(adminPage()));
+
+// =====================================================================
+// PLAYGROUND (front-end)
+// =====================================================================
+app.get('/playground', (c) => c.html(playgroundPage()));
+
+// =====================================================================
+// FOOTER PAGES
+// =====================================================================
+app.get('/privacy', (c) => c.html(privacyPage()));
+app.get('/terms', (c) => c.html(termsPage()));
+app.get('/cookies', (c) => c.html(cookiesPage()));
+app.get('/about', (c) => c.html(aboutPage()));
+app.get('/contact', (c) => c.html(contactPage()));
+app.get('/faq', (c) => c.html(faqPage()));
+app.get('/careers', (c) => c.html(careersPage()));
+app.get('/blog', (c) => c.html(blogPage()));
 
 // =====================================================================
 // DASHBOARD
