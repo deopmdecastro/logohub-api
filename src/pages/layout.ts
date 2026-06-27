@@ -71,6 +71,9 @@ export const creatorSidebar = (activeId: string) => {
     { id: 'content', icon: 'fa-folder-open', label: 'My Content', href: '/dashboard/content', color: '#f5a623' },
     { id: 'earnings', icon: 'fa-dollar-sign', label: 'Earnings', href: '/dashboard/creator/earnings', color: '#4ade80' },
     { id: 'analytics', icon: 'fa-chart-bar', label: 'Analytics', href: '/dashboard/analytics', color: '#4ecdc4' },
+    { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
+    { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
+    { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
     { id: 'settings', icon: 'fa-cog', label: 'Settings', href: '/dashboard/settings', color: '#71717a' },
   ];
   return renderSidebar(activeId, 'Creator', items);
@@ -82,6 +85,8 @@ export const consumerSidebar = (activeId: string) => {
     { id: 'overview', icon: 'fa-chart-pie', label: 'Overview', href: '/dashboard/consumer', color: '#b8a9e8' },
     { id: 'keys', icon: 'fa-key', label: 'My Keys', href: '/dashboard/keys', color: '#f5a623' },
     { id: 'usage', icon: 'fa-bolt', label: 'Usage', href: '/dashboard/analytics', color: '#4ecdc4' },
+    { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
+    { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
     { id: 'settings', icon: 'fa-cog', label: 'Settings', href: '/dashboard/settings', color: '#71717a' },
   ];
   return renderSidebar(activeId, 'Consumer', items);

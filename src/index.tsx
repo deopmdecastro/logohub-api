@@ -79,6 +79,7 @@ app.get('/dashboard/analytics', (c) => c.html(analyticsPage()));
 app.get('/dashboard/activity', (c) => c.html(activityPage()));
 app.get('/dashboard/billing', (c) => c.html(billingPage()));
 app.get('/dashboard/team', (c) => c.html(teamPage()));
+app.get('/dashboard/profile', (c) => c.html(profilePage()));
 app.get('/dashboard/settings', (c) => c.html(settingsPage()));
 
 // Pricing → landing page anchor
