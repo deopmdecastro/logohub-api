@@ -98,10 +98,10 @@ async function loadProfile() {
 function renderProfile() {
   const u = PROFILE_USER;
   if (!u) return;
-  (document.getElementById('profileName') as HTMLElement).textContent = u.name || '—';
-  (document.getElementById('profileEmail') as HTMLElement).textContent = u.email || '—';
-  (document.getElementById('profileRole') as HTMLElement).textContent = u.role || 'consumer';
-  (document.getElementById('profilePlan') as HTMLElement).textContent = u.plan || 'free';
+  (document.getElementById('profileName')).textContent = u.name || '—';
+  (document.getElementById('profileEmail')).textContent = u.email || '—';
+  (document.getElementById('profileRole')).textContent = u.role || 'consumer';
+  (document.getElementById('profilePlan')).textContent = u.plan || 'free';
 
   const initials = (u.name || '?').split(' ').map((p: string) => p[0]).slice(0, 2).join('').toUpperCase();
   const initialsEl = document.getElementById('profileInitials');
@@ -114,20 +114,20 @@ function renderProfile() {
     }
   }
 
-  (document.getElementById('pfName') as HTMLInputElement).value = u.name || '';
-  (document.getElementById('pfEmail') as HTMLInputElement).value = u.email || '';
-  (document.getElementById('pfCompany') as HTMLInputElement).value = u.company || '';
-  (document.getElementById('pfWebsite') as HTMLInputElement).value = u.website || '';
-  (document.getElementById('pfBio') as HTMLTextAreaElement).value = u.bio || '';
+  (document.getElementById('pfName')).value = u.name || '';
+  (document.getElementById('pfEmail')).value = u.email || '';
+  (document.getElementById('pfCompany')).value = u.company || '';
+  (document.getElementById('pfWebsite')).value = u.website || '';
+  (document.getElementById('pfBio')).value = u.bio || '';
 }
 
 async function saveProfile() {
   const data: any = {
-    name: (document.getElementById('pfName') as HTMLInputElement).value,
-    email: (document.getElementById('pfEmail') as HTMLInputElement).value,
-    company: (document.getElementById('pfCompany') as HTMLInputElement).value,
-    website: (document.getElementById('pfWebsite') as HTMLInputElement).value,
-    bio: (document.getElementById('pfBio') as HTMLTextAreaElement).value,
+    name: (document.getElementById('pfName')).value,
+    email: (document.getElementById('pfEmail')).value,
+    company: (document.getElementById('pfCompany')).value,
+    website: (document.getElementById('pfWebsite')).value,
+    bio: (document.getElementById('pfBio')).value,
   };
   try {
     const token = localStorage.getItem('logohub_token');
@@ -145,9 +145,9 @@ async function saveProfile() {
 }
 
 async function changePassword() {
-  const current = (document.getElementById('pfCurrentPass') as HTMLInputElement).value;
-  const newPass = (document.getElementById('pfNewPass') as HTMLInputElement).value;
-  const confirm = (document.getElementById('pfConfirmPass') as HTMLInputElement).value;
+  const current = (document.getElementById('pfCurrentPass')).value;
+  const newPass = (document.getElementById('pfNewPass')).value;
+  const confirm = (document.getElementById('pfConfirmPass')).value;
   
   if (!current || !newPass) return LH.toast('error', 'All fields are required');
   if (newPass.length < 8) return LH.toast('error', 'Password must be at least 8 characters');
@@ -162,9 +162,9 @@ async function changePassword() {
     });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || 'Failed');
-    (document.getElementById('pfCurrentPass') as HTMLInputElement).value = '';
-    (document.getElementById('pfNewPass') as HTMLInputElement).value = '';
-    (document.getElementById('pfConfirmPass') as HTMLInputElement).value = '';
+    (document.getElementById('pfCurrentPass')).value = '';
+    (document.getElementById('pfNewPass')).value = '';
+    (document.getElementById('pfConfirmPass')).value = '';
     LH.toast('success', 'Password updated');
   } catch (e) { LH.toast('error', 'Password change failed', (e as Error).message); }
 }

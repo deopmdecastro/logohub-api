@@ -323,16 +323,16 @@ export const registerPage = () => `<!DOCTYPE html>
   ${COMMON_JS}
   <script>
     function togglePassword(id: string) {
-      const el = document.getElementById(id) as HTMLInputElement;
+      const el = document.getElementById(id);
       if (el) el.type = el.type === 'password' ? 'text' : 'password';
     }
     document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = document.getElementById('regBtn') as HTMLButtonElement;
-      const name = (document.getElementById('regName') as HTMLInputElement).value;
-      const email = (document.getElementById('regEmail') as HTMLInputElement).value;
-      const password = (document.getElementById('regPassword') as HTMLInputElement).value;
-      const role = (document.getElementById('regRole') as HTMLSelectElement).value;
+      const btn = document.getElementById('regBtn');
+      const name = (document.getElementById('regName')).value;
+      const email = (document.getElementById('regEmail')).value;
+      const password = (document.getElementById('regPassword')).value;
+      const role = (document.getElementById('regRole')).value;
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
       try {
