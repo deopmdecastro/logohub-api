@@ -1,8 +1,10 @@
 // Auth routes — user registration, login, profile management
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { sign, verify } from 'jsonwebtoken';
-import { hash, compare } from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+const { sign, verify } = jwt;
+import bcrypt from 'bcryptjs';
+const { hash, compare } = bcrypt;
 import { store } from '../data/store';
 import { userStore } from '../data/store';
 import { createNotification } from './notifications';
