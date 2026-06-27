@@ -56,7 +56,7 @@ ${html}
 
   // Generate a unique ID for this session
   const id = Math.random().toString(36).slice(2, 10);
-  const encodedPreview = Buffer.from(preview).toString('base64');
+  const encodedPreview = btoa(preview);
 
   return ok(c, {
     id,

@@ -1,65 +1,33 @@
 import { Hono } from 'hono';
-// serveStatic — works in Cloudflare Workers; no-op in Node dev
-let serveStatic: any = (options: any) => {
-  // Node.js dev: pass-through (static files not needed for dev)
-  return async (c: any, next: any) => {
-    await next();
-  };
-};
-
-// NOTE: Avoid top-level await (breaks Vite SSR build targets).
-// In environments where hono/cloudflare-workers is available, it can be enabled via bundler/worker builds.
-
-import { swaggerUI } from '@hono/swagger-ui';
+import { serveStatic } from 'hono/cloudflare-workers';
 import api from './routes/api';
 import admin from './routes/admin';
-import auth from './routes/auth';
-import apiKeys from './routes/keys';
 import playground from './routes/playground';
-import notificationsRoute from './routes/notifications';
-import { openApiSpec } from './swagger';
 import { landingPage, explorerPage, docsPage, adminPage } from './pages/public';
 import { overviewPage, keysPage } from './pages/dashboard';
 import { contentPage } from './pages/content';
-import { settingsPage, teamPage, billingPage, analyticsPage, activityPage, usersPage, creatorDashboardPage, consumerDashboardPage } from './pages/other';
-import { playgroundPage } from './pages/playground_page';
-import { notificationsPage } from './pages/notifications_page';
-import { loginPage, registerPage } from './pages/auth_pages';
+import { settingsPage, teamPage, billingPage, analyticsPage, activityPage, usersPage } from './pages/other';
 import { profilePage } from './pages/profile_page';
-import { adminUsersPage } from './pages/admin_users';
-import {
-  privacyPage, termsPage, cookiesPage,
-  aboutPage, contactPage, faqPage,
-  careersPage, blogPage,
-} from './pages/footer';
+import { notificationsPage } from './pages/notifications_page';
+import { playgroundPage } from './pages/playground_page';
+import { faqPage } from './pages/faq_page';
+import { blogListPage, blogPostPage } from './pages/blog_pages';
+import { blogAdminPage } from './pages/admin_blog';
+import { faqAdminPage } from './pages/admin_faq';
+import { supportAdminPage } from './pages/admin_support';
 
 const app = new Hono();
 
 // Static assets
-app.use('/static/*', serveStatic({ root: './public' }));
+app.use('/static/*', serveStatic({ root: './' }));
 
-// =====================================================================
-// SWAGGER / OPENAPI
-// =====================================================================
-app.get('/api/openapi.json', (c) => c.json(openApiSpec));
-app.get('/api/docs', swaggerUI({ url: '/api/openapi.json' }));
-
-// =====================================================================
-// API ROUTES
-// =====================================================================
+// Public API
 app.route('/api/v1', api);
-app.route('/api/v1/auth', auth);
-app.route('/api/v1/keys', apiKeys);
-app.route('/api/v1/playground', playground);
-app.route('/api/v1/notifications', notificationsRoute);
+// Admin / dashboard API
 app.route('/api/admin', admin);
+// Playground API
+app.route('/api/v1/playground', playground);
 app.get('/api', (c) => c.redirect('/api/v1/stats'));
-
-// =====================================================================
-// AUTH PAGES
-// =====================================================================
-app.get('/login', (c) => c.html(loginPage()));
-app.get('/register', (c) => c.html(registerPage()));
 
 // =====================================================================
 // PUBLIC SITE
@@ -67,24 +35,23 @@ app.get('/register', (c) => c.html(registerPage()));
 app.get('/', (c) => c.html(landingPage()));
 app.get('/explorer', (c) => c.html(explorerPage()));
 app.get('/docs', (c) => c.html(docsPage()));
-app.get('/admin', (c) => c.html(adminPage()));
+app.get('/admin', (c) => c.html(adminPage())); // redirects to /dashboard
 
-// =====================================================================
-// PLAYGROUND
-// =====================================================================
+// Playground
 app.get('/playground', (c) => c.html(playgroundPage()));
 
-// =====================================================================
-// FOOTER PAGES
-// =====================================================================
-app.get('/privacy', (c) => c.html(privacyPage()));
-app.get('/terms', (c) => c.html(termsPage()));
-app.get('/cookies', (c) => c.html(cookiesPage()));
-app.get('/about', (c) => c.html(aboutPage()));
-app.get('/contact', (c) => c.html(contactPage()));
+// Public Blog
+app.get('/blog', (c) => c.html(blogListPage()));
+app.get('/blog/:slug', (c) => c.html(blogPostPage()));
+
+// Public FAQ
 app.get('/faq', (c) => c.html(faqPage()));
-app.get('/careers', (c) => c.html(careersPage()));
-app.get('/blog', (c) => c.html(blogPage()));
+
+// Static pages (simple redirect/placeholders)
+app.get('/contact', (c) => c.html(landingPage()));
+app.get('/privacy', (c) => c.html('<!DOCTYPE html><html><head><title>Privacy — LogoHub</title><meta charset="UTF-8"></head><body style="font-family:sans-serif;max-width:700px;margin:4rem auto;padding:2rem;background:#0a0a0f;color:#ddd"><h1 style="color:#b8a9e8">Privacy Policy</h1><p>Last updated: June 2026</p><p>LogoHub does not share or sell your data.</p><a href="/" style="color:#b8a9e8">← Back</a></body></html>'));
+app.get('/terms', (c) => c.html('<!DOCTYPE html><html><head><title>Terms — LogoHub</title><meta charset="UTF-8"></head><body style="font-family:sans-serif;max-width:700px;margin:4rem auto;padding:2rem;background:#0a0a0f;color:#ddd"><h1 style="color:#b8a9e8">Terms of Service</h1><p>Last updated: June 2026</p><p>By using LogoHub API you agree to our terms.</p><a href="/" style="color:#b8a9e8">← Back</a></body></html>'));
+app.get('/about', (c) => c.redirect('/#features'));
 
 // =====================================================================
 // DASHBOARD
@@ -92,19 +59,19 @@ app.get('/blog', (c) => c.html(blogPage()));
 app.get('/dashboard', (c) => c.html(overviewPage()));
 app.get('/dashboard/keys', (c) => c.html(keysPage()));
 app.get('/dashboard/content', (c) => c.html(contentPage()));
+app.get('/dashboard/blog', (c) => c.html(blogAdminPage()));
+app.get('/dashboard/faq', (c) => c.html(faqAdminPage()));
+app.get('/dashboard/support', (c) => c.html(supportAdminPage()));
+app.get('/dashboard/admin/users', (c) => c.html(usersPage()));
 app.get('/dashboard/analytics', (c) => c.html(analyticsPage()));
 app.get('/dashboard/activity', (c) => c.html(activityPage()));
 app.get('/dashboard/billing', (c) => c.html(billingPage()));
-app.get('/dashboard/creator', (c) => c.html(creatorDashboardPage()));
-app.get('/dashboard/consumer', (c) => c.html(consumerDashboardPage()));
-app.get('/dashboard/users', (c) => c.html(usersPage()));
 app.get('/dashboard/team', (c) => c.html(teamPage()));
-app.get('/dashboard/notifications', (c) => c.html(notificationsPage()));
-app.get('/dashboard/admin/users', (c) => c.html(adminUsersPage()));
-app.get('/dashboard/profile', (c) => c.html(profilePage()));
 app.get('/dashboard/settings', (c) => c.html(settingsPage()));
+app.get('/dashboard/notifications', (c) => c.html(notificationsPage()));
+app.get('/dashboard/profile', (c) => c.html(profilePage()));
 
-// Pricing
+// Pricing → landing page anchor
 app.get('/pricing', (c) => c.redirect('/#pricing'));
 
 // 404

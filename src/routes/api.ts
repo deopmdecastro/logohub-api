@@ -268,6 +268,32 @@ api.get('/cloud', (c) => {
 });
 
 // ============================================================
+// LANDING PAGE ENDPOINT — single fetch for all landing data
+// ============================================================
+
+api.get('/landing', (c) => {
+  const totalAssets = logos.length + footballTeams.length + basketballTeams.length + formula1Teams.length + flags.length;
+  const topLogos = logos.slice(0, 20).map(l => ({
+    slug: l.slug, name: l.name, category: l.category,
+    primary_color: l.colors[0], verified: l.verified
+  }));
+  const stats = {
+    total_assets: totalAssets,
+    total_logos: logos.length,
+    total_sports: footballTeams.length + basketballTeams.length + formula1Teams.length,
+    total_flags: flags.length,
+    categories: categories.length,
+    api_version: 'v1',
+    uptime: '99.99%',
+    avg_response_ms: 18,
+    requests_today: 248_391,
+    countries: [...new Set([...logos.map(l => l.country), ...flags.map(f => f.code)])].filter(Boolean).length,
+    formats: 6,
+  };
+  return c.json({ data: { stats, topLogos, categories }, meta: { version: 'v1', timestamp: new Date().toISOString() } });
+});
+
+// ============================================================
 // STATS ENDPOINT
 // ============================================================
 
