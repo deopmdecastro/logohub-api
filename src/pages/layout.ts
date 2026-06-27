@@ -53,13 +53,66 @@ export const topbar = (title: string, subtitle = '') => `
     <button onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full')" class="lg:hidden btn btn-ghost btn-icon"><i class="fas fa-bars"></i></button>
     <div class="min-w-0">
       <h1 class="text-base font-bold truncate tracking-tight" style="color:var(--text)">${title}</h1>
-      ${subtitle ? `<p class="text-[11px] truncate" style="color:var(--text-mute)">${subtitle}</p>` : ''}
+      ${subtitle ? '<p class="text-[11px] truncate" style="color:var(--text-mute)">' + subtitle + '</p>' : ''}
     </div>
   </div>
   <div class="flex items-center gap-1.5">
+    <!-- Theme toggle -->
     <button id="themeBtn" onclick="LH.toggleTheme()" class="btn btn-ghost btn-icon" title="Toggle theme"><i class="fas fa-sun"></i></button>
-    <button class="btn btn-ghost btn-icon relative" title="Notifications"><i class="fas fa-bell"></i><span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full" style="background:#f5a623"></span></button>
-    <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs cursor-pointer" style="background: linear-gradient(135deg,#b8a9e8,#f5a623); color:#1a1a1a;">A</div>
+
+    <!-- Notification bell -->
+    <a href="/dashboard/notifications" class="btn btn-ghost btn-icon relative" title="Notifications" style="text-decoration:none">
+      <i class="fas fa-bell text-[16px]" style="color:var(--text-soft)"></i>
+      <span id="notifBadge" class="absolute top-1.5 right-1.5 min-w-[16px] h-4 flex items-center justify-center rounded-full text-[9px] font-bold px-1" style="background:#ff6b6b;color:#fff;display:none">0</span>
+    </a>
+
+    <!-- Avatar + dropdown -->
+    <div class="relative" id="avatarDropdown">
+      <button onclick="LH.toggleUserMenu()" class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs cursor-pointer border-2 transition-all hover:scale-105" style="background:linear-gradient(135deg,#b8a9e8,#f5a623);color:#1a1a1a;border-color:rgba(255,255,255,.1)" id="avatarBtn">
+        <span id="avatarInitials">A</span>
+      </button>
+      <!-- Dropdown menu -->
+      <div id="userMenu" class="absolute right-0 top-full mt-2 w-64 card p-2 shadow-xl z-50" style="display:none;animation:fadeIn .15s ease-out">
+        <!-- User info -->
+        <div class="flex items-center gap-3 p-3 rounded-xl mb-1" style="background:var(--panel-2)">
+          <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0" style="background:linear-gradient(135deg,#b8a9e8,#f5a623);color:#1a1a1a">
+            <span id="menuInitials">A</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold truncate" style="color:var(--text)" id="menuName">Loading...</p>
+            <p class="text-[11px] truncate" style="color:var(--text-mute)" id="menuEmail">—</p>
+          </div>
+        </div>
+        <!-- Plan badge -->
+        <div class="px-3 pb-1">
+          <span class="pill pill-lilac" id="menuRole">—</span>
+          <span class="pill pill-teal ml-1" id="menuPlan">—</span>
+        </div>
+        <hr style="border-color:var(--border);margin:.5rem 0">
+        <!-- Menu items -->
+        <a href="/dashboard/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all hover:bg-[var(--panel-2)]" style="color:var(--text-soft);text-decoration:none">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-user-circle text-[13px]"></i></div>
+          <span>My Profile</span>
+        </a>
+        <a href="/dashboard/settings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all hover:bg-[var(--panel-2)]" style="color:var(--text-soft);text-decoration:none">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#f5a62322;color:#f5a623"><i class="fas fa-cog text-[13px]"></i></div>
+          <span>Settings</span>
+        </a>
+        <a href="/dashboard/notifications" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all hover:bg-[var(--panel-2)]" style="color:var(--text-soft);text-decoration:none">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-bell text-[13px]"></i></div>
+          <span>Notifications</span>
+        </a>
+        <a href="/dashboard/billing" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all hover:bg-[var(--panel-2)]" style="color:var(--text-soft);text-decoration:none">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#4ade8022;color:#4ade80"><i class="fas fa-file-invoice-dollar text-[13px]"></i></div>
+          <span>Billing</span>
+        </a>
+        <hr style="border-color:var(--border);margin:.5rem 0">
+        <a href="/api/v1/auth/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all hover:bg-[var(--panel-2)]" style="color:#ff6b6b;text-decoration:none" onclick="event.preventDefault();LH.logout()">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#ff6b6b22;color:#ff6b6b"><i class="fas fa-sign-out-alt text-[13px]"></i></div>
+          <span>Sign out</span>
+        </a>
+      </div>
+    </div>
   </div>
 </header>`;
 

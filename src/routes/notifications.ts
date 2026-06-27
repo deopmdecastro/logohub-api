@@ -164,6 +164,15 @@ notificationsRoute.patch('/:id/read', (c) => {
   return ok(c, n);
 });
 
+// GET /api/v1/notifications/unread-count — get unread count
+notificationsRoute.get('/unread-count', (c) => {
+  const role = c.req.query('role');
+  let list = notifications;
+  if (role) list = list.filter(n => n.role === role);
+  const unread = list.filter(n => !n.read).length;
+  return ok(c, { unread, total: list.length });
+});
+
 // PATCH /api/v1/notifications/read-all — mark all as read
 notificationsRoute.patch('/read-all', (c) => {
   const userId = c.req.query('user_id');

@@ -254,5 +254,90 @@ LH.extractPalette = (file) => new Promise((res) => {
 });
 LH.fileToDataUrl = (f) => new Promise((res,rej) => { const r = new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(f); });
 LH.slugify = (s) => String(s||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
+LH.authHeader = () => {
+  var t = localStorage.getItem('logohub_token');
+  return t ? { 'Authorization': 'Bearer ' + t } : {};
+};
+
+LH.loadUser = async () => {
+  try {
+    var r = await fetch('/api/v1/auth/me', { headers: LH.authHeader() });
+    if (!r.ok) return null;
+    var data = await r.json();
+    var u = data.data || {};
+    window.__USER = u;
+    // Update avatar
+    var initials = (u.name || '?').split(' ').map(function(p){return (p||'')[0];}).slice(0,2).join('').toUpperCase();
+    var el = document.getElementById('avatarInitials');
+    if (el) el.textContent = initials;
+    var mel = document.getElementById('menuInitials');
+    if (mel) mel.textContent = initials;
+    var mn = document.getElementById('menuName');
+    if (mn) mn.textContent = u.name || 'User';
+    var me = document.getElementById('menuEmail');
+    if (me) me.textContent = u.email || '';
+    var mr = document.getElementById('menuRole');
+    if (mr) { mr.textContent = u.role || '—'; mr.className = 'pill ' + ((u.role==='admin')?'pill-lilac':(u.role==='creator')?'pill-amber':'pill-teal'); }
+    var mp = document.getElementById('menuPlan');
+    if (mp) { mp.textContent = u.plan || '—'; mp.className = 'pill ' + ((u.plan==='business')?'pill-lilac':(u.plan==='pro')?'pill-teal':(u.plan==='enterprise')?'pill-amber':'pill-neutral'); }
+    return u;
+  } catch(e) { return null; }
+};
+
+LH.toggleUserMenu = function() {
+  var m = document.getElementById('userMenu');
+  if (!m) return;
+  var isOpen = m.style.display === 'block';
+  m.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    LH.loadUser();
+    // Close on outside click
+    setTimeout(function() {
+      document.addEventListener('click', function closeMenu(e) {
+        var dd = document.getElementById('avatarDropdown');
+        if (dd && !dd.contains(e.target)) {
+          m.style.display = 'none';
+          document.removeEventListener('click', closeMenu);
+        }
+      });
+    }, 50);
+  }
+};
+
+LH.logout = function() {
+  localStorage.removeItem('logohub_token');
+  fetch('/api/v1/auth/logout', { method: 'POST', headers: LH.authHeader() }).catch(function(){});
+  window.location.href = '/login';
+};
+
+LH.loadNotifUnread = async function() {
+  try {
+    var r = await fetch('/api/v1/notifications/unread-count', { headers: LH.authHeader() });
+    var data = await r.json();
+    var count = (data.data && data.data.unread) || 0;
+    var badge = document.getElementById('notifBadge');
+    if (badge) {
+      if (count > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = count > 99 ? '99+' : count;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    window.NOTIF_UNREAD = count;
+    return count;
+  } catch(e) { return 0; }
+};
+
+// On page load — fetch unread count + user
+(function() {
+  LH.loadNotifUnread();
+  // Only load user if we have a token (not on login/register pages)
+  if (localStorage.getItem('logohub_token')) {
+    LH.loadUser();
+  }
+})();
+
 </script>
 `;
