@@ -276,6 +276,206 @@ function editUser(id) {
 load();
 </script>
 `)}`;
+
+// ============================================================
+// /dashboard/creator  — Creator Dashboard
+// ============================================================
+export const creatorDashboardPage = () => `${HEAD('Creator Dashboard — LogoHub', COMMON_JS)}
+${shellWrap(creatorSidebar('overview'), `
+${topbar('Creator Dashboard', 'Your earnings, content, and analytics')}
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
+  
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card p-5 card-hover">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#f5a62322;color:#f5a623"><i class="fas fa-dollar-sign text-[12px]"></i></div>
+      <div class="text-2xl font-bold" style="color:var(--text)">$1,247.50</div>
+      <p class="text-[11px]" style="color:var(--text-mute)">Total earnings</p>
+      <p class="text-[10px] mt-1" style="color:#4ade80"><i class="fas fa-arrow-up text-[8px]"></i> +18.3% this month</p>
+    </div>
+    <div class="card p-5 card-hover">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-image text-[12px]"></i></div>
+      <div class="text-2xl font-bold" style="color:var(--text)">34</div>
+      <p class="text-[11px]" style="color:var(--text-mute)">Published assets</p>
+      <p class="text-[10px] mt-1" style="color:var(--text-soft)">5 pending review</p>
+    </div>
+    <div class="card p-5 card-hover">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-download text-[12px]"></i></div>
+      <div class="text-2xl font-bold" style="color:var(--text)">89.4K</div>
+      <p class="text-[11px]" style="color:var(--text-mute)">Downloads (30d)</p>
+      <p class="text-[10px] mt-1" style="color:#4ade80"><i class="fas fa-arrow-up text-[8px]"></i> +24.1%</p>
+    </div>
+    <div class="card p-5 card-hover">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#4ade8022;color:#4ade80"><i class="fas fa-star text-[12px]"></i></div>
+      <div class="text-2xl font-bold" style="color:var(--text)">4.8</div>
+      <p class="text-[11px]" style="color:var(--text-mute)">Avg rating</p>
+      <p class="text-[10px] mt-1" style="color:var(--text-soft)">From 312 reviews</p>
+    </div>
+  </div>
+
+  <!-- My Content -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-semibold flex items-center gap-2" style="color:var(--text)">
+        <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-folder-open text-[11px]"></i></span>My Content
+      </h3>
+      <button class="btn btn-primary btn-sm" onclick="window.location.href='/dashboard/content'"><i class="fas fa-plus"></i> Upload new</button>
+    </div>
+    <div class="space-y-3">
+      ${[
+        { name:'Modern Dashboard UI Kit', downloads:12483, earnings:412.00, status:'published', color:'#4ade80' },
+        { name:'Minimalist Logo Pack', downloads:8921, earnings:315.50, status:'published', color:'#4ade80' },
+        { name:'SaaS Landing Page Icons', downloads:6742, earnings:220.00, status:'review', color:'#f5a623' },
+        { name:'Premium Sport Icons v2', downloads:5341, earnings:185.00, status:'published', color:'#4ade80' },
+        { name:'Dark Mode UI Assets', downloads:4231, earnings:115.00, status:'draft', color:'#71717a' },
+      ].map(item => `
+        <div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--panel-2)">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,#b8a9e8,#f5a623);color:#1a1a1a">${item.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold truncate" style="color:var(--text)">${item.name}</p>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span class="text-[10px]" style="color:var(--text-mute)">${LH.fmt(item.downloads)} downloads</span>
+              <span class="text-[10px]" style="color:#f5a623">$${item.earnings.toFixed(2)} earned</span>
+            </div>
+          </div>
+          <span class="pill" style="background:${item.color}22;color:${item.color};border-color:${item.color}55">${item.status}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Earnings Chart -->
+  <div class="card p-6">
+    <h3 class="text-sm font-semibold mb-4 flex items-center gap-2" style="color:var(--text)">
+      <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#f5a62322;color:#f5a623"><i class="fas fa-chart-line text-[11px]"></i></span>Earnings · Last 6 months
+    </h3>
+    <canvas id="earningsChart" height="100"></canvas>
+  </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+new Chart(document.getElementById('earningsChart'),{
+  type:'bar',
+  data:{
+    labels:['Jan','Feb','Mar','Apr','May','Jun'],
+    datasets:[{
+      label:'Earnings (USD)',
+      data:[180,245,310,198,412,247],
+      backgroundColor:'rgba(245,166,35,.3)',
+      borderColor:'#f5a623',
+      borderWidth:2,
+      borderRadius:8
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{labels:{color:'#a1a1aa',font:{size:11}}}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#71717a',font:{size:11}}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#71717a',font:{size:11},callback:v=>'$'+v}}
+    }
+  }
+});
+</script>
+`)}`;
+
+// ============================================================
+// /dashboard/consumer  — Consumer Dashboard
+// ============================================================
+export const consumerDashboardPage = () => `${HEAD('Consumer Dashboard — LogoHub', COMMON_JS)}
+${shellWrap(consumerSidebar('overview'), `
+${topbar('Consumer Dashboard', 'Your usage, API keys, and plan')}
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
+
+  <!-- Plan Status -->
+  <div class="card p-5" style="border-color:#b8a9e8;background:linear-gradient(135deg,rgba(184,169,232,.08),transparent)">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="pill pill-lilac">Free Plan</span>
+          <span class="text-[11px]" style="color:var(--text-soft)">1,000 requests/day</span>
+        </div>
+        <p class="text-sm" style="color:var(--text-mute)">You've used <strong style="color:var(--text)">247</strong> of 1,000 requests today</p>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="window.location.href='/#pricing'"><i class="fas fa-arrow-up"></i> Upgrade plan</button>
+    </div>
+    <div class="h-2 rounded-full overflow-hidden mt-3" style="background:var(--border)">
+      <div class="h-full rounded-full transition-all duration-500" style="width:24.7%;background:#b8a9e8"></div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card p-5 card-hover">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-bolt text-[12px]"></i></div>
+      <div class="text-2xl font-bold" style="color:var(--text)">247</div>
+      <p class="text-[11px]" style="color:var(--text-mute)">Requests today</p>
+    </div>
+    <div class="card p-5 card-hover">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-key text-[12px]"></i></div>
+      <div class="text-2xl font-bold" style="color:var(--text)">1</div>
+      <p class="text-[11px]" style="color:var(--text-mute)">Active API keys</p>
+    </div>
+    <div class="card p-5 card-hover">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#f5a62322;color:#f5a623"><i class="fas fa-download text-[12px]"></i></div>
+      <div class="text-2xl font-bold" style="color:var(--text)">8.2K</div>
+      <p class="text-[11px]" style="color:var(--text-mute)">Downloads (30d)</p>
+    </div>
+    <div class="card p-5 card-hover">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#4ade8022;color:#4ade80"><i class="fas fa-check-circle text-[12px]"></i></div>
+      <div class="text-2xl font-bold" style="color:var(--text)">99.8%</div>
+      <p class="text-[11px]" style="color:var(--text-mute)">Success rate</p>
+    </div>
+  </div>
+
+  <!-- My API Keys -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-semibold flex items-center gap-2" style="color:var(--text)">
+        <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#f5a62322;color:#f5a623"><i class="fas fa-key text-[11px]"></i></span>My API Keys
+      </h3>
+      <button class="btn btn-primary btn-sm" onclick="LH.toast('info','Upgrade to Pro','Create unlimited keys with the Pro plan')"><i class="fas fa-plus"></i> New Key</button>
+    </div>
+    <div class="space-y-3">
+      <div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--panel-2)">
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-key text-[12px]"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold" style="color:var(--text)">Default Key</p>
+          <code class="text-[11px] font-mono truncate block" style="color:var(--text-soft)">lh_test_sk_xxxx...</code>
+        </div>
+        <span class="pill pill-green">Active</span>
+        <span class="text-[11px] hidden sm:inline" style="color:var(--text-mute)">247 reqs</span>
+        <div class="flex items-center gap-1">
+          <button class="btn btn-ghost btn-icon-sm" title="Copy" onclick="LH.copy('lh_test_sk_example_key')"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Downloads -->
+  <div class="card p-6">
+    <h3 class="text-sm font-semibold mb-4 flex items-center gap-2" style="color:var(--text)">
+      <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-history text-[11px]"></i></span>Recent downloads
+    </h3>
+    <div class="space-y-2">
+      ${[
+        { asset:'google-logo', type:'SVG', time:'2 min ago' },
+        { asset:'spotify-icon', type:'PNG', size:'128x128', time:'15 min ago' },
+        { asset:'apple-logo', type:'WebP', size:'256x256', time:'1 hour ago' },
+        { asset:'react-framework', type:'SVG', time:'2 hours ago' },
+        { asset:'portugal-flag', type:'PNG', time:'3 hours ago' },
+      ].map(d => `
+        <div class="flex items-center gap-3 py-2">
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:var(--panel-2)"><i class="fas fa-arrow-down text-[10px]" style="color:var(--text-soft)"></i></div>
+          <code class="text-xs font-mono flex-1" style="color:var(--text)">${d.asset}</code>
+          <span class="text-[10px]" style="color:var(--text-mute)">${d.type}${d.size?' · '+d.size:''}</span>
+          <span class="text-[10px]" style="color:var(--text-mute)">${d.time}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+
+</div>
+`)}`;
 export const billingPage = () => `${HEAD('Billing — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('billing'), `
 ${topbar('Billing', 'Manage your plan and payment method')}

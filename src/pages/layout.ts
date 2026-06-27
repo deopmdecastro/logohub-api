@@ -63,6 +63,52 @@ export const topbar = (title: string, subtitle = '') => `
   </div>
 </header>`;
 
+
+// Creator-specific sidebar
+export const creatorSidebar = (activeId: string) => {
+  const items = [
+    { id: 'overview', icon: 'fa-chart-pie', label: 'Overview', href: '/dashboard/creator', color: '#b8a9e8' },
+    { id: 'content', icon: 'fa-folder-open', label: 'My Content', href: '/dashboard/content', color: '#f5a623' },
+    { id: 'earnings', icon: 'fa-dollar-sign', label: 'Earnings', href: '/dashboard/creator/earnings', color: '#4ade80' },
+    { id: 'analytics', icon: 'fa-chart-bar', label: 'Analytics', href: '/dashboard/analytics', color: '#4ecdc4' },
+    { id: 'settings', icon: 'fa-cog', label: 'Settings', href: '/dashboard/settings', color: '#71717a' },
+  ];
+  return renderSidebar(activeId, 'Creator', items);
+};
+
+// Consumer-specific sidebar
+export const consumerSidebar = (activeId: string) => {
+  const items = [
+    { id: 'overview', icon: 'fa-chart-pie', label: 'Overview', href: '/dashboard/consumer', color: '#b8a9e8' },
+    { id: 'keys', icon: 'fa-key', label: 'My Keys', href: '/dashboard/keys', color: '#f5a623' },
+    { id: 'usage', icon: 'fa-bolt', label: 'Usage', href: '/dashboard/analytics', color: '#4ecdc4' },
+    { id: 'settings', icon: 'fa-cog', label: 'Settings', href: '/dashboard/settings', color: '#71717a' },
+  ];
+  return renderSidebar(activeId, 'Consumer', items);
+};
+
+// Reusable sidebar renderer
+function renderSidebar(activeId: string, roleLabel: string, items: {id:string,icon:string,label:string,href:string,color:string}[]) {
+  const navHtml = items.map(n => `
+    <a href="\${n.href}" class="sidebar-item \${activeId === n.id ? 'active' : ''}">
+      <div class="ic" style="background:\${n.color}22;color:\${n.color}"><i class="fas \${n.icon} text-[10px]"></i></div>
+      \${n.label}
+    </a>`).join('');
+  return `<aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-64 p-5 flex flex-col z-50 transition-transform duration-200 -translate-x-full lg:translate-x-0" style="background: var(--surface); border-right:1px solid var(--border)">
+    <div class="mb-6">
+      <a href="/" class="flex items-center gap-2 font-bold text-lg mb-1" style="color:var(--text)">
+        <span class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black" style="background:var(--lilac);color:#1a1a1a">L</span>LogoHub
+      </a>
+      <span class="pill pill-lilac" style="font-size:.6rem">\${roleLabel}</span>
+    </div>
+    <nav class="flex-1 space-y-1">\${navHtml}</nav>
+    <div class="pt-4" style="border-top:1px solid var(--border)">
+      <a href="/" class="sidebar-item"><div class="ic" style="background:#71717a22;color:#71717a"><i class="fas fa-home text-[10px]"></i></div>Back to site</a>
+      <a href="/api/v1/auth/logout" class="sidebar-item"><div class="ic" style="background:#ff6b6b22;color:#ff6b6b"><i class="fas fa-sign-out-alt text-[10px]"></i></div>Sign out</a>
+    </div>
+  </aside>`;
+}
+
 export const shellWrap = (sidebarHtml: string, mainHtml: string) => `
 <body class="font-sans">
 <div class="flex min-h-screen">

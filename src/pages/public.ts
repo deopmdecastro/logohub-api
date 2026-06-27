@@ -221,11 +221,11 @@ export const landingPage = () => {
         </div>
         <p class="text-sm leading-relaxed mb-4" style="color:var(--text-soft)">The world's most comprehensive visual identity API. 50K+ assets. Global CDN.</p>
       </div>
-      ${[['Product',['API Reference','SDKs','Status','Changelog','Roadmap']],['Resources',['Documentation','Blog','Examples','OpenAPI','Postman']],['Company',['About','Pricing','Contact','Privacy','Terms']]].map(([title, links]) => `
+      ${[['Product',[['API Reference','/docs'],['SDKs','/docs#sdks'],['Playground','/playground'],['Explorer','/explorer'],['Dashboard','/dashboard']]],['Resources',[['Documentation','/docs'],['Blog','/blog'],['FAQ','/faq'],['API Status','/api/v1/health'],['OpenAPI Spec','/api/openapi.json']]],['Company',[['About','/about'],['Pricing','/#pricing'],['Contact','/contact'],['Privacy','/privacy'],['Terms','/terms']]]].map(([title, links]) => `
       <div>
         <h4 class="font-semibold text-sm mb-4" style="color:var(--text)">${title}</h4>
         <ul class="space-y-2">
-          ${(links as string[]).map(l => `<li><a href="#" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">${l}</a></li>`).join('')}
+          ${(links as [string,string][]).map(([label,url]) => `<li><a href="${url}" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">${label}</a></li>`).join('')}
         </ul>
       </div>`).join('')}
     </div>
