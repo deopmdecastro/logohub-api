@@ -46,7 +46,24 @@ function renderGeneral() {
 }
 function renderBrand() {
   document.getElementById('panel-brand').innerHTML = '<div class="card p-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2" style="color:var(--text)"><i class="fas fa-palette text-[#4ecdc4]"></i>Brand colors</h3>'+
-    '<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">'+ group('brand').map(s => '<div class="card p-4"><p class="text-[11px] font-semibold uppercase tracking-wide mb-2" style="color:var(--text-mute)">'+s.label+'</p><div class="color-input"><input type="color" value="'+s.value+'" onchange="saveSetting(\\'__K__\\', this.value)"><code class="text-xs" style="color:var(--text)">'+s.value+'</code></div></div>'.replaceAll('__K__', s.key)).join('') +'</div></div>';
+    '<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">'+ group('brand').map(s => '<div class="card p-4"><p class="text-[11px] font-semibold uppercase tracking-wide mb-2" style="color:var(--text-mute)">'+s.label+'</p><div class="color-input"><input type="color" value="'+s.value+'" onchange="saveSetting(\\'__K__\\', this.value)"><code class="text-xs" style="color:var(--text)">'+s.value+'</code></div></div>'.replaceAll('__K__', s.key)).join('') +'</div>'+
+    '<div style="border-top:1px solid var(--border);margin-top:1rem;padding-top:1rem">'+
+      '<p class="text-[11px] font-semibold uppercase tracking-wide mb-3" style="color:var(--text-mute)">Logo & Favicon</p>'+
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">'+
+        '<div class="card p-4"><p class="text-[10px] font-semibold mb-2" style="color:var(--text-mute)">LOGO</p>'+
+          '<div style="display:flex;align-items:center;gap:1rem">'+
+            '<div id="logoPreview" style="width:64px;height:64px;border-radius:16px;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#1a1a1a;overflow:hidden">L</div>'+
+            '<div><label class="btn btn-ghost btn-sm" style="cursor:pointer"><i class="fas fa-upload text-[10px] mr-1"></i> Upload logo<input type="file" class="hidden" accept="image/*" onchange="handleLogoUpload(this)"></label><p class="text-[9px] mt-1" style="color:var(--text-mute)">Recommended: SVG or PNG, 128x128px</p></div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="card p-4"><p class="text-[10px] font-semibold mb-2" style="color:var(--text-mute)">FAVICON</p>'+
+          '<div style="display:flex;align-items:center;gap:1rem">'+
+            '<div id="faviconPreview" style="width:32px;height:32px;border-radius:8px;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:#1a1a1a;overflow:hidden">L</div>'+
+            '<div><label class="btn btn-ghost btn-sm" style="cursor:pointer"><i class="fas fa-upload text-[10px] mr-1"></i> Upload favicon<input type="file" class="hidden" accept="image/*,.ico" onchange="handleFaviconUpload(this)"></label><p class="text-[9px] mt-1" style="color:var(--text-mute)">Recommended: ICO or PNG, 32x32px</p></div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div></div>';
 }
 function renderStats() {
   document.getElementById('panel-stats').innerHTML = '<div class="card p-6"><h3 class="text-sm font-semibold mb-2 flex items-center gap-2" style="color:var(--text)"><i class="fas fa-chart-bar text-[#4ade80]"></i>Editable statistics</h3><p class="text-[11px] mb-3" style="color:var(--text-mute)">Override the metrics shown on the dashboard.</p>'+ group('stats').map(settingRow).join('') +'</div>';
@@ -125,6 +142,37 @@ document.querySelectorAll('#settingsTabs .tab-pill').forEach(b => b.onclick = ()
 });
 
 load();
+
+function handleLogoUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('logoPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_logo_url', e.target.result);
+    LH.toast('success', 'Logo updated');
+  };
+  reader.readAsDataURL(file);
+}
+function handleFaviconUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('faviconPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_favicon_url', e.target.result);
+    LH.toast('success', 'Favicon updated');
+  };
+  reader.readAsDataURL(file);
+}
 </script>
 `)}
 `;
@@ -195,6 +243,37 @@ async function delMember(id) {
   await LH.api('/api/admin/team/'+id, { method:'DELETE' }); LH.toast('success','Removed'); load();
 }
 load();
+
+function handleLogoUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('logoPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_logo_url', e.target.result);
+    LH.toast('success', 'Logo updated');
+  };
+  reader.readAsDataURL(file);
+}
+function handleFaviconUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('faviconPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_favicon_url', e.target.result);
+    LH.toast('success', 'Favicon updated');
+  };
+  reader.readAsDataURL(file);
+}
 </script>
 `)}
 `;
@@ -259,6 +338,16 @@ function editUser(id) {
   const u = USERS.find(x=>x.id===id); if(!u)return;
   const html = '<div class="modal-box" style="max-width:480px"><div class="modal-head"><div style="display:flex;align-items:center;gap:.7rem;"><div style="width:36px;height:36px;border-radius:12px;background:#ff6b6b22;color:#ff6b6b;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user-edit"></i></div><div><h2 class="text-base font-bold" style="color:var(--text)">Edit User</h2><p class="text-[11px]" style="color:var(--text-mute)">'+esc(u.name)+'</p></div></div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>'+
     '<form id="uf" class="modal-body space-y-4">'+
+      '<div style="display:flex;align-items:center;gap:1rem;margin-bottom:.5rem">'+
+        '<div style="position:relative;cursor:pointer" onclick="document.getElementById(\\'avatarUpload_'+u.id+'\\').click()">'+
+          '<div id="userAvatar_'+u.id+'" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#b8a9e8,#f5a623);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#1a1a1a;overflow:hidden">'+
+            (u.avatar_url ? '<img src="'+u.avatar_url+'" style="width:100%;height:100%;object-fit:cover">' : '<span>'+esc(u.name).split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase()+'</span>')+
+          '</div>'+
+          '<div style="position:absolute;bottom:0;right:0;width:18px;height:18px;border-radius:50%;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:8px;color:#1a1a1a"><i class="fas fa-camera"></i></div>'+
+        '</div>'+
+        '<div><p class="text-sm font-semibold" style="color:var(--text)">Profile photo</p><p class="text-[10px]" style="color:var(--text-mute)">Click to upload</p></div>'+
+        '<input type="file" id="avatarUpload_'+u.id+'" accept="image/*" class="hidden">'+
+      '</div>'+
       '<div><label class="field-label">Name</label><input class="input" name="name" value="'+esc(u.name)+'"></div>'+
       '<div class="grid grid-cols-2 gap-4"><div><label class="field-label">Role</label><select class="select" name="role">'+['admin','creator','consumer'].map(r=>'<option value="'+r+'" '+(u.role===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div>'+
       '<div><label class="field-label">Plan</label><select class="select" name="plan">'+['free','pro','business','enterprise'].map(r=>'<option value="'+r+'" '+(u.plan===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div></div>'+
@@ -274,6 +363,37 @@ function editUser(id) {
   };
 }
 load();
+
+function handleLogoUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('logoPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_logo_url', e.target.result);
+    LH.toast('success', 'Logo updated');
+  };
+  reader.readAsDataURL(file);
+}
+function handleFaviconUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('faviconPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_favicon_url', e.target.result);
+    LH.toast('success', 'Favicon updated');
+  };
+  reader.readAsDataURL(file);
+}
 </script>
 `)}`;
 
@@ -282,7 +402,20 @@ load();
 // ============================================================
 export const creatorDashboardPage = () => `${HEAD('Creator Dashboard — LogoHub', COMMON_JS)}
 ${shellWrap(creatorSidebar('overview'), `
-${topbar('Creator Dashboard', 'Your earnings, content, and analytics')}
+${topbar('Creator Dashboard', '')}
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+    <div style="position:relative;cursor:pointer" onclick="document.getElementById('profilePhotoInput').click()">
+      <div id="creatorAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#b8a9e8,#f5a623);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#1a1a1a;overflow:hidden">
+        <span id="creatorInitials">DC</span>
+      </div>
+      <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:10px;color:#1a1a1a"><i class="fas fa-camera"></i></div>
+    </div>
+    <div>
+      <h2 class="text-lg font-bold" style="color:var(--text)">Your Creator Dashboard</h2>
+      <p class="text-sm" style="color:var(--text-soft)">Earnings, content & analytics</p>
+    </div>
+    <input type="file" id="profilePhotoInput" accept="image/*" class="hidden" onchange="handleProfilePhoto(this)">
+  </div>
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
   
   <!-- Stats Cards -->
@@ -377,6 +510,26 @@ new Chart(document.getElementById('earningsChart'),{
   }
 });
 </script>
+<script>
+function handleProfilePhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover';
+    const avatar = document.getElementById('creatorAvatar');
+    const initials = document.getElementById('creatorInitials');
+    if (initials) initials.style.display = 'none';
+    avatar.appendChild(img);
+    // Save to backend
+    LH.api('/api/v1/auth/me', { method:'PATCH', body: JSON.stringify({ avatar_url: e.target.result }) })
+      .then(() => LH.toast('success', 'Profile photo updated'))
+      .catch(e => LH.toast('error', 'Failed to save photo', e.message));
+  };
+  reader.readAsDataURL(file);
+}
+</script>
 `)}`;
 
 // ============================================================
@@ -384,7 +537,20 @@ new Chart(document.getElementById('earningsChart'),{
 // ============================================================
 export const consumerDashboardPage = () => `${HEAD('Consumer Dashboard — LogoHub', COMMON_JS)}
 ${shellWrap(consumerSidebar('overview'), `
-${topbar('Consumer Dashboard', 'Your usage, API keys, and plan')}
+${topbar('Consumer Dashboard', '')}
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+    <div style="position:relative;cursor:pointer" onclick="document.getElementById('profilePhotoInputCons').click()">
+      <div id="consumerAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4ecdc4,#b8a9e8);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#1a1a1a;overflow:hidden">
+        <span id="consumerInitials">JD</span>
+      </div>
+      <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:10px;color:#1a1a1a"><i class="fas fa-camera"></i></div>
+    </div>
+    <div>
+      <h2 class="text-lg font-bold" style="color:var(--text)">Your Consumer Dashboard</h2>
+      <p class="text-sm" style="color:var(--text-soft)">Usage, API keys & plan</p>
+    </div>
+    <input type="file" id="profilePhotoInputCons" accept="image/*" class="hidden" onchange="handleProfilePhotoCons(this)">
+  </div>
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
 
   <!-- Plan Status -->
@@ -530,6 +696,37 @@ async function switchPlan(name, price, quota) {
   } catch (e) { LH.toast('error','Switch failed', e.message); }
 }
 load();
+
+function handleLogoUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('logoPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_logo_url', e.target.result);
+    LH.toast('success', 'Logo updated');
+  };
+  reader.readAsDataURL(file);
+}
+function handleFaviconUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('faviconPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_favicon_url', e.target.result);
+    LH.toast('success', 'Favicon updated');
+  };
+  reader.readAsDataURL(file);
+}
 </script>
 `)}
 `;
@@ -601,6 +798,37 @@ async function load() {
   } catch (e) { LH.toast('error','Load failed', e.message); }
 }
 load();
+
+function handleLogoUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('logoPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_logo_url', e.target.result);
+    LH.toast('success', 'Logo updated');
+  };
+  reader.readAsDataURL(file);
+}
+function handleFaviconUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('faviconPreview');
+    preview.innerHTML = '';
+    preview.appendChild(img);
+    saveSetting('brand_favicon_url', e.target.result);
+    LH.toast('success', 'Favicon updated');
+  };
+  reader.readAsDataURL(file);
+}
 </script>
 `)}
 `;

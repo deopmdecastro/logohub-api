@@ -215,6 +215,8 @@ function seed(): {
     { id: 'br1', key: 'brand_primary', label: 'Brand Primary', value: '#4F46E5', group: 'brand', type: 'color' },
     { id: 'br2', key: 'brand_secondary', label: 'Brand Secondary', value: '#C084FC', group: 'brand', type: 'color' },
     { id: 'br3', key: 'brand_accent', label: 'Brand Accent', value: '#F472B6', group: 'brand', type: 'color' },
+    { id: 'br4', key: 'brand_logo_url', label: 'Logo URL', value: '', group: 'brand', type: 'url' },
+    { id: 'br5', key: 'brand_favicon_url', label: 'Favicon URL', value: '', group: 'brand', type: 'url' },
   ];
 
   return { apiKeys: keys, content, team, activity, settings };

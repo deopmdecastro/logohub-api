@@ -152,7 +152,7 @@ function openContentEditor(id) {
 
   // populate fields
   const $ = (s) => modal.querySelector(s);
-  const fields = ['name','slug','description','category','subcategory','website','country','industry','primary_color','secondary_color','background_color','text_color','svg_url','png_url','webp_url','ico_url','favicon_url','cover_url','thumbnail_url','verified','status','owner_key'];
+  const fields = ['name','slug','description','category','subcategory','website','country','industry','primary_color','secondary_color','background_color','text_color','svg_url','png_url','webp_url','ico_url','avatar_url','favicon_url','cover_url','thumbnail_url','verified','status','owner_key'];
   // Category options
   $('[name=category]').innerHTML = CATS.map(c => '<option value="'+c.slug+'" '+(c.slug===form.category?'selected':'')+'>'+c.icon+' '+c.name+'</option>').join('');
   // Owner key options
@@ -193,7 +193,8 @@ function openContentEditor(id) {
       const url = await LH.fileToDataUrl(file);
       form[key] = url; const el = $('[name='+key+']'); if (el) el.value = url;
       // auto favicon if missing
-      if (!form.favicon_url && ['png','jpg','jpeg','webp'].includes(ext)) { form.favicon_url = url; $('[name=favicon_url]').value = url; }
+      if (!form.avatar_url && ['png','jpg','jpeg','webp'].includes(ext)) { form.avatar_url = url; $('[name=avatar_url]').value = url; }
+        if (!form.favicon_url && ['png','jpg','jpeg','webp'].includes(ext)) { form.favicon_url = url; $('[name=favicon_url]').value = url; }
       // auto palette
       if (['png','jpg','jpeg','webp'].includes(ext)) {
         const palette = await LH.extractPalette(file);
@@ -219,7 +220,7 @@ function openContentEditor(id) {
     ) + '<p class="text-sm font-bold">'+(form.name||'Logo name')+'</p>' +
         '<code class="text-[10px] opacity-60">/'+(form.slug||'slug')+'</code>';
     $('#livePalette').innerHTML = [form.primary_color,form.secondary_color,form.background_color,form.text_color].map(c => '<div style="aspect-ratio:1;border-radius:.5rem;border:1px solid var(--border);background:'+c+'" title="'+c+'"></div>').join('');
-    $('#liveLinks').innerHTML = ['svg_url','png_url','webp_url','ico_url','favicon_url'].filter(k => form[k]).map(k => '<div class="text-[10px] flex items-center gap-1.5" style="color:var(--text-mute)"><i class="fas fa-check text-[#4ade80] text-[8px]"></i>'+k.replace('_url','').toUpperCase()+'</div>').join('') || '<p class="text-[10px]" style="color:var(--text-mute)">No assets uploaded yet</p>';
+    $('#liveLinks').innerHTML = ['svg_url','png_url','webp_url','ico_url','avatar_url','favicon_url'].filter(k => form[k]).map(k => '<div class="text-[10px] flex items-center gap-1.5" style="color:var(--text-mute)"><i class="fas fa-check text-[#4ade80] text-[8px]"></i>'+k.replace('_url','').toUpperCase()+'</div>').join('') || '<p class="text-[10px]" style="color:var(--text-mute)">No assets uploaded yet</p>';
   }
   updatePreview();
 
@@ -267,7 +268,7 @@ function openContentEditor(id) {
       '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">'+
         assetRow('svg_url','SVG','fa-file-code','#b8a9e8') + assetRow('png_url','PNG','fa-image','#f5a623') +
         assetRow('webp_url','WEBP','fa-image','#4ecdc4') + assetRow('ico_url','ICO','fa-file-image','#ff6b6b') +
-        assetRow('favicon_url','Favicon','fa-star','#4ade80') + assetRow('cover_url','Cover image','fa-image','#b8a9e8') +
+        assetRow('avatar_url','Avatar / Logo','fa-user-circle','#ff6b6b') + assetRow('favicon_url','Favicon','fa-star','#4ade80') + assetRow('cover_url','Cover image','fa-image','#b8a9e8') +
         assetRow('thumbnail_url','Thumbnail','fa-image','#f5a623')+
       '</div>'+
     '</div>';
@@ -307,7 +308,7 @@ function openContentEditor(id) {
   }
 
   // Populate asset labels after html injected
-  ['svg_url','png_url','webp_url','ico_url','favicon_url','cover_url','thumbnail_url'].forEach(k => {
+  ['svg_url','png_url','webp_url','ico_url','avatar_url','favicon_url','cover_url','thumbnail_url'].forEach(k => {
     const el = modal.querySelector('#lbl-'+k);
     if (el) el.textContent = form[k] ? (String(form[k]).startsWith('data:')?'(uploaded file)':form[k]) : 'not uploaded';
   });
