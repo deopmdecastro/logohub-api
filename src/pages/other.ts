@@ -202,6 +202,80 @@ load();
 // ============================================================
 // /dashboard/billing
 // ============================================================
+
+// ============================================================
+// /dashboard/users  — User Management (Admin)
+// ============================================================
+export const usersPage = () => `${HEAD('Users — LogoHub Admin', COMMON_JS)}
+${shellWrap(sidebar('users'), `
+${topbar('Users', 'Manage all users: Admin, Creator, Consumer')}
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
+  <div class="flex items-center gap-3">
+    <h3 class="text-sm font-semibold" style="color:var(--text)">All Users</h3>
+    <span id="uCount" class="text-[11px]" style="color:var(--text-mute)">—</span>
+    <div class="flex gap-2 ml-auto">
+      <select id="roleFilter" class="select" style="border-radius:9999px;padding:.55rem 1rem;width:auto" onchange="renderUsers()">
+        <option value="">All roles</option><option value="admin">Admin</option><option value="creator">Creator</option><option value="consumer">Consumer</option>
+      </select>
+      <select id="planFilter" class="select" style="border-radius:9999px;padding:.55rem 1rem;width:auto" onchange="renderUsers()">
+        <option value="">All plans</option><option value="free">Free</option><option value="pro">Pro</option><option value="business">Business</option><option value="enterprise">Enterprise</option>
+      </select>
+    </div>
+  </div>
+  <div class="card overflow-hidden"><div id="uList" class="divide-y" style="border-color:var(--border)"></div></div>
+</div>
+<script>
+let USERS = [];
+async function load() {
+  try { const r = await LH.api('/api/admin/users'); USERS = r.data; renderUsers(); }
+  catch(e) { LH.toast('error','Failed to load users',e.message); }
+}
+function renderUsers() {
+  const role = document.getElementById('roleFilter')?.value || '';
+  const plan = document.getElementById('planFilter')?.value || '';
+  const list = USERS.filter(u => (!role || u.role===role) && (!plan || u.plan===plan));
+  document.getElementById('uCount').textContent = list.length + ' users';
+  const roleC = { admin:'#b8a9e8', creator:'#f5a623', consumer:'#4ecdc4' };
+  const stCls = { active:'pill-green', inactive:'pill-amber', suspended:'pill-coral' };
+  const planCls = { free:'pill-neutral', pro:'pill-teal', business:'pill-lilac', enterprise:'pill-amber' };
+  document.getElementById('uList').innerHTML = list.map(u => {
+    const initials = (u.name||'').split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
+    return '<div class="flex items-center gap-3 px-5 py-3.5">'+
+      '<div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:linear-gradient(135deg,'+(roleC[u.role]||'#b8a9e8')+','+(roleC[u.role]||'#f5a623')+');color:#1a1a1a">'+initials+'</div>'+
+      '<div class="flex-1 min-w-0"><p class="text-sm font-semibold truncate" style="color:var(--text)">'+esc(u.name)+'</p><p class="text-[11px] truncate" style="color:var(--text-mute)">'+esc(u.email)+'</p></div>'+
+      '<div class="hidden md:flex items-center gap-2">'+
+        '<span class="pill" style="background:'+(roleC[u.role]||'#b8a9e8')+'22;color:'+(roleC[u.role]||'#b8a9e8')+';border-color:'+(roleC[u.role]||'#b8a9e8')+'55">'+u.role+'</span>'+
+        '<span class="pill '+(planCls[u.plan]||'pill-neutral')+'">'+u.plan+'</span>'+
+        '<span class="pill '+(stCls[u.status]||'pill-neutral')+'">'+u.status+'</span>'+
+      '</div>'+
+      (u.role==='creator'?'<span class="text-[11px] hidden lg:inline min-w-[80px] text-right" style="color:#f5a623">$'+(u.earnings_balance||0).toFixed(2)+' earned</span>':'')+
+      '<span class="text-[11px] hidden lg:inline min-w-[80px] text-right" style="color:var(--text-mute)">'+LH.fmt(u.requests_today||0)+' reqs</span>'+
+      '<button class="btn btn-ghost btn-icon-sm" onclick="editUser(\''+u.id+'\')"><i class="fas fa-pen text-[10px]"></i></button>'+
+    '</div>';
+  }).join('') || '<div class="empty-state"><i class="fas fa-users text-3xl mb-3 opacity-30 block"></i>No users found</div>';
+}
+function esc(s) { return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function editUser(id) {
+  const u = USERS.find(x=>x.id===id); if(!u)return;
+  const html = '<div class="modal-box" style="max-width:480px"><div class="modal-head"><div style="display:flex;align-items:center;gap:.7rem;"><div style="width:36px;height:36px;border-radius:12px;background:#ff6b6b22;color:#ff6b6b;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user-edit"></i></div><div><h2 class="text-base font-bold" style="color:var(--text)">Edit User</h2><p class="text-[11px]" style="color:var(--text-mute)">'+esc(u.name)+'</p></div></div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>'+
+    '<form id="uf" class="modal-body space-y-4">'+
+      '<div><label class="field-label">Name</label><input class="input" name="name" value="'+esc(u.name)+'"></div>'+
+      '<div class="grid grid-cols-2 gap-4"><div><label class="field-label">Role</label><select class="select" name="role">'+['admin','creator','consumer'].map(r=>'<option value="'+r+'" '+(u.role===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div>'+
+      '<div><label class="field-label">Plan</label><select class="select" name="plan">'+['free','pro','business','enterprise'].map(r=>'<option value="'+r+'" '+(u.plan===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div></div>'+
+      '<div><label class="field-label">Status</label><select class="select" name="status">'+['active','inactive','suspended'].map(r=>'<option value="'+r+'" '+(u.status===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div>'+
+    '</form>'+
+    '<div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button id="us" class="btn btn-primary"><i class="fas fa-save"></i> Save</button></div></div>';
+  const m = LH.openModal(html);
+  m.querySelector('#us').onclick = async () => {
+    const fd = new FormData(m.querySelector('#uf'));
+    const body = Object.fromEntries(fd);
+    try { await LH.api('/api/admin/users/'+id, { method:'PATCH', body: JSON.stringify(body) }); LH.toast('success','User updated'); m.remove(); load(); }
+    catch(e) { LH.toast('error','Save failed',e.message); }
+  };
+}
+load();
+</script>
+`)}`;
 export const billingPage = () => `${HEAD('Billing — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('billing'), `
 ${topbar('Billing', 'Manage your plan and payment method')}

@@ -154,7 +154,7 @@ function renderStatSkeletons(n: number) {
 // ============================================================
 export const keysPage = () => `${HEAD('API Keys — LogoHub', COMMON_JS)}
 ${shellWrap(sidebar('keys'), `
-${topbar('API Keys', 'Manage authentication and access to the API')}
+${topbar('API Keys', 'Manage authentication, tags, and associated files')}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
   <div class="flex flex-wrap items-center gap-3">
     <div class="relative flex-1 min-w-[200px]">
@@ -338,7 +338,35 @@ async function deleteKey(id) {
   catch (e) { LH.toast('error','Delete failed', e.message); }
 }
 
+
+// ============== FILES MANAGEMENT (v2) ==============
+function openFilesModal(id) {
+  const k = ALL_KEYS.find(x=>x.id===id); if (!k) return;
+  const files = k.files || [];
+  const html = '<div class="modal-box" style="max-width:600px"><div class="modal-head">'+
+    '<div style="display:flex;align-items:center;gap:.75rem;"><div style="width:38px;height:38px;border-radius:12px;background:#4ecdc422;color:#4ecdc4;display:flex;align-items:center;justify-content:center;"><i class="fas fa-folder"></i></div><div><h2 class="text-base font-bold" style="color:var(--text)">Files — '+esc(k.name)+'</h2><p class="text-[11px]" style="color:var(--text-mute)">'+files.length+' file(s)</p></div></div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body space-y-3">'+
+      (files.length===0?'<div class="empty-state"><i class="fas fa-file text-3xl mb-3 opacity-30 block"></i>No files yet</div>':
+      files.map(f => '<div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--panel-2)"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-file text-[12px]"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-semibold truncate" style="color:var(--text)">'+f.name+'</p><div class="flex items-center gap-2 mt-0.5"><span class="pill pill-lilac">'+f.tag+'</span><span class="text-[10px]" style="color:var(--text-mute)">'+f.content_type+'</span></div></div><button class="btn btn-danger btn-icon-sm" onclick="deleteFile(\\''+k.id+'\\',\\''+f.id+'\\')"><i class="fas fa-trash text-[10px]"></i></button></div>').join(''))+
+      '<div style="border-top:1px solid var(--border);padding-top:1rem"><p class="text-[11px] font-semibold mb-2" style="color:var(--text)">Add new file</p><div class="grid grid-cols-2 gap-3"><div><label class="field-label">File name</label><input class="input" id="newFileName_'+id+'" placeholder="ficheiro-home"></div><div><label class="field-label">Tag</label><input class="input" id="newFileTag_'+id+'" placeholder="home"></div></div><input class="input mt-2" id="newFileType_'+id+'" placeholder="content type" value="image/svg+xml"><button class="btn btn-primary btn-sm mt-3" onclick="addFile(\\''+id+'\\')"><i class="fas fa-plus"></i> Add file</button></div>'+
+    '</div><div class="modal-foot"><button class="btn btn-ghost" data-close>Close</button></div></div>';
+  LH.openModal(html);
+}
+async function addFile(keyId) {
+  const name = document.getElementById('newFileName_'+keyId)?.value;
+  const tag = document.getElementById('newFileTag_'+keyId)?.value;
+  if (!name || !tag) { LH.toast('error','Name and tag are required'); return; }
+  try { await LH.api('/api/admin/keys/'+keyId+'/files', { method:'POST', body: JSON.stringify({name,tag,content_type:'image/svg+xml'}) }); LH.toast('success','File added'); document.querySelectorAll('.modal-overlay').forEach(m=>m.remove()); loadKeys(); }
+  catch(e) { LH.toast('error','Failed',e.message); }
+}
+async function deleteFile(keyId, fileId) {
+  const yes = await LH.confirm({ title:'Remove file?', danger:true }); if (!yes) return;
+  try { await LH.api('/api/admin/keys/'+keyId+'/files/'+fileId, { method:'DELETE' }); LH.toast('success','File removed'); loadKeys(); }
+  catch(e) { LH.toast('error','Failed',e.message); }
+}
+
 loadKeys();
+
 if (new URLSearchParams(location.search).get('new')==='1') openKeyModal();
 </script>
 `)}
