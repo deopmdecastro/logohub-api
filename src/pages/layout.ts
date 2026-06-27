@@ -35,14 +35,14 @@ export const sidebar = (activeId: string, planName = 'Business', used = 248391, 
   <nav class="space-y-0.5 flex-1 overflow-y-auto -mx-1 px-1">${items}</nav>
   <div class="card p-4 mt-5">
     <div class="flex items-center justify-between mb-1.5">
-      <p class="text-[10px] uppercase tracking-wide font-semibold" style="color:var(--text-mute)">Plan</p>
+      <p class="text-[10px] uppercase tracking-wide font-semibold" style="color:var(--text-mute)">Admin Plan</p>
       <span class="pill pill-lilac">${planName}</span>
     </div>
-    <p class="text-[11px]" style="color:var(--text-soft)">${used.toLocaleString()} / ${quota.toLocaleString()}</p>
+    <p class="text-[11px]" style="color:var(--text-soft)">${used.toLocaleString()} / ${quota.toLocaleString()} requests</p>
     <div class="mt-2 h-1.5 rounded-full overflow-hidden" style="background: var(--border)">
       <div class="h-full rounded-full" style="width:${pct}%; background:#b8a9e8;"></div>
     </div>
-    <a href="/dashboard/billing" class="mt-3 block text-center text-[11px] font-medium py-1.5 rounded-full btn-primary">Manage plan</a>
+    <a href="/dashboard/billing" class="mt-3 block text-center text-[11px] font-medium py-1.5 rounded-full btn-primary">Manage billing</a>
   </div>
 </aside>`;
 };
@@ -68,11 +68,10 @@ export const topbar = (title: string, subtitle = '') => `
 export const creatorSidebar = (activeId: string) => {
   const items = [
     { id: 'overview', icon: 'fa-chart-pie', label: 'Overview', href: '/dashboard/creator', color: '#b8a9e8' },
+    { id: 'playground', icon: 'fa-code', label: 'Playground', href: '/playground', color: '#4ade80' },
+    { id: 'notifications', icon: 'fa-bell', label: 'Notifications', href: '/dashboard/notifications', color: '#ff6b6b' },
     { id: 'content', icon: 'fa-folder-open', label: 'My Content', href: '/dashboard/content', color: '#f5a623' },
-    { id: 'earnings', icon: 'fa-dollar-sign', label: 'Earnings', href: '/dashboard/creator/earnings', color: '#4ade80' },
     { id: 'analytics', icon: 'fa-chart-bar', label: 'Analytics', href: '/dashboard/analytics', color: '#4ecdc4' },
-    { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
-    { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
     { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
     { id: 'settings', icon: 'fa-cog', label: 'Settings', href: '/dashboard/settings', color: '#71717a' },
   ];
@@ -83,9 +82,10 @@ export const creatorSidebar = (activeId: string) => {
 export const consumerSidebar = (activeId: string) => {
   const items = [
     { id: 'overview', icon: 'fa-chart-pie', label: 'Overview', href: '/dashboard/consumer', color: '#b8a9e8' },
+    { id: 'playground', icon: 'fa-code', label: 'Playground', href: '/playground', color: '#4ade80' },
+    { id: 'notifications', icon: 'fa-bell', label: 'Notifications', href: '/dashboard/notifications', color: '#ff6b6b' },
     { id: 'keys', icon: 'fa-key', label: 'My Keys', href: '/dashboard/keys', color: '#f5a623' },
     { id: 'usage', icon: 'fa-bolt', label: 'Usage', href: '/dashboard/analytics', color: '#4ecdc4' },
-    { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
     { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/profile', color: '#4ecdc4' },
     { id: 'settings', icon: 'fa-cog', label: 'Settings', href: '/dashboard/settings', color: '#71717a' },
   ];
