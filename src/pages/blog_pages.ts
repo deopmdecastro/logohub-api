@@ -77,24 +77,30 @@ function renderPosts() {
     return;
   }
 
-  document.getElementById('blogGrid').innerHTML = items.map(p => \`
-    <a href="/blog/\\${p.slug}" class="card card-hover overflow-hidden flex flex-col" style="text-decoration:none;color:inherit">
-      \\${p.cover_url ? '<div class="h-40 bg-cover bg-center" style="background-image:url(\\''+escAttr(p.cover_url)+'\\')"></div>' : '<div class="h-40 flex items-center justify-center" style="background:linear-gradient(135deg,var(--lilac)22,var(--lilac)11)"><i class="fas fa-newspaper text-3xl" style="color:var(--lilac);opacity:.5"></i></div>'}
-      <div class="p-5 flex-1 flex flex-col">
-        <div class="flex items-center gap-2 mb-2">
-          \\${p.category ? '<span class="pill pill-teal" style="font-size:10px">'+esc(p.category)+'</span>' : ''}
-          \\${p.tags && p.tags.length ? p.tags.slice(0,2).map(t => '<span class="pill pill-neutral" style="font-size:10px">'+esc(t)+'</span>').join('') : ''}
-        </div>
-        <h2 class="text-lg font-bold mb-2 leading-snug" style="color:var(--text)">\\${esc(p.title)}</h2>
-        <p class="text-sm flex-1" style="color:var(--text-soft);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">\\${esc(p.excerpt || '')}</p>
-        <div class="flex items-center gap-3 mt-4 pt-4" style="border-top:1px solid var(--border)">
-          <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold" style="background:var(--lilac);color:#1a1a1a">\\${(p.author||'LH')[0].toUpperCase()}</div>
-          <span class="text-xs" style="color:var(--text-mute)">\\${esc(p.author||'LogoHub')} · \\${formatDate(p.created_at)}</span>
-          <span class="text-xs ml-auto" style="color:var(--lilac)">Read →</span>
-        </div>
-      </div>
-    </a>
-  \`).join('');
+  document.getElementById('blogGrid').innerHTML = items.map(p => {
+    var coverHtml = p.cover_url ? '<div class="h-40 bg-cover bg-center" style="background-image:url('+escAttr(p.cover_url)+')"></div>' : '<div class="h-40 flex items-center justify-center" style="background:linear-gradient(135deg,var(--lilac)22,var(--lilac)11)"><i class="fas fa-newspaper text-3xl" style="color:var(--lilac);opacity:.5"></i></div>';
+    var catHtml = p.category ? '<span class="pill pill-teal" style="font-size:10px">'+esc(p.category)+'</span>' : '';
+    var tagsHtml = p.tags && p.tags.length ? p.tags.slice(0,2).map(function(t){ return '<span class="pill pill-neutral" style="font-size:10px">'+esc(t)+'</span>'; }).join('') : '';
+    var excerpt = esc(p.excerpt || '');
+    var title = esc(p.title);
+    var author = esc(p.author||'LogoHub');
+    var date = formatDate(p.created_at);
+    var initial = (p.author||'LH')[0].toUpperCase();
+    var slug = p.slug;
+    return '<a href="/blog/' + slug + '" class="card card-hover overflow-hidden flex flex-col" style="text-decoration:none;color:inherit">' +
+      coverHtml +
+      '<div class="p-5 flex-1 flex flex-col">' +
+        '<div class="flex items-center gap-2 mb-2">' + catHtml + tagsHtml + '</div>' +
+        '<h2 class="text-lg font-bold mb-2 leading-snug" style="color:var(--text)">' + title + '</h2>' +
+        '<p class="text-sm flex-1" style="color:var(--text-soft);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">' + excerpt + '</p>' +
+        '<div class="flex items-center gap-3 mt-4 pt-4" style="border-top:1px solid var(--border)">' +
+          '<div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold" style="background:var(--lilac);color:#1a1a1a">' + initial + '</div>' +
+          '<span class="text-xs" style="color:var(--text-mute)">' + author + ' · ' + date + '</span>' +
+          '<span class="text-xs ml-auto" style="color:var(--lilac)">Read →</span>' +
+        '</div>' +
+      '</div>' +
+    '</a>';
+  }).join('');
 }
 
 function formatDate(d) {
@@ -152,40 +158,33 @@ async function loadPost() {
     if (!p) throw new Error('Not found');
     document.title = p.title + ' — LogoHub Blog';
 
-    document.getElementById('postContent').innerHTML = \`
-      <div class="mb-8">
-        <a href="/blog" class="text-sm" style="color:var(--lilac)"><i class="fas fa-arrow-left"></i> All articles</a>
-      </div>
-      \\${p.cover_url ? '<div class="rounded-2xl overflow-hidden mb-8"><img src="'+escAttr(p.cover_url)+'" alt="'+escAttr(p.title)+'" class="w-full max-h-96 object-cover"></div>' : ''}
-      <div class="flex flex-wrap items-center gap-3 mb-4">
-        \\${p.category ? '<span class="pill pill-lilac">'+esc(p.category)+'</span>' : ''}
-        \\${p.tags && p.tags.length ? p.tags.map(t => '<span class="pill pill-neutral" style="font-size:11px">'+esc(t)+'</span>').join('') : ''}
-      </div>
-      <h1 class="text-3xl sm:text-4xl font-black mb-4 leading-tight" style="color:var(--text)">\\${esc(p.title)}</h1>
-      <div class="flex items-center gap-3 mb-8">
-        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:var(--lilac);color:#1a1a1a">\\${(p.author||'LH')[0].toUpperCase()}</div>
-        <div>
-          <p class="text-sm font-semibold" style="color:var(--text)">\\${esc(p.author||'LogoHub')}</p>
-          <p class="text-xs" style="color:var(--text-mute)">\\${formatDate(p.published_at || p.created_at)} · \\${readingTime(p.content)}</p>
-        </div>
-      </div>
-      <div class="prose" style="color:var(--text-soft);font-size:1.05rem;line-height:1.8">
-        \\${renderContent(p.content)}
-      </div>
-      \\${p.tags && p.tags.length ? '<div class="mt-10 pt-8" style="border-top:1px solid var(--border)"><p class="text-xs mb-3 uppercase tracking-widest" style="color:var(--text-mute)">Tags</p><div class="flex flex-wrap gap-2">'+p.tags.map(t => '<span class="pill pill-teal">'+esc(t)+'</span>').join('')+'</div></div>' : ''}
-      <div class="mt-10 pt-8 text-center" style="border-top:1px solid var(--border)">
-        <a href="/blog" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Back to all articles</a>
-      </div>
-    \`;
+    var title = p.title;
+    var author = p.author || 'LogoHub';
+    var date = formatDate(p.published_at || p.created_at);
+    var reading = readingTime(p.content);
+    var content = renderContent(p.content);
+
+    var coverBlock = p.cover_url ? '<div class="rounded-2xl overflow-hidden mb-8"><img src="'+escAttr(p.cover_url)+'" alt="'+escAttr(title)+'" class="w-full max-h-96 object-cover"></div>' : '';
+    var catBlock = p.category ? '<span class="pill pill-lilac">'+esc(p.category)+'</span>' : '';
+    var tagsBlock = p.tags && p.tags.length ? p.tags.map(function(t){ return '<span class="pill pill-neutral" style="font-size:11px">'+esc(t)+'</span>'; }).join('') : '';
+    var footerTags = p.tags && p.tags.length ? '<div class="mt-10 pt-8" style="border-top:1px solid var(--border)"><p class="text-xs mb-3 uppercase tracking-widest" style="color:var(--text-mute)">Tags</p><div class="flex flex-wrap gap-2">'+p.tags.map(function(t){ return '<span class="pill pill-teal">'+esc(t)+'</span>'; }).join('')+'</div></div>' : '';
+    var initial = (p.author||'LH')[0].toUpperCase();
+
+    document.getElementById('postContent').innerHTML = '' +
+      '<div class="mb-8"><a href="/blog" class="text-sm" style="color:var(--lilac)"><i class="fas fa-arrow-left"></i> All articles</a></div>' +
+      coverBlock +
+      '<div class="flex flex-wrap items-center gap-3 mb-4">' + catBlock + tagsBlock + '</div>' +
+      '<h1 class="text-3xl sm:text-4xl font-black mb-4 leading-tight" style="color:var(--text)">' + esc(title) + '</h1>' +
+      '<div class="flex items-center gap-3 mb-8">' +
+        '<div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:var(--lilac);color:#1a1a1a">' + initial + '</div>' +
+        '<div><p class="text-sm font-semibold" style="color:var(--text)">' + esc(author) + '</p><p class="text-xs" style="color:var(--text-mute)">' + date + ' · ' + reading + '</p></div>' +
+      '</div>' +
+      '<div class="prose" style="color:var(--text-soft);font-size:1.05rem;line-height:1.8">' + content + '</div>' +
+      footerTags +
+      '<div class="mt-10 pt-8 text-center" style="border-top:1px solid var(--border)"><a href="/blog" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Back to all articles</a></div>';
   } catch(e) {
-    document.getElementById('postContent').innerHTML = \`
-      <div class="text-center py-20">
-        <div class="text-6xl mb-4">📭</div>
-        <h2 class="text-2xl font-bold mb-2" style="color:var(--text)">Post not found</h2>
-        <p class="mb-6" style="color:var(--text-mute)">This article may have been removed or the link is incorrect.</p>
-        <a href="/blog" class="btn btn-primary">Browse all articles</a>
-      </div>
-    \`;
+    document.getElementById('postContent').innerHTML = '' +
+      '<div class="text-center py-20"><div class="text-6xl mb-4">📭</div><h2 class="text-2xl font-bold mb-2" style="color:var(--text)">Post not found</h2><p class="mb-6" style="color:var(--text-mute)">This article may have been removed or the link is incorrect.</p><a href="/blog" class="btn btn-primary">Browse all articles</a></div>';
   }
 }
 
