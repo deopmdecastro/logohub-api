@@ -260,3 +260,81 @@ Contributions are welcome! Please read our contributing guidelines before submit
 **Built with ❤️ by the LogoHub team**
 
 *LogoHub API — The World's Largest Visual Identity API*
+
+---
+
+## 🛠 Admin Console & Dashboard (v2)
+
+The repo now ships with a full admin/dashboard SPA built directly into the
+Hono backend. Open **`/dashboard`** to access it. Routes:
+
+| Route                       | What it does                                              |
+|-----------------------------|-----------------------------------------------------------|
+| `/dashboard`                | Overview · stats, charts, recent activity                 |
+| `/dashboard/keys`           | API Keys · full CRUD with modal · revoke · regenerate     |
+| `/dashboard/content`        | CMS-style content editor · drag-drop · auto palette/favicon |
+| `/dashboard/analytics`      | Charts: requests, errors, latency, endpoint share         |
+| `/dashboard/activity`       | Audit log of every change                                 |
+| `/dashboard/billing`        | Plan management, payment method                           |
+| `/dashboard/team`           | Invite & manage members                                   |
+| `/dashboard/settings`       | Platform, Git, Brand, editable stats                      |
+
+### Admin API (powering the dashboard)
+
+All routes are prefixed with **`/api/admin`** and return `{ data, meta }`.
+
+```
+GET    /api/admin/keys                  POST /api/admin/keys
+GET    /api/admin/keys/:id              PATCH /api/admin/keys/:id
+POST   /api/admin/keys/:id/revoke       DELETE /api/admin/keys/:id
+
+GET    /api/admin/content?q=&category=&status=
+POST   /api/admin/content
+GET    /api/admin/content/:id           PATCH /api/admin/content/:id
+DELETE /api/admin/content/:id
+
+GET    /api/admin/team                  POST /api/admin/team
+DELETE /api/admin/team/:id
+
+GET    /api/admin/settings?group=       PATCH /api/admin/settings/:key
+POST   /api/admin/git/test
+
+GET    /api/admin/stats                 GET  /api/admin/activity
+```
+
+### Git integration (Settings → Git)
+
+The dashboard exposes a **Git** settings panel that lets you configure:
+
+- Repository URL
+- Main branch
+- User name / email
+- Personal Access Token (password-masked)
+- Connection status with **Test Connection** button
+
+The PAT is stored encrypted on the server and never returned over the wire.
+
+### Architecture
+
+```
+src/
+├── index.tsx              ← Hono app — mounts routes & pages
+├── routes/
+│   ├── api.ts             ← Public REST API (unchanged)
+│   └── admin.ts           ← Admin CRUD API (NEW)
+├── data/
+│   ├── logos.ts           ← Seed catalog
+│   ├── sports.ts          ← Seed catalog
+│   ├── flags.ts           ← Seed catalog
+│   └── store.ts           ← In-memory store (NEW — swap for D1/KV/Postgres)
+└── pages/
+    ├── shared.ts          ← Tailwind config, premium design tokens, JS helpers
+    ├── layout.ts          ← Sidebar + topbar + theme toggle
+    ├── public.ts          ← Landing, explorer, docs (modernised)
+    ├── dashboard.ts       ← Overview + API keys management
+    ├── content.ts         ← CMS-style content editor with drag-drop
+    └── other.ts           ← Settings (incl. Git), team, billing, analytics, activity
+```
+
+The store layer is intentionally narrow: every page and admin route reads
+through `store.*` so plugging in a real DB later is a single-file refactor.
