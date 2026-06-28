@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/cloudflare-workers';
-import { renderer } from './renderer';
 import api from './routes/api';
 import auth from './routes/auth';
 import admin from './routes/admin';
@@ -23,9 +22,6 @@ import { loginPage, registerPage } from './pages/auth_pages';
 import { HEAD } from './pages/shared';
 
 const app = new Hono();
-
-// Global JSX renderer middleware
-app.use('*', renderer);
 
 // Static assets
 app.use('/static/*', serveStatic({ root: './' }));
