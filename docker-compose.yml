@@ -42,26 +42,31 @@ services:
       NODE_ENV: production
       PORT: 3000
 
+      # PostgreSQL connection
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: logohub
-
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/logohub
+
+      # Connection retry logic
       DB_CONNECT_RETRIES: 30
       DB_CONNECT_RETRY_DELAY_MS: 2000
+      DB_LOG_ERRORS: "true"
+
+      # DO NOT enable fallback — we want real PostgreSQL
+      DB_ENABLE_FALLBACK: "false"
 
       JWT_SECRET: logohub-jwt-secret-change-in-production-2026
       APP_URL: http://localhost:3000
-      DB_ENABLE_FALLBACK: "true"
-      DB_FALLBACK_MODE: memory-only
 
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/v1/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 40s
 
 volumes:
   postgres_data:
