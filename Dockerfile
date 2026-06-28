@@ -32,5 +32,3 @@ HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=40s \
 
 # Run the server directly with Node (no PM2 needed for single process)
 CMD ["node", "dist/server.js"]
-# force rebuild 1782687605
-# force rebuild 1782687609
