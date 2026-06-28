@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     name        VARCHAR(255) NOT NULL,
     email       VARCHAR(255) UNIQUE NOT NULL,
     password    VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255),
     role        VARCHAR(20) NOT NULL DEFAULT 'consumer' CHECK (role IN ('admin', 'creator', 'consumer')),
     plan        VARCHAR(20) NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'business', 'enterprise')),
     status      VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended', 'banned')),
@@ -205,16 +206,16 @@ INSERT INTO settings (id, key, label, value, group_name, type) VALUES
 ON CONFLICT (key) DO NOTHING;
 
 -- Default admin user (password: Demo@2026)
-INSERT INTO users (id, name, email, password, role, plan, status, avatar_url, bio) VALUES
-('00000000-0000-0000-0000-000000000001', 'Zana Admin', 'admin@logohub.dev', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', 'admin', 'business', 'active', 'https://api.dicebear.com/9.x/initials/svg?seed=ZA', 'Platform administrator — LogoHub')
+INSERT INTO users (id, name, email, password, password_hash, role, plan, status, avatar_url, bio) VALUES
+('00000000-0000-0000-0000-000000000001', 'Zana Admin', 'admin@logohub.dev', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', 'admin', 'business', 'active', 'https://api.dicebear.com/9.x/initials/svg?seed=ZA', 'Platform administrator — LogoHub')
 ON CONFLICT (email) DO NOTHING;
 
 -- Default creator (password: Demo@2026)
-INSERT INTO users (id, name, email, password, role, plan, status, avatar_url, bio) VALUES
-('00000000-0000-0000-0000-000000000002', 'Creator Demo', 'creator@logohub.dev', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', 'creator', 'pro', 'active', 'https://api.dicebear.com/9.x/initials/svg?seed=CD', 'Professional logo designer & icon creator')
+INSERT INTO users (id, name, email, password, password_hash, role, plan, status, avatar_url, bio) VALUES
+('00000000-0000-0000-0000-000000000002', 'Creator Demo', 'creator@logohub.dev', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', 'creator', 'pro', 'active', 'https://api.dicebear.com/9.x/initials/svg?seed=CD', 'Professional logo designer & icon creator')
 ON CONFLICT (email) DO NOTHING;
 
 -- Default consumer (password: Demo@2026)
-INSERT INTO users (id, name, email, password, role, plan, status, avatar_url, bio) VALUES
-('00000000-0000-0000-0000-000000000003', 'Consumer Demo', 'consumer@logohub.dev', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', 'consumer', 'free', 'active', 'https://api.dicebear.com/9.x/initials/svg?seed=CD', 'API consumer & developer')
+INSERT INTO users (id, name, email, password, password_hash, role, plan, status, avatar_url, bio) VALUES
+('00000000-0000-0000-0000-000000000003', 'Consumer Demo', 'consumer@logohub.dev', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', '$2a$10$m7GFsAQbgpAnFQQs/.zxIuJmaObDMm2vZ9nGHXycUfkIg96EGaXAO', 'consumer', 'free', 'active', 'https://api.dicebear.com/9.x/initials/svg?seed=CD', 'API consumer & developer')
 ON CONFLICT (email) DO NOTHING;

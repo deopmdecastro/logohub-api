@@ -69,11 +69,18 @@ const memPasswordResets: any[] = [];
 export const store = {
   // --- USERS ---
   async getUserByEmail(email: string) {
-    if (await useDatabase()) { const u = await db.findUserByEmail(email); if (u) return u; }
+    if (await useDatabase()) { const u = await db.findUserByEmail(email); if (u) { 
+      // Normalize: PostgreSQL column is 'password', but code expects 'password_hash'
+      if (!u.password_hash && u.password) u.password_hash = u.password;
+      return u; 
+    }}
     return memUsers.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
   },
   async getUser(id: string) {
-    if (await useDatabase()) { const u = await db.findUserById(id); if (u) return u; }
+    if (await useDatabase()) { const u = await db.findUserById(id); if (u) { 
+      if (!u.password_hash && u.password) u.password_hash = u.password;
+      return u; 
+    }}
     return memUsers.find(u => u.id === id) || null;
   },
   async getUserSafe(id: string) {
