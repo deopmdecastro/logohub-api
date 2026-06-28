@@ -256,7 +256,7 @@ ${topbar('Users', 'Manage all users: Admin, Creator, Consumer')}
 <script>
 let USERS = [];
 async function load() {
-  try { const r = await LH.api('/api/admin/users'); USERS = r.data; renderUsers(); }
+  try { const r = await LH.api('/api/v1/auth/admin/users'); USERS = r.data; renderUsers(); }
   catch(e) { LH.toast('error','Failed to load users',e.message); }
 }
 function renderUsers() {
@@ -308,7 +308,7 @@ function editUser(id) {
   m.querySelector('#us').onclick = async () => {
     const fd = new FormData(m.querySelector('#uf'));
     const body = Object.fromEntries(fd);
-    try { await LH.api('/api/admin/users/'+id, { method:'PATCH', body: JSON.stringify(body) }); LH.toast('success','User updated'); m.remove(); load(); }
+    try { await LH.api('/api/v1/auth/admin/users/'+id, { method:'PATCH', body: JSON.stringify(body) }); LH.toast('success','User updated'); m.remove(); load(); }
     catch(e) { LH.toast('error','Save failed',e.message); }
   };
 }

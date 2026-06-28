@@ -93,7 +93,7 @@ var planCls = { free:'pill-neutral', pro:'pill-teal', business:'pill-lilac', ent
 
 async function loadUsers() {
   try {
-    var r = await LH.api('/api/v1/admin/users');
+    var r = await LH.api('/api/v1/auth/admin/users');
     ALL_USERS = r.data || [];
     renderList();
   } catch (e) { LH.toast('error', 'Failed to load users', e.message); }
@@ -227,7 +227,7 @@ function openEditUser(id) {
       var form = modal.querySelector('#editUserForm');
       var fd = new FormData(form);
       var body = Object.fromEntries(fd);
-      await LH.api('/api/v1/admin/users/' + id, { method: 'PATCH', body: JSON.stringify(body) });
+      await LH.api('/api/v1/auth/admin/users/' + id, { method: 'PATCH', body: JSON.stringify(body) });
       LH.toast('success', 'User updated');
       modal.remove();
       loadUsers();
@@ -295,7 +295,7 @@ function resetPasswordUser(id) {
   var newPass = prompt('Enter new password (min. 8 characters):');
   if (!newPass) return;
   if (newPass.length < 8) { LH.toast('error', 'Password must be at least 8 characters'); return; }
-  LH.api('/api/v1/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ password_hash: newPass }) })
+  LH.api('/api/v1/auth/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ password_hash: newPass }) })
     .then(function(){ LH.toast('success', 'Password reset', 'New: ' + newPass); })
     .catch(function(e){ LH.toast('error', 'Reset failed', e.message); });
 }
@@ -305,7 +305,7 @@ function resetPasswordNow(id) {
   if (!input) return;
   var newPass = input.value;
   if (!newPass || newPass.length < 8) { LH.toast('error', 'Enter a valid password (min. 8 chars)'); return; }
-  LH.api('/api/v1/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ password_hash: newPass }) })
+  LH.api('/api/v1/auth/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ password_hash: newPass }) })
     .then(function(){ LH.toast('success', 'Password reset', 'New: ' + newPass); input.value = ''; })
     .catch(function(e){ LH.toast('error', 'Reset failed', e.message); });
 }
@@ -314,14 +314,14 @@ function resetPasswordNow(id) {
 function banUser(id) {
   LH.confirm({ title: 'Ban this user?', msg: 'They will not be able to log in and their keys will be revoked.', danger: true }).then(function(yes) {
     if (!yes) return;
-    LH.api('/api/v1/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ status: 'banned' }) })
+    LH.api('/api/v1/auth/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ status: 'banned' }) })
       .then(function(){ LH.toast('success', 'User banned'); loadUsers(); })
       .catch(function(e){ LH.toast('error', 'Failed', e.message); });
   });
 }
 
 function unbanUser(id) {
-  LH.api('/api/v1/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ status: 'active' }) })
+  LH.api('/api/v1/auth/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ status: 'active' }) })
     .then(function(){ LH.toast('success', 'User unbanned'); loadUsers(); })
     .catch(function(e){ LH.toast('error', 'Failed', e.message); });
 }
@@ -330,7 +330,7 @@ function unbanUser(id) {
 function deleteUser(id) {
   LH.confirm({ title: 'Delete this user?', msg: 'All their data will be permanently removed.', danger: true }).then(function(yes) {
     if (!yes) return;
-    LH.api('/api/v1/admin/users/' + id, { method: 'DELETE' })
+    LH.api('/api/v1/auth/admin/users/' + id, { method: 'DELETE' })
       .then(function(){ LH.toast('success', 'User deleted'); loadUsers(); })
       .catch(function(e){ LH.toast('error', 'Failed', e.message); });
   });

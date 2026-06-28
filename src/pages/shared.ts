@@ -527,8 +527,12 @@ LH.toggleTheme = () => {
 };
 LH.copy = async (t) => { try { await navigator.clipboard.writeText(t); LH.toast('success','Copied to clipboard'); } catch { LH.toast('error','Copy failed'); } };
 LH.api = async (path, opts={}) => {
-  const r = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts });
-  if (!r.ok) throw new Error((await r.json().catch(()=>({}))).error || r.statusText);
+  var headers = { 'Content-Type': 'application/json' };
+  var token = localStorage.getItem('logohub_token');
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  if (opts.headers) { for (var k in opts.headers) headers[k] = opts.headers[k]; }
+  var r = await fetch(path, { ...opts, headers: headers });
+  if (!r.ok) throw new Error((await r.json().catch(function(){return {};})).error || r.statusText);
   return r.json();
 };
 LH.extractPalette = (file) => new Promise((res) => {
