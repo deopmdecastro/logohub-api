@@ -2,7 +2,7 @@
 import { HEAD, COMMON_JS } from './shared';
 
 export function faqPage() {
-  return `${HEAD('FAQ — LogoHub API', COMMON_JS)}
+  return HEAD('FAQ — LogoHub API', COMMON_JS) + `
 <body class="font-sans">
 <nav class="fixed top-0 w-full z-50 nav-blur">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -55,13 +55,13 @@ export function faqPage() {
 </section>
 
 <script>
-let FAQ = [];
-let activeCategory = '';
+var FAQ = [];
+var activeCategory = '';
 
 async function loadFAQ() {
   try {
-    const res = await fetch('/api/admin/faq?status=published');
-    const json = await res.json();
+    var res = await fetch('/api/admin/faq?status=published');
+    var json = await res.json();
     FAQ = json.data || [];
     renderCategories();
     renderFAQ();
@@ -71,9 +71,16 @@ async function loadFAQ() {
 }
 
 function renderCategories() {
-  const cats = [...new Set(FAQ.map(f => f.category || 'General'))];
-  const html = '<button class="pill '+(activeCategory===''?'pill-lilac':'pill-neutral')+'" onclick="filterCategory(\\'\\')">All</button>' +
-    cats.map(c => '<button class="pill '+(activeCategory===c?'pill-lilac':'pill-neutral')+'" onclick="filterCategory(\\''+escAttr(c)+'\\')">'+esc(c)+'</button>').join('');
+  var cats = [];
+  var seen = {};
+  for (var i = 0; i < FAQ.length; i++) {
+    var c = FAQ[i].category || 'General';
+    if (!seen[c]) { seen[c] = true; cats.push(c); }
+  }
+  var html = '<button class="pill ' + (activeCategory === '' ? 'pill-lilac' : 'pill-neutral') + '" onclick="filterCategory(\\'\\')">All</button>';
+  for (var j = 0; j < cats.length; j++) {
+    html += '<button class="pill ' + (activeCategory === cats[j] ? 'pill-lilac' : 'pill-neutral') + '" onclick="filterCategory(\\'' + escAttr(cats[j]) + '\\')">' + esc(cats[j]) + '</button>';
+  }
   document.getElementById('faqCategories').innerHTML = html;
 }
 
@@ -84,63 +91,71 @@ function filterCategory(cat) {
 }
 
 function renderFAQ() {
-  const q = (document.getElementById('faqSearch')?.value || '').toLowerCase();
-  let items = FAQ;
-  if (activeCategory) items = items.filter(f => f.category === activeCategory);
-  if (q) items = items.filter(f =>
-    f.question.toLowerCase().includes(q) ||
-    f.answer.toLowerCase().includes(q) ||
-    (f.tags || []).some(t => t.toLowerCase().includes(q))
-  );
+  var q = (document.getElementById('faqSearch') ? document.getElementById('faqSearch').value : '').toLowerCase();
+  var items = [];
+  for (var i = 0; i < FAQ.length; i++) {
+    var f = FAQ[i];
+    if (activeCategory && f.category !== activeCategory) continue;
+    if (q) {
+      var match = (f.question || '').toLowerCase().indexOf(q) >= 0 ||
+                  (f.answer || '').toLowerCase().indexOf(q) >= 0;
+      if (f.tags) {
+        for (var t = 0; t < f.tags.length; t++) {
+          if (f.tags[t].toLowerCase().indexOf(q) >= 0) { match = true; break; }
+        }
+      }
+      if (!match) continue;
+    }
+    items.push(f);
+  }
 
   if (!items.length) {
     document.getElementById('faqList').innerHTML = '<div class="empty-state"><i class="fas fa-inbox text-3xl mb-3 opacity-30 block"></i>No questions found</div>';
     return;
   }
 
-  document.getElementById('faqList').innerHTML = items.map((f, i) => {
-    const id = 'faq-' + (f.id || i);
-    return \`
-      <div class="card overflow-hidden transition-all" style="border:1px solid var(--border)">
-        <button class="faq-question w-full text-left p-5 flex items-start gap-4 cursor-pointer hover:bg-[var(--panel-2)] transition-colors"
-            onclick="toggleFAQ(this, '\\${id}')" aria-expanded="false">
-          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-               style="background:var(--lilac);color:#1a1a1a;opacity:.7">
-            <i class="fas fa-question text-xs"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h3 class="text-sm font-semibold pr-8" style="color:var(--text)">\\${esc(f.question)}</h3>
-            \\${f.category ? '<span class="pill pill-teal mt-1" style="font-size:10px">'+esc(f.category)+'</span>' : ''}
-          </div>
-          <i class="fas fa-chevron-down transition-transform duration-300 text-xs shrink-0 mt-1" style="color:var(--text-mute)" id="\\${id}-icon"></i>
-        </button>
-        <div id="\\${id}" class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease">
-          <div class="px-5 pb-5 pt-0" style="color:var(--text-soft);font-size:.9rem;line-height:1.7">
-            <div class="pl-12">\\${formatAnswer(f.answer)}</div>
-            \\${f.tags && f.tags.length ? '<div class="pl-12 mt-4 flex flex-wrap gap-1.5">'+f.tags.map(t => '<span class="pill pill-neutral" style="font-size:10px">'+esc(t)+'</span>').join('')+'</div>' : ''}
-          </div>
-        </div>
-      </div>
-    \`;
-  }).join('');
+  var html = '';
+  for (var i = 0; i < items.length; i++) {
+    var f = items[i];
+    var faqId = 'faq-' + (f.id || i);
+    html += '<div class="card overflow-hidden transition-all" style="border:1px solid var(--border)">';
+    html += '<button class="faq-question w-full text-left p-5 flex items-start gap-4 cursor-pointer hover:bg-[var(--panel-2)] transition-colors" onclick="toggleFAQ(this,\\'' + faqId + '\\')" aria-expanded="false">';
+    html += '<div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background:var(--lilac);color:#1a1a1a;opacity:.7"><i class="fas fa-question text-xs"></i></div>';
+    html += '<div class="flex-1 min-w-0">';
+    html += '<h3 class="text-sm font-semibold pr-8" style="color:var(--text)">' + esc(f.question) + '</h3>';
+    if (f.category) { html += '<span class="pill pill-teal mt-1" style="font-size:10px">' + esc(f.category) + '</span>'; }
+    html += '</div>';
+    html += '<i class="fas fa-chevron-down transition-transform duration-300 text-xs shrink-0 mt-1" style="color:var(--text-mute)" id="' + faqId + '-icon"></i>';
+    html += '</button>';
+    html += '<div id="' + faqId + '" class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease">';
+    html += '<div class="px-5 pb-5 pt-0" style="color:var(--text-soft);font-size:.9rem;line-height:1.7">';
+    html += '<div class="pl-12">' + formatAnswer(f.answer) + '</div>';
+    if (f.tags && f.tags.length) {
+      html += '<div class="pl-12 mt-4 flex flex-wrap gap-1.5">';
+      for (var t = 0; t < f.tags.length; t++) {
+        html += '<span class="pill pill-neutral" style="font-size:10px">' + esc(f.tags[t]) + '</span>';
+      }
+      html += '</div>';
+    }
+    html += '</div></div></div>';
+  }
+  document.getElementById('faqList').innerHTML = html;
 }
 
 function formatAnswer(text) {
   if (!text) return '';
-  // Convert markdown-like links and code
-  return text
-    .replace(/\\\`([^\\\`]+)\\\`/g, '<code class="font-mono text-xs px-1.5 py-0.5 rounded" style="background:var(--panel-2);color:var(--lilac)">$1</code>')
-    .replace(/\\\`\\\`\\\`([\\s\\S]*?)\\\`\\\`\\\`/g, '<pre class="code-block my-3">$1</pre>')
-    .replace(/\\[(.+?)\\\]\\((.+?)\\)/g, '<a href="$2" target="_blank" style="color:var(--lilac)">$1</a>')
-    .replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>')
-    .replace(/\\n/g, '<br>');
+  text = text.replace(/\`([^\`]+)\`/g, '<code class="font-mono text-xs px-1.5 py-0.5 rounded" style="background:var(--panel-2);color:var(--lilac)">$1</code>');
+  text = text.replace(/\`\`\`([\\s\\S]*?)\`\`\`/g, '<pre class="code-block my-3">$1</pre>');
+  text = text.replace(/\\[(.+?)\\]\\((.+?)\\)/g, '<a href="$2" target="_blank" style="color:var(--lilac)">$1</a>');
+  text = text.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');
+  text = text.replace(/\\n/g, '<br>');
+  return text;
 }
 
-function toggleFAQ(btn, id) {
-  const answer = document.getElementById(id);
-  const icon = document.getElementById(id + '-icon');
-  const isOpen = btn.getAttribute('aria-expanded') === 'true';
-
+function toggleFAQ(btn, faqId) {
+  var answer = document.getElementById(faqId);
+  var icon = document.getElementById(faqId + '-icon');
+  var isOpen = btn.getAttribute('aria-expanded') === 'true';
   if (isOpen) {
     answer.style.maxHeight = '0';
     btn.setAttribute('aria-expanded', 'false');
@@ -155,15 +170,18 @@ function toggleFAQ(btn, id) {
 function esc(s) { return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { return String(s||'').replace(/'/g,"\\\\'").replace(/"/g,'&quot;'); }
 
-// Keyboard: press Enter or Space on question to toggle
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', function(e) {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.faq-question')) {
     e.preventDefault();
     e.target.closest('.faq-question').click();
   }
 });
 
-(function(){ const t = localStorage.getItem('theme')||'dark'; const b = document.getElementById('themeBtn'); if (b) b.innerHTML = t==='dark'?'<i class="fas fa-sun"></i>':'<i class="fas fa-moon"></i>'; })();
+(function(){
+  var t = localStorage.getItem('theme') || 'dark';
+  var b = document.getElementById('themeBtn');
+  if (b) b.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+})();
 loadFAQ();
 </script>
 
