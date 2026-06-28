@@ -339,5 +339,42 @@ LH.loadNotifUnread = async function() {
   }
 })();
 
+// Shared image upload helpers for Logo & Favicon (used in settings, team, users, billing pages)
+LH.handleLogoUpload = function(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('logoPreview');
+    if (preview) {
+      preview.innerHTML = '';
+      preview.appendChild(img);
+    }
+    if (typeof saveSetting === 'function') saveSetting('brand_logo_url', e.target.result);
+    LH.toast('success', 'Logo updated');
+  };
+  reader.readAsDataURL(file);
+};
+
+LH.handleFaviconUpload = function(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
+    const preview = document.getElementById('faviconPreview');
+    if (preview) {
+      preview.innerHTML = '';
+      preview.appendChild(img);
+    }
+    if (typeof saveSetting === 'function') saveSetting('brand_favicon_url', e.target.result);
+    LH.toast('success', 'Favicon updated');
+  };
+  reader.readAsDataURL(file);
+};
+
 </script>
 `;

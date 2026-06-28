@@ -10,7 +10,7 @@ import { userStore } from '../data/store';
 import { createNotification } from './notifications';
 import { sendEmail, welcomeEmail, passwordResetEmail } from '../services/email';
 
-const auth = new Hono();
+const auth = new Hono<{ Variables: { userId: string } }>();
 auth.use('/*', cors({ origin: '*', allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'], allowHeaders: ['Content-Type', 'Authorization'] }));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'logohub-dev-secret-change-in-production';

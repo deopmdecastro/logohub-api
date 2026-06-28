@@ -1,5 +1,8 @@
 // API Keys routes — CRUD + file management + tag system
-import { Hono } from 'hono';
+import { Hono } from "hono";
+
+// Type-safe Hono app with userId in context variables
+type KeysVariables = { userId: string };
 import { cors } from 'hono/cors';
 import { randomUUID } from 'crypto';
 import { authMiddleware } from './auth';
@@ -61,8 +64,8 @@ function maskKey(k: string) { return k.length > 16 ? k.slice(0, 16) + '...' : k;
 // ============================================================
 // GET /api/v1/keys — list user's keys
 // ============================================================
-apiKeys.get('/', authMiddleware, (c) => {
-  const userId = c.get('userId');
+apiKeys.get('/', authMiddleware as any, (c: any) => {
+  const userId = c.get("userId") as string;
   const page = parseInt(c.req.query('page') || '1');
   const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);
   const userKeys = keys.filter(k => k.user_id === userId);
@@ -76,8 +79,8 @@ apiKeys.get('/', authMiddleware, (c) => {
 // ============================================================
 // POST /api/v1/keys — create a new key
 // ============================================================
-apiKeys.post('/', authMiddleware, async (c) => {
-  const userId = c.get('userId');
+apiKeys.post('/', authMiddleware as any, async (c: any) => {
+  const userId = c.get("userId") as string;
   const body = await c.req.json().catch(() => ({}));
   if (!body.name) return bad(c, 'name is required');
 
@@ -129,8 +132,8 @@ apiKeys.post('/', authMiddleware, async (c) => {
 // ============================================================
 // GET /api/v1/keys/:id
 // ============================================================
-apiKeys.get('/:id', authMiddleware, (c) => {
-  const userId = c.get('userId');
+apiKeys.get('/:id', authMiddleware as any, (c: any) => {
+  const userId = c.get("userId") as string;
   const k = keys.find(k => k.id === c.req.param('id') && k.user_id === userId);
   if (!k) return bad(c, 'Key not found', 404);
   return ok(c, { ...k, key: maskKey(k.key) });
@@ -139,8 +142,8 @@ apiKeys.get('/:id', authMiddleware, (c) => {
 // ============================================================
 // PATCH /api/v1/keys/:id
 // ============================================================
-apiKeys.patch('/:id', authMiddleware, async (c) => {
-  const userId = c.get('userId');
+apiKeys.patch('/:id', authMiddleware as any, async (c: any) => {
+  const userId = c.get("userId") as string;
   const i = keys.findIndex(k => k.id === c.req.param('id') && k.user_id === userId);
   if (i === -1) return bad(c, 'Key not found', 404);
 
@@ -154,8 +157,8 @@ apiKeys.patch('/:id', authMiddleware, async (c) => {
 // ============================================================
 // DELETE /api/v1/keys/:id
 // ============================================================
-apiKeys.delete('/:id', authMiddleware, (c) => {
-  const userId = c.get('userId');
+apiKeys.delete('/:id', authMiddleware as any, (c: any) => {
+  const userId = c.get("userId") as string;
   const i = keys.findIndex(k => k.id === c.req.param('id') && k.user_id === userId);
   if (i === -1) return bad(c, 'Key not found', 404);
   keys.splice(i, 1);
@@ -165,8 +168,8 @@ apiKeys.delete('/:id', authMiddleware, (c) => {
 // ============================================================
 // POST /api/v1/keys/:id/revoke
 // ============================================================
-apiKeys.post('/:id/revoke', authMiddleware, (c) => {
-  const userId = c.get('userId');
+apiKeys.post('/:id/revoke', authMiddleware as any, (c: any) => {
+  const userId = c.get("userId") as string;
   const i = keys.findIndex(k => k.id === c.req.param('id') && k.user_id === userId);
   if (i === -1) return bad(c, 'Key not found', 404);
   keys[i].status = 'revoked';
@@ -177,8 +180,8 @@ apiKeys.post('/:id/revoke', authMiddleware, (c) => {
 // ============================================================
 // GET /api/v1/keys/:id/files — list files for a key
 // ============================================================
-apiKeys.get('/:id/files', authMiddleware, (c) => {
-  const userId = c.get('userId');
+apiKeys.get('/:id/files', authMiddleware as any, (c: any) => {
+  const userId = c.get("userId") as string;
   const k = keys.find(k => k.id === c.req.param('id') && k.user_id === userId);
   if (!k) return bad(c, 'Key not found', 404);
 
@@ -192,8 +195,8 @@ apiKeys.get('/:id/files', authMiddleware, (c) => {
 // ============================================================
 // POST /api/v1/keys/:id/files — add a file to a key
 // ============================================================
-apiKeys.post('/:id/files', authMiddleware, async (c) => {
-  const userId = c.get('userId');
+apiKeys.post('/:id/files', authMiddleware as any, async (c: any) => {
+  const userId = c.get("userId") as string;
   const k = keys.find(k => k.id === c.req.param('id') && k.user_id === userId);
   if (!k) return bad(c, 'Key not found', 404);
 
@@ -224,8 +227,8 @@ apiKeys.post('/:id/files', authMiddleware, async (c) => {
 // ============================================================
 // DELETE /api/v1/keys/:keyId/files/:fileId
 // ============================================================
-apiKeys.delete('/:keyId/files/:fileId', authMiddleware, (c) => {
-  const userId = c.get('userId');
+apiKeys.delete('/:keyId/files/:fileId', authMiddleware as any, (c: any) => {
+  const userId = c.get("userId") as string;
   const k = keys.find(k => k.id === c.req.param('keyId') && k.user_id === userId);
   if (!k) return bad(c, 'Key not found', 404);
 

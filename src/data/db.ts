@@ -106,7 +106,8 @@ export async function checkDbConnection(): Promise<boolean> {
     }
 
     // Lazy-load to avoid adding dependency issues in environments that only use proxy.
-    const pgMod: any = await import('pg');
+    // @ts-ignore - pg ESM module lacks types
+    const pgMod: any = await import("pg");
     const Pool = pgMod.Pool;
 
     if (!directPool) {
@@ -209,7 +210,7 @@ async function query(sql: string, params?: any[]): Promise<{ rows: any[]; rowCou
         body: JSON.stringify({ sql, params }),
       });
       if (!response.ok) return { rows: [] };
-      return await response.json();
+      return await response.json() as { rows: any[]; rowCount?: number };
     } catch {
       return { rows: [] };
     }

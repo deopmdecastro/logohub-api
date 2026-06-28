@@ -147,14 +147,14 @@ export const store = {
 
   // --- API KEYS ---
   async listKeys(userId?: string) {
-    if (await useDatabase()) { const list = await db.listApiKeys(userId); if (list.length > 0) return list.map(k => ({ ...k, requests_24h: k.requests || 0 })); }
+    if (await useDatabase()) { const list = await db.listApiKeys(userId); if (list.length > 0) return list.map((k: any) => ({ ...k, requests_24h: k.requests || 0 })); }
     let keys = [...memApiKeys];
     if (userId) keys = keys.filter(k => k.user_id === userId);
-    return keys.map(k => ({ ...k, requests_24h: k.requests || 0 }));
+    return keys.map((k: any) => ({ ...k, requests_24h: k.requests || 0 }));
   },
   async getKey(id: string) {
     const keys = await this.listKeys();
-    return keys.find(k => k.id === id) || null;
+    return keys.find((k: any) => k.id === id) || null;
   },
   async createKey(data: any) {
     if (await useDatabase()) {

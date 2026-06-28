@@ -1,5 +1,5 @@
 import { HEAD, COMMON_JS } from './shared';
-import { sidebar, topbar, shellWrap } from './layout';
+import { sidebar, topbar, shellWrap, creatorSidebar, consumerSidebar } from './layout';
 
 // ============================================================
 // /dashboard/settings  — including Git
@@ -53,13 +53,13 @@ function renderBrand() {
         '<div class="card p-4"><p class="text-[10px] font-semibold mb-2" style="color:var(--text-mute)">LOGO</p>'+
           '<div style="display:flex;align-items:center;gap:1rem">'+
             '<div id="logoPreview" style="width:64px;height:64px;border-radius:16px;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#1a1a1a;overflow:hidden">L</div>'+
-            '<div><label class="btn btn-ghost btn-sm" style="cursor:pointer"><i class="fas fa-upload text-[10px] mr-1"></i> Upload logo<input type="file" class="hidden" accept="image/*" onchange="handleLogoUpload(this)"></label><p class="text-[9px] mt-1" style="color:var(--text-mute)">Recommended: SVG or PNG, 128x128px</p></div>'+
+            '<div><label class="btn btn-ghost btn-sm" style="cursor:pointer"><i class="fas fa-upload text-[10px] mr-1"></i> Upload logo<input type="file" class="hidden" accept="image/*" onchange="LH.handleLogoUpload(this)"></label><p class="text-[9px] mt-1" style="color:var(--text-mute)">Recommended: SVG or PNG, 128x128px</p></div>'+
           '</div>'+
         '</div>'+
         '<div class="card p-4"><p class="text-[10px] font-semibold mb-2" style="color:var(--text-mute)">FAVICON</p>'+
           '<div style="display:flex;align-items:center;gap:1rem">'+
             '<div id="faviconPreview" style="width:32px;height:32px;border-radius:8px;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:#1a1a1a;overflow:hidden">L</div>'+
-            '<div><label class="btn btn-ghost btn-sm" style="cursor:pointer"><i class="fas fa-upload text-[10px] mr-1"></i> Upload favicon<input type="file" class="hidden" accept="image/*,.ico" onchange="handleFaviconUpload(this)"></label><p class="text-[9px] mt-1" style="color:var(--text-mute)">Recommended: ICO or PNG, 32x32px</p></div>'+
+            '<div><label class="btn btn-ghost btn-sm" style="cursor:pointer"><i class="fas fa-upload text-[10px] mr-1"></i> Upload favicon<input type="file" class="hidden" accept="image/*,.ico" onchange="LH.handleFaviconUpload(this)"></label><p class="text-[9px] mt-1" style="color:var(--text-mute)">Recommended: ICO or PNG, 32x32px</p></div>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -143,36 +143,6 @@ document.querySelectorAll('#settingsTabs .tab-pill').forEach(b => b.onclick = ()
 
 load();
 
-function handleLogoUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('logoPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_logo_url', e.target.result);
-    LH.toast('success', 'Logo updated');
-  };
-  reader.readAsDataURL(file);
-}
-function handleFaviconUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('faviconPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_favicon_url', e.target.result);
-    LH.toast('success', 'Favicon updated');
-  };
-  reader.readAsDataURL(file);
-}
 </script>
 `)}
 `;
@@ -244,36 +214,6 @@ async function delMember(id) {
 }
 load();
 
-function handleLogoUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('logoPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_logo_url', e.target.result);
-    LH.toast('success', 'Logo updated');
-  };
-  reader.readAsDataURL(file);
-}
-function handleFaviconUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('faviconPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_favicon_url', e.target.result);
-    LH.toast('success', 'Favicon updated');
-  };
-  reader.readAsDataURL(file);
-}
 </script>
 `)}
 `;
@@ -364,36 +304,6 @@ function editUser(id) {
 }
 load();
 
-function handleLogoUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('logoPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_logo_url', e.target.result);
-    LH.toast('success', 'Logo updated');
-  };
-  reader.readAsDataURL(file);
-}
-function handleFaviconUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('faviconPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_favicon_url', e.target.result);
-    LH.toast('success', 'Favicon updated');
-  };
-  reader.readAsDataURL(file);
-}
 </script>
 `)}`;
 
@@ -697,36 +607,6 @@ async function switchPlan(name, price, quota) {
 }
 load();
 
-function handleLogoUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('logoPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_logo_url', e.target.result);
-    LH.toast('success', 'Logo updated');
-  };
-  reader.readAsDataURL(file);
-}
-function handleFaviconUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('faviconPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_favicon_url', e.target.result);
-    LH.toast('success', 'Favicon updated');
-  };
-  reader.readAsDataURL(file);
-}
 </script>
 `)}
 `;
@@ -799,36 +679,6 @@ async function load() {
 }
 load();
 
-function handleLogoUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('logoPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_logo_url', e.target.result);
-    LH.toast('success', 'Logo updated');
-  };
-  reader.readAsDataURL(file);
-}
-function handleFaviconUpload(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'contain';
-    const preview = document.getElementById('faviconPreview');
-    preview.innerHTML = '';
-    preview.appendChild(img);
-    saveSetting('brand_favicon_url', e.target.result);
-    LH.toast('success', 'Favicon updated');
-  };
-  reader.readAsDataURL(file);
-}
 </script>
 `)}
 `;

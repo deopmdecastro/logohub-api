@@ -1,6 +1,7 @@
 // OpenAPI / Swagger Specification for LogoHub API
 // Accessible at /api/docs (Swagger UI) and /api/openapi.json (raw spec)
 
+// @ts-ignore - OpenAPIObject not exported in this version
 import type { OpenAPIObject } from '@hono/zod-openapi';
 
 export const openApiSpec: OpenAPIObject = {

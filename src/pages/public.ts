@@ -458,7 +458,7 @@ loadLanding();
 // =========================================================================
 // /explorer  — dynamic asset browser
 // =========================================================================
-export const explorerPage = () => `${"$"}{HEAD('Explorer — LogoHub API', COMMON_JS)}
+export const explorerPage = () => `${HEAD('Explorer — LogoHub API', COMMON_JS)}
 <body class="font-sans">
 <nav class="fixed top-0 w-full z-50 nav-blur">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -492,7 +492,7 @@ load();
 // =========================================================================
 // /docs  — API documentation
 // =========================================================================
-export const docsPage = () => `${"$"}{HEAD('Documentation — LogoHub API', COMMON_JS)}
+export const docsPage = () => `${HEAD('Documentation — LogoHub API', COMMON_JS)}
 <body class="font-sans">
 <nav class="fixed top-0 w-full z-50 nav-blur"><div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between"><a href="/" class="flex items-center gap-2 font-bold"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:#1a1a1a"><i class="fas fa-sparkles" style="color:#b8a9e8"></i></div>LogoHub <span class="gradient-text-lilac ml-1">API</span></a><div class="flex items-center gap-3"><a href="/explorer" class="text-sm" style="color:var(--text-soft)">Explorer</a><button id="themeBtn" onclick="LH.toggleTheme()" class="btn btn-ghost btn-icon"><i class="fas fa-sun"></i></button><a href="/login" class="btn btn-primary btn-sm">Dashboard</a></div></div></nav>
 <div class="flex pt-16">
