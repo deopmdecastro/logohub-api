@@ -15,16 +15,16 @@ export const landingPage = () => {
       <span class="pill pill-lilac ml-1">v1</span>
     </div>
     <div class="hidden md:flex items-center gap-7 text-sm" style="color:var(--text-soft)">
-      <a href="/docs" class="hover:text-white transition-colors">Docs</a>
-      <a href="/explorer" class="hover:text-white transition-colors">Explorer</a>
-      <a href="/playground" class="hover:text-white transition-colors">Playground</a>
-      <a href="/blog" class="hover:text-white transition-colors">Blog</a>
-      <a href="/faq" class="hover:text-white transition-colors">FAQ</a>
-      <a href="/#pricing" class="hover:text-white transition-colors">Pricing</a>
+      <a href="/docs" class="hover:text-white transition-colors" data-i18n="nav.docs">Docs</a>
+      <a href="/explorer" class="hover:text-white transition-colors" data-i18n="nav.explorer">Explorer</a>
+      <a href="/playground" class="hover:text-white transition-colors" data-i18n="nav.playground">Playground</a>
+      <a href="/blog" class="hover:text-white transition-colors" data-i18n="nav.blog">Blog</a>
+      <a href="/faq" class="hover:text-white transition-colors" data-i18n="nav.faq">FAQ</a>
+      <a href="/#pricing" class="hover:text-white transition-colors" data-i18n="nav.pricing">Pricing</a>
     </div>
     <div class="flex items-center gap-2">
       <button id="themeBtn" onclick="LH.toggleTheme()" class="btn btn-ghost btn-icon" title="Toggle theme"><i class="fas fa-sun"></i></button>
-      <a href="/login" class="btn btn-ghost btn-sm">Log in</a>
+      <a href="/login" class="btn btn-ghost btn-sm" data-i18n="nav.login">Log in</a>
       <a href="/register" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Get API Key</a>
     </div>
   </div>
@@ -55,8 +55,8 @@ export const landingPage = () => {
       <span>Try:</span>
     </div>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="/docs" class="btn btn-primary text-base px-6 py-3"><i class="fas fa-book"></i> Read the Docs</a>
-      <a href="/explorer" class="btn btn-ghost text-base px-6 py-3"><i class="fas fa-compass"></i> Explore Assets</a>
+      <a href="/docs" class="btn btn-primary text-base px-6 py-3"><i class="fas fa-book"></i> <span data-i18n="landing.read_docs">Read the Docs</span></a>
+      <a href="/explorer" class="btn btn-ghost text-base px-6 py-3"><i class="fas fa-compass"></i> <span data-i18n="landing.explore_assets">Explore Assets</span></a>
     </div>
     <div class="flex flex-wrap justify-center gap-10 mt-16 pt-8" style="border-top:1px solid var(--border)" id="statsBar">
     </div>
@@ -66,7 +66,7 @@ export const landingPage = () => {
 <!-- CATEGORIES -->
 <section class="py-16 px-4" style="border-top:1px solid var(--border)">
   <div class="max-w-6xl mx-auto">
-    <h2 class="text-center text-sm uppercase tracking-widest mb-10 font-semibold" style="color:var(--text-mute)">Browse by Category</h2>
+    <h2 class="text-center text-sm uppercase tracking-widest mb-10 font-semibold" style="color:var(--text-mute)"><span data-i18n="landing.browse_category">Browse by Category</span></h2>
     <div id="categoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
   </div>
 </section>
@@ -74,7 +74,7 @@ export const landingPage = () => {
 <!-- POPULAR BRANDS -->
 <section class="py-16 px-4" style="border-top:1px solid var(--border)">
   <div class="max-w-6xl mx-auto">
-    <h2 class="text-center text-sm uppercase tracking-widest mb-10 font-semibold" style="color:var(--text-mute)">Popular Brands & Assets</h2>
+    <h2 class="text-center text-sm uppercase tracking-widest mb-10 font-semibold" style="color:var(--text-mute)"><span data-i18n="landing.popular_brands">Popular Brands & Assets</span></h2>
     <div id="popularBrandsGrid" class="grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-10 gap-3"></div>
   </div>
 </section>
@@ -85,7 +85,7 @@ export const landingPage = () => {
     <div class="text-center mb-12">
       <span class="pill pill-lilac mb-4">REST API</span>
       <h2 class="text-4xl font-black mb-3 mt-3" style="color:var(--text)">Simple. Consistent. <span class="gradient-text">Powerful.</span></h2>
-      <p class="text-lg max-w-2xl mx-auto" style="color:var(--text-soft)">One unified API for all your visual identity needs.</p>
+      <p class="text-lg max-w-2xl mx-auto" style="color:var(--text-soft)"><span data-i18n="landing.api_subtitle">One unified API for all your visual identity needs.</span></p>
     </div>
     <div class="grid lg:grid-cols-2 gap-5" id="apiExamplesGrid"></div>
   </div>
@@ -96,7 +96,7 @@ export const landingPage = () => {
   <div class="max-w-6xl mx-auto">
     <div class="text-center mb-12">
       <h2 class="text-4xl font-black mb-3" style="color:var(--text)">Built for <span class="gradient-text">Developers</span></h2>
-      <p class="text-lg max-w-2xl mx-auto" style="color:var(--text-soft)">Everything you need without worrying about visual assets.</p>
+      <p class="text-lg max-w-2xl mx-auto" style="color:var(--text-soft)"><span data-i18n="landing.features_subtitle">Everything you need without worrying about visual assets.</span></p>
     </div>
     <div class="grid md:grid-cols-3 gap-5" id="featuresGrid"></div>
   </div>
@@ -121,9 +121,9 @@ export const landingPage = () => {
       <div class="relative">
         <div class="text-6xl mb-6">🚀</div>
         <h2 class="text-4xl font-black mb-3" style="color:var(--text)">Ready to <span class="gradient-text">Build?</span></h2>
-        <p class="text-lg mb-8 max-w-xl mx-auto" style="color:var(--text-soft)">Join 10,000+ developers using LogoHub API. Free plan. No credit card required.</p>
+        <p class="text-lg mb-8 max-w-xl mx-auto" style="color:var(--text-soft)"><span data-i18n="landing.cta_subtitle">Join 10,000+ developers using LogoHub API. Free plan. No credit card required.</span></p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="/register" class="btn btn-primary text-base px-8 py-3.5"><i class="fas fa-bolt mr-1.5"></i> Get your free API key</a>
+          <a href="/register" class="btn btn-primary text-base px-8 py-3.5"><i class="fas fa-bolt mr-1.5"></i> <span data-i18n="landing.cta_button">Get your free API key</span></a>
           <a href="/docs" class="btn btn-ghost text-base px-8 py-3.5">Read Docs</a>
         </div>
       </div>
@@ -142,12 +142,12 @@ export const landingPage = () => {
         </div>
         <p class="text-sm leading-relaxed mb-4" style="color:var(--text-soft)">The world's most comprehensive visual identity API. 50K+ assets. Global CDN.</p>
       </div>
-      <div><h4 class="font-semibold text-sm mb-4" style="color:var(--text)">Product</h4><ul class="space-y-2"><li><a href="/docs" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">API Reference</a></li><li><a href="/docs#sdks" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">SDKs</a></li><li><a href="/playground" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Playground</a></li><li><a href="/explorer" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Explorer</a></li><li><a href="/dashboard" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Dashboard</a></li></ul></div>
-      <div><h4 class="font-semibold text-sm mb-4" style="color:var(--text)">Resources</h4><ul class="space-y-2"><li><a href="/docs" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Documentation</a></li><li><a href="/blog" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Blog</a></li><li><a href="/faq" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">FAQ</a></li><li><a href="/api/v1/health" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">API Status</a></li></ul></div>
-      <div><h4 class="font-semibold text-sm mb-4" style="color:var(--text)">Company</h4><ul class="space-y-2"><li><a href="/about" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">About</a></li><li><a href="/#pricing" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Pricing</a></li><li><a href="/contact" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Contact</a></li><li><a href="/privacy" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Privacy</a></li><li><a href="/terms" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Terms</a></li></ul></div>
+      <div><h4 class="font-semibold text-sm mb-4" style="color:var(--text)">Product</h4><ul class="space-y-2"><li><a href="/docs" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)" data-i18n="landing.footer_api_ref">API Reference</a></li><li><a href="/docs#sdks" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">SDKs</a></li><li><a href="/playground" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Playground</a></li><li><a href="/explorer" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Explorer</a></li><li><a href="/dashboard" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)" data-i18n="landing.footer_dashboard">Dashboard</a></li></ul></div>
+      <div><h4 class="font-semibold text-sm mb-4" style="color:var(--text)">Resources</h4><ul class="space-y-2"><li><a href="/docs" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Documentation</a></li><li><a href="/blog" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Blog</a></li><li><a href="/faq" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">FAQ</a></li><li><a href="/api/v1/health" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)" data-i18n="landing.footer_api_status">API Status</a></li></ul></div>
+      <div><h4 class="font-semibold text-sm mb-4" style="color:var(--text)">Company</h4><ul class="space-y-2"><li><a href="/about" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)" data-i18n="landing.footer_about">About</a></li><li><a href="/#pricing" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)">Pricing</a></li><li><a href="/contact" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)" data-i18n="landing.footer_contact">Contact</a></li><li><a href="/privacy" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)" data-i18n="landing.footer_privacy">Privacy</a></li><li><a href="/terms" class="text-sm hover:text-white transition-colors" style="color:var(--text-soft)" data-i18n="landing.footer_terms">Terms</a></li></ul></div>
     </div>
     <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4" style="border-top:1px solid var(--border)">
-      <p class="text-sm" style="color:var(--text-mute)">© 2026 LogoHub API. All rights reserved.</p>
+      <p class="text-sm" style="color:var(--text-mute)"><span data-i18n="landing.footer_copyright">© 2026 LogoHub API. All rights reserved.</span></p>
       <div class="flex items-center gap-2 text-sm" style="color:var(--text-mute)" id="healthIndicator">
         <span class="w-2 h-2 rounded-full animate-pulse-dot" style="background:#4ade80"></span>
         <span>Loading status…</span>
@@ -175,7 +175,7 @@ async function loadLanding() {
     const healthJson = await healthRes.json();
     const healthOk = healthJson.status === 'ok';
     const hi = document.getElementById('healthIndicator');
-    if (hi) hi.innerHTML = '<span class="w-2 h-2 rounded-full animate-pulse-dot" style="background:'+(healthOk?'#4ade80':'#ff6b6b')+'"></span><span>'+(healthOk?'All systems operational':'Degraded performance')+'</span>';
+    if (hi) hi.innerHTML = '<span class="w-2 h-2 rounded-full animate-pulse-dot" style="background:'+(healthOk?'#4ade80':'#ff6b6b')+'"></span><span>'+(healthOk?'<span data-i18n="landing.operational">All systems operational</span>':'Degraded performance')+'</span>';
 
     renderAll();
     console.log('Landing page rendered. LANDING:', LANDING ? 'OK' : 'UNDEFINED', 'topLogos:', LANDING && LANDING.topLogos ? LANDING.topLogos.length : 0, 'categories:', LANDING && LANDING.categories ? LANDING.categories.length : 0);

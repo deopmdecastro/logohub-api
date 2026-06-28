@@ -32,25 +32,25 @@ export const sidebar = (activeId: string, planName = 'Business', used = 248391, 
     </div>
     <div>
       <p class="text-sm font-bold leading-tight tracking-tight" style="color:var(--text)">LogoHub <span style="color:var(--text-mute)">API</span></p>
-      <p class="text-[10px]" style="color:var(--text-mute)">Admin Console · v1</p>
+      <p class="text-[10px]" style="color:var(--text-mute)" data-i18n="nav.admin_console">Admin Console · v1</p>
     </div>
   </a>
   <nav class="space-y-0.5 flex-1 overflow-y-auto -mx-1 px-1">${items}</nav>
   <div class="card p-4 mt-5">
     <div class="flex items-center justify-between mb-1.5">
-      <p class="text-[10px] uppercase tracking-wide font-semibold" style="color:var(--text-mute)">Admin Plan</p>
+      <p class="text-[10px] uppercase tracking-wide font-semibold" style="color:var(--text-mute)" data-i18n="dashboard.admin_plan">Admin Plan</p>
       <span class="pill pill-lilac">${planName}</span>
     </div>
     <p class="text-[11px]" style="color:var(--text-soft)">${used.toLocaleString()} / ${quota.toLocaleString()} requests</p>
     <div class="mt-2 h-1.5 rounded-full overflow-hidden" style="background: var(--border)">
       <div class="h-full rounded-full" style="width:${pct}%; background:#b8a9e8;"></div>
     </div>
-    <a href="/dashboard/billing" class="mt-3 block text-center text-[11px] font-medium py-1.5 rounded-full btn-primary">Manage billing</a>
+    <a href="/dashboard/billing" class="mt-3 block text-center text-[11px] font-medium py-1.5 rounded-full btn-primary"><span data-i18n="dashboard.manage_billing">Manage billing</span></a>
   </div>
   <div class="mt-3 pt-3" style="border-top:1px solid var(--border)">
-    <a href="/dashboard/notifications" class="sidebar-item"><span class="ic" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-bell text-[10px]"></i></span>Notifications</a>
-    <a href="/dashboard/profile" class="sidebar-item"><span class="ic" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-user-circle text-[10px]"></i></span>My Profile</a>
-    <a href="#" class="sidebar-item" onclick="event.preventDefault();LH.logout()" style="color:#ff6b6b"><span class="ic" style="background:#ff6b6b22;color:#ff6b6b"><i class="fas fa-sign-out-alt text-[10px]"></i></span>Sign out</a>
+    <a href="/dashboard/notifications" class="sidebar-item"><span class="ic" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-bell text-[10px]"></i></span><span data-i18n="dashboard.notifications">Notifications</span></a>
+    <a href="/dashboard/profile" class="sidebar-item"><span class="ic" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-user-circle text-[10px]"></i></span><span data-i18n="dashboard.my_profile">My Profile</span></a>
+    <a href="#" class="sidebar-item" onclick="event.preventDefault();LH.logout()" style="color:#ff6b6b"><span class="ic" style="background:#ff6b6b22;color:#ff6b6b"><i class="fas fa-sign-out-alt text-[10px]"></i></span><span data-i18n="nav.logout">Sign out</span></a>
   </div>
 </aside>`;
 };
@@ -66,6 +66,7 @@ export const topbar = (title: string, subtitle = '') => `
   </div>
   <div class="flex items-center gap-1.5">
     <!-- Theme toggle -->
+    <button id="langBtn" onclick="LH.toggleLang()" class="btn btn-ghost btn-icon" title="EN / PT"><span style="font-size:.65rem;font-weight:700">PT</span></button>
     <button id="themeBtn" onclick="LH.toggleTheme()" class="btn btn-ghost btn-icon" title="Toggle theme"><i class="fas fa-sun"></i></button>
 
     <!-- Notification bell -->
