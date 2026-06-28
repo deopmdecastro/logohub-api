@@ -51,18 +51,18 @@ export const loginPage = () => `<!DOCTYPE html>
         <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black" style="background:var(--lilac);color:#1a1a1a">L</div>
         <div><h1 class="text-2xl font-black" style="color:var(--text)">LogoHub</h1><p class="text-sm" style="color:var(--text-soft)">The World's Largest Visual Identity API</p></div>
       </div>
-      <h2 class="text-3xl font-black mb-3">data-i18n="auth.welcome_back">Welcome back</h2>
-      <p class="text-lg" style="color:var(--text-soft)">data-i18n="auth.access_platform">Access 50,000+ logos, icons, and visual assets.</p>
+      <h2 class="text-3xl font-black mb-3" data-i18n="auth.welcome_back">Welcome back</h2>
+      <p class="text-lg" style="color:var(--text-soft)" data-i18n="auth.access_platform">Access 50,000+ logos, icons, and visual assets.</p>
       <div class="grid grid-cols-2 gap-3 mt-8">
         <div class="p-4 rounded-xl" style="background:rgba(184,169,232,.06);border:1px solid rgba(184,169,232,.12)">
           <i class="fas fa-bolt text-xl mb-2" style="color:#b8a9e8"></i>
-          <p class="text-sm font-semibold">data-i18n="auth.fast_api">Fast API</p>
-          <p class="text-[11px]" style="color:var(--text-mute)">data-i18n="auth.fast_api.desc">Sub-20ms responses</p>
+          <p class="text-sm font-semibold" data-i18n="auth.fast_api">Fast API</p>
+          <p class="text-[11px]" style="color:var(--text-mute)" data-i18n="auth.fast_api.desc">Sub-20ms responses</p>
         </div>
         <div class="p-4 rounded-xl" style="background:rgba(78,205,196,.06);border:1px solid rgba(78,205,196,.12)">
           <i class="fas fa-shield-alt text-xl mb-2" style="color:#4ecdc4"></i>
-          <p class="text-sm font-semibold">data-i18n="auth.secure">Secure</p>
-          <p class="text-[11px]" style="color:var(--text-mute)">data-i18n="auth.secure.desc">API key auth</p>
+          <p class="text-sm font-semibold" data-i18n="auth.secure">Secure</p>
+          <p class="text-[11px]" style="color:var(--text-mute)" data-i18n="auth.secure.desc">API key auth</p>
         </div>
       </div>
     </div>
@@ -75,8 +75,8 @@ export const loginPage = () => `<!DOCTYPE html>
         <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black mx-auto mb-3" style="background:var(--lilac);color:#1a1a1a">L</div>
         <h1 class="text-xl font-black">LogoHub</h1>
       </div>
-      <h2 class="text-xl font-bold mb-1">data-i18n="auth.sign_in_btn">Sign in</h2>
-      <p class="text-sm mb-6" style="color:var(--text-soft)">data-i18n="auth.credentials">Enter your credentials to continue</p>
+      <h2 class="text-xl font-bold mb-1" data-i18n="auth.sign_in_btn">Sign in</h2>
+      <p class="text-sm mb-6" style="color:var(--text-soft)" data-i18n="auth.credentials">Enter your credentials to continue</p>
 
       <!-- Quick Login Buttons — click fills credentials, does NOT auto-submit -->
       <div class="space-y-2 mb-4">
@@ -115,7 +115,7 @@ export const loginPage = () => `<!DOCTYPE html>
             <input type="password" class="input" id="loginPassword" placeholder="••••••••" required>
             <button type="button" onclick="togglePassword('loginPassword')" style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-mute);cursor:pointer"><i class="fas fa-eye"></i></button>
           </div>
-          <p class="field-hint"><a href="/forgot-password" class="link">data-i18n="auth.forgot_password">Forgot password?</a></p>
+          <p class="field-hint"><a href="/forgot-password" class="link" data-i18n="auth.forgot_password">Forgot password?</a></p>
         </div>
         <button type="submit" class="btn btn-primary w-full" id="loginBtn">
           <i class="fas fa-sign-in-alt"></i> Sign in
@@ -123,7 +123,7 @@ export const loginPage = () => `<!DOCTYPE html>
       </form>
 
       <p class="text-sm text-center mt-4" style="color:var(--text-soft)">
-        data-i18n="auth.no_account">Don't have an account? <a href="/register" class="link">data-i18n="auth.create_one">Create one</a>
+        data-i18n="auth.no_account">Don't have an account? <a href="/register" class="link" data-i18n="auth.create_one">Create one</a>
       </p>
     </div>
   </div>
