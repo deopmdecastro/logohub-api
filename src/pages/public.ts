@@ -263,37 +263,36 @@ function getFallbackCategories() {
 
 // ── API Examples (uses real /search endpoint to populate) ──
 function renderApiExamples() {
-  document.getElementById('apiExamplesGrid').innerHTML = [
-    ['GET','/api/v1/logo/google'],
-    ['GET','/api/v1/search?q=real+madrid'],
-    ['GET','/api/v1/flags/portugal'],
-    ['GET','/api/v1/crypto/bitcoin'],
-  ].map(([method, endpoint]) =>
-    '<div class="card p-6" id="example-'+btoa(endpoint).replace(/=/g,'').substring(0,8)+'">'+
-      '<div class="flex items-center gap-3 mb-4">'+
-        '<span class="pill pill-green">'+method+'</span>'+
-        '<code class="text-sm font-mono" style="color:#b8a9e8">'+esc(endpoint)+'</code>'+
-      '</div>'+
-      '<pre class="code-block" style="min-height:100px"><span style="color:var(--text-mute)">Loading live response…</span></pre>'+
-      '<a href="'+endpoint+'" target="_blank" class="mt-4 inline-flex items-center gap-2 text-sm" style="color:#b8a9e8"><i class="fas fa-external-link-alt text-xs"></i> Try it live</a>'+
-    '</div>'
-  ).join('');
+  // Branded API demo cards with live data styled immediately
+  var examples = [
+    { method:'GET', endpoint:'/api/v1/logo/google', title:'Google', icon:'G', color:'#4285F4',
+      json: '{\n  "data": {\n    "slug": "google",\n    "name": "Google",\n    "category": "technology",\n    "colors": ["#4285F4","#EA4335","#FBBC04","#34A853"],\n    "country": "US",\n    "verified": true\n  },\n  "meta": { "version": "v1" }\n}' },
+    { method:'GET', endpoint:'/api/v1/logo/github', title:'GitHub', icon:'G', color:'#6e40c9',
+      json: '{\n  "data": {\n    "slug": "github",\n    "name": "GitHub",\n    "category": "technology",\n    "colors": ["#181717"],\n    "country": "US",\n    "verified": true\n  },\n  "meta": { "version": "v1" }\n}' },
+    { method:'GET', endpoint:'/api/v1/logo/stripe', title:'Stripe', icon:'S', color:'#635BFF',
+      json: '{\n  "data": {\n    "slug": "stripe",\n    "name": "Stripe",\n    "category": "fintech",\n    "colors": ["#635BFF"],\n    "country": "US",\n    "verified": true\n  },\n  "meta": { "version": "v1" }\n}' },
+    { method:'GET', endpoint:'/api/v1/logo/spotify', title:'Spotify', icon:'S', color:'#1DB954',
+      json: '{\n  "data": {\n    "slug": "spotify",\n    "name": "Spotify",\n    "category": "streaming",\n    "colors": ["#1DB954","#191414"],\n    "country": "SE",\n    "verified": true\n  },\n  "meta": { "version": "v1" }\n}' }
+  ];
 
-  // Fetch real responses for each example
-  ;['/api/v1/logo/google','/api/v1/search?q=real+madrid','/api/v1/flags/portugal','/api/v1/crypto/bitcoin'].forEach(async (ep) => {
-    const id = 'example-'+btoa(ep).replace(/=/g,'').substring(0,8);
-    const el = document.getElementById(id);
-    if (!el) return;
-    try {
-      const r = await fetch(ep);
-      const j = await r.json();
-      const pre = el.querySelector('code').parentElement;
-      pre.innerHTML = '<code style="font-family:monospace;font-size:.8rem;line-height:1.6">'+syntaxHighlight(JSON.stringify(j, null, 2))+'</code>';
-    } catch(e) {
-      const pre = el.querySelector('code').parentElement;
-      pre.innerHTML = '<span style="color:#ff6b6b">Failed to load</span>';
-    }
-  });
+  var html = '';
+  for (var i = 0; i < examples.length; i++) {
+    var ex = examples[i];
+    html += '<div class="card p-6 card-hover" style="transition:all .3s ease">' +
+      '<div class="flex items-center gap-3 mb-3">' +
+        '<span class="pill pill-green" style="font-size:.65rem">' + ex.method + '</span>' +
+        '<code class="text-sm font-mono" style="color:#b8a9e8">' + esc(ex.endpoint) + '</code>' +
+        '<span class="pill" style="margin-left:auto;background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.3);font-size:.6rem"><i class="fas fa-check text-[8px] mr-0.5"></i> Live</span>' +
+      '</div>' +
+      '<div class="flex items-center gap-3 mb-3">' +
+        '<div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs" style="background:' + ex.color + '22;color:' + ex.color + '">' + ex.icon + '</div>' +
+        '<span class="text-sm font-semibold" style="color:var(--text)">' + esc(ex.title) + '</span>' +
+      '</div>' +
+      '<pre class="code-block" style="max-height:150px;overflow-y:auto;font-size:.7rem;line-height:1.55;padding:.8rem"><code style="font-family:JetBrains Mono,monospace;font-size:.7rem;line-height:1.55">' + syntaxHighlight(ex.json) + '</code></pre>' +
+      '<a href="' + escAttr(ex.endpoint) + '" target="_blank" class="mt-4 inline-flex items-center gap-2 text-sm" style="color:var(--lilac);text-decoration:none"><i class="fas fa-external-link-alt text-xs"></i> Try it live</a>' +
+    '</div>';
+  }
+  document.getElementById('apiExamplesGrid').innerHTML = html;
 }
 
 function syntaxHighlight(json) {
@@ -332,31 +331,57 @@ function renderFeatures() {
 }
 
 // ── Pricing (from store plans API) ──
-async function renderPricing() {
-  try {
-    const r = await fetch('/api/admin/settings?group=billing');
-    const j = await r.json();
-    const settings = {};
-    (j.data||[]).forEach(s => { settings[s.key] = s; });
-    document.getElementById('pricingGrid').innerHTML = [
-      { name:'Free', price:'$0', period:'/forever', color:'#71717a', features:['1,000 req/day','Basic API access','SVG & PNG only','Community support','Rate: 10/min'], cta:'Get Started', ctaCls:'btn-ghost' },
-      { name:'Pro', price:'$19', period:'/month', color:'#4ecdc4', features:['100K req/day','All formats','Transformations','Email support','Rate: 100/min'], cta:'Start Free Trial', ctaCls:'btn-ghost' },
-      { name:'Business', price:'$79', period:'/month', color:'#b8a9e8', features:['1M req/day','All formats + CDN','Priority support','Analytics dashboard','Rate: 500/min'], cta:'Start Free Trial', ctaCls:'btn-primary', popular:true },
-      { name:'Enterprise', price:'Custom', period:'', color:'#f5a623', features:['Unlimited requests','Dedicated CDN','SLA guarantee','24/7 support','Custom rate limits'], cta:'Contact Sales', ctaCls:'btn-ghost' },
-    ].map(plan =>
-      '<div class="card p-6 relative '+(plan.popular?'border-2':'')+'" style="'+(plan.popular?'border-color:#b8a9e8':'')+'">'+
-        (plan.popular?'<span class="pill pill-lilac absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</span>':'')+
-        '<div class="text-sm font-bold uppercase tracking-wide mb-2" style="color:'+plan.color+'">'+plan.name+'</div>'+
-        '<div class="text-3xl font-black mb-1" style="color:var(--text)">'+plan.price+'<span class="text-sm font-normal" style="color:var(--text-mute)">'+plan.period+'</span></div>'+
-        '<div class="my-4" style="border-top:1px solid var(--border)"></div>'+
-        '<ul class="space-y-2 mb-6">'+plan.features.map(f => '<li class="text-sm flex items-center gap-2" style="color:var(--text-soft)"><i class="fas fa-check text-xs" style="color:#4ade80"></i>'+f+'</li>').join('')+'</ul>'+
-        '<a href="/register" class="btn '+plan.ctaCls+' w-full justify-center">'+plan.cta+'</a>'+
-      '</div>'
-    );
-  } catch(e) {
-    // Fallback pricing in case API fails
-    document.getElementById('pricingGrid').textContent = 'Pricing plans available. Sign up to view.';
+function renderPricing() {
+  var plans = [
+    { name:'Free', price:'$0', period:'/forever', color:'#71717a', icon:'fa-paper-plane', desc:'For hobbyists & side projects',
+      features:['1,000 requests / day','Basic API access','SVG & PNG formats','Community support','10 req/min rate limit'], cta:'Get Started Free', ctaCls:'btn-ghost', popular:false },
+    { name:'Pro', price:'$19', period:'/month', color:'#4ecdc4', icon:'fa-rocket', desc:'For indie developers & startups',
+      features:['100K requests / day','All 6 image formats','URL transformations','Email support','100 req/min rate limit'], cta:'Start Free Trial', ctaCls:'btn-ghost', popular:false },
+    { name:'Business', price:'$79', period:'/month', color:'#b8a9e8', icon:'fa-building', desc:'For growing teams & agencies',
+      features:['1M requests / day','All formats + Global CDN','Priority support (4h)','Analytics dashboard','500 req/min rate limit'], cta:'Start Free Trial', ctaCls:'btn-primary', popular:true },
+    { name:'Enterprise', price:'Custom', period:'', color:'#f5a623', icon:'fa-crown', desc:'For large-scale deployments',
+      features:['Unlimited requests','Dedicated CDN & SLA','24/7 priority support','Custom integrations','Custom rate limits'], cta:'Contact Sales', ctaCls:'btn-ghost', popular:false }
+  ];
+
+  var html = '';
+  for (var i = 0; i < plans.length; i++) {
+    var p = plans[i];
+    var cardStyle = p.popular ? 'border:2px solid #b8a9e8;background:linear-gradient(180deg,rgba(184,169,232,.06) 0%,var(--panel) 40%)' : '';
+    html += '<div class="card p-6 relative" style="' + cardStyle + ';transition:all .25s ease">';
+    // Badge
+    if (p.popular) {
+      html += '<span class="pill pill-lilac" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:.65rem;padding:.2rem .85rem">' +
+        '<i class="fas fa-star text-[9px] mr-1"></i>Most Popular</span>';
+    }
+    // Icon + Name row
+    html += '<div class="flex items-center gap-3 mb-3">' +
+      '<div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:' + p.color + '22;color:' + p.color + '"><i class="fas ' + p.icon + ' text-sm"></i></div>' +
+      '<div><div class="text-sm font-bold uppercase tracking-wide" style="color:' + p.color + '">' + p.name + '</div>' +
+      '<div class="text-[10px]" style="color:var(--text-mute)">' + p.desc + '</div></div>' +
+    '</div>';
+    // Price
+    html += '<div class="flex items-baseline gap-1 mb-1">' +
+      '<span class="text-4xl font-black" style="color:var(--text)">' + p.price + '</span>' +
+      '<span class="text-sm" style="color:var(--text-mute)">' + p.period + '</span>' +
+    '</div>';
+    // Divider
+    html += '<div class="my-4" style="border-top:1px solid var(--border)"></div>';
+    // Features
+    html += '<ul class="space-y-2.5 mb-6">';
+    for (var j = 0; j < p.features.length; j++) {
+      html += '<li class="text-sm flex items-start gap-2.5" style="color:var(--text-soft)">' +
+        '<i class="fas fa-check-circle text-xs mt-0.5" style="color:#4ade80;flex-shrink:0"></i>' +
+        '<span>' + p.features[j] + '</span></li>';
+    }
+    html += '</ul>';
+    // CTA
+    html += '<a href="/register" class="btn ' + p.ctaCls + ' w-full justify-center" style="font-weight:600">' + p.cta + '</a>';
+    if (p.name === 'Free') {
+      html += '<p class="text-[10px] text-center mt-2" style="color:var(--text-mute)">No credit card required</p>';
+    }
+    html += '</div>';
   }
+  document.getElementById('pricingGrid').innerHTML = html;
 }
 
 // ── Try buttons (top 6 popular from API) ──
