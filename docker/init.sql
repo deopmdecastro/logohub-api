@@ -144,6 +144,54 @@ CREATE TABLE IF NOT EXISTS activity_log (
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+
+-- ============================================================
+-- BLOG POSTS
+-- ============================================================
+CREATE TABLE IF NOT EXISTS blog_posts (
+    id          VARCHAR(50) PRIMARY KEY,
+    title       VARCHAR(255) NOT NULL,
+    slug        VARCHAR(255) UNIQUE NOT NULL,
+    excerpt     TEXT,
+    content     TEXT,
+    category    VARCHAR(100),
+    tags        JSONB DEFAULT '[]'::jsonb,
+    author      VARCHAR(255),
+    status      VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+    image_url   TEXT,
+    published_at TIMESTAMPTZ,
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- FAQ ENTRIES
+-- ============================================================
+CREATE TABLE IF NOT EXISTS faq_entries (
+    id          VARCHAR(50) PRIMARY KEY,
+    question    TEXT NOT NULL,
+    answer      TEXT NOT NULL,
+    category    VARCHAR(100),
+    status      VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+    sort_order  INTEGER DEFAULT 0,
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- SUPPORT TICKETS
+-- ============================================================
+CREATE TABLE IF NOT EXISTS support_tickets (
+    id          VARCHAR(50) PRIMARY KEY,
+    subject     VARCHAR(255) NOT NULL,
+    description TEXT,
+    status      VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved', 'closed')),
+    priority    VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
+    user_id     UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================================
 -- PASSWORD RESET TOKENS
 -- ============================================================
