@@ -122,12 +122,44 @@ auth.patch('/me', authMiddleware, async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json().catch(() => ({}));
   const patch: any = {};
-  if (body.name) patch.name = body.name;
+  if (body.name !== undefined) patch.name = body.name;
+  if (body.email !== undefined) patch.email = body.email;
   if (body.avatar_url !== undefined) patch.avatar_url = body.avatar_url;
+  if (body.company !== undefined) patch.company = body.company;
+  if (body.website !== undefined) patch.website = body.website;
+  if (body.bio !== undefined) patch.bio = body.bio;
   const updated = await userStore.updateUser(userId, patch);
   if (!updated) return bad(c, 'User not found', 404);
   const { password_hash: _, ...safeUser } = updated;
   return ok(c, safeUser);
+});
+
+// ============================================================
+// DELETE /api/v1/auth/me — delete own account
+// ============================================================
+auth.delete('/me', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+  const deleted = await userStore.deleteUser(userId);
+  if (!deleted) return bad(c, 'User not found', 404);
+  return ok(c, { deleted: true });
+});
+
+// ============================================================
+// POST /api/v1/auth/change-password
+// ============================================================
+auth.post('/change-password', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json().catch(() => ({}));
+  const { current_password, new_password } = body;
+  if (!current_password || !new_password) return bad(c, 'Current and new password are required');
+  if (new_password.length < 8) return bad(c, 'New password must be at least 8 characters');
+  const user = await userStore.getUserById(userId);
+  if (!user) return bad(c, 'User not found', 404);
+  const valid = await compare(current_password, user.password_hash);
+  if (!valid) return bad(c, 'Current password is incorrect', 401);
+  const hash = await hash(new_password, 10);
+  await userStore.updateUser(userId, { password_hash: hash });
+  return ok(c, { message: 'Password updated successfully' });
 });
 
 // ============================================================

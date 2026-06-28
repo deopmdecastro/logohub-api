@@ -81,126 +81,104 @@ ${topbar('My Profile', 'Manage your account, security, and preferences')}
 </div>
 
 <script>
-let PROFILE_USER: any = null;
+var PROFILE_USER = null;
 
 async function loadProfile() {
   try {
-    const token = localStorage.getItem('logohub_token');
+    var token = localStorage.getItem('logohub_token');
     if (!token) { window.location.href = '/login'; return; }
-    const r = await fetch('/api/v1/auth/me', { headers: { Authorization: 'Bearer ' + token } });
-    const j = await r.json();
-    if (!r.ok) { window.location.href = '/login'; return; }
-    PROFILE_USER = j.data || j.user || j;
+    var r = await LH.api('/api/v1/auth/me');
+    PROFILE_USER = r.data || r.user || r;
     renderProfile();
-  } catch (e) { LH.toast('error', 'Failed to load profile', (e as any).message); }
+  } catch(e) {
+    LH.toast('error', 'Session expired', 'Please log in again.');
+    localStorage.removeItem('logohub_token');
+    setTimeout(function(){ window.location.href = '/login'; }, 1500);
+  }
 }
 
 function renderProfile() {
-  const u = PROFILE_USER;
+  var u = PROFILE_USER;
   if (!u) return;
-  (document.getElementById('profileName')).textContent = u.name || '—';
-  (document.getElementById('profileEmail')).textContent = u.email || '—';
-  (document.getElementById('profileRole')).textContent = u.role || 'consumer';
-  (document.getElementById('profilePlan')).textContent = u.plan || 'free';
+  document.getElementById('profileName').textContent = u.name || '—';
+  document.getElementById('profileEmail').textContent = u.email || '—';
+  document.getElementById('profileRole').textContent = u.role || 'consumer';
+  document.getElementById('profilePlan').textContent = u.plan || 'free';
 
-  const initials = (u.name || '?').split(' ').map((p: string) => p[0]).slice(0, 2).join('').toUpperCase();
-  const initialsEl = document.getElementById('profileInitials');
-  if (initialsEl) initialsEl.textContent = initials;
+  var parts = (u.name || '?').split(' ');
+  var initials = parts.map(function(p){ return p[0]; }).slice(0, 2).join('').toUpperCase();
+  document.getElementById('profileInitials').textContent = initials;
 
   if (u.avatar_url) {
-    const avatar = document.getElementById('profileAvatar');
-    if (avatar) {
-      avatar.innerHTML = '<img src="' + u.avatar_url + '" style="width:100%;height:100%;object-fit:cover">';
-    }
+    document.getElementById('profileAvatar').innerHTML = '<img src="'+u.avatar_url+'" style="width:100%;height:100%;object-fit:cover">';
   }
 
-  (document.getElementById('pfName')).value = u.name || '';
-  (document.getElementById('pfEmail')).value = u.email || '';
-  (document.getElementById('pfCompany')).value = u.company || '';
-  (document.getElementById('pfWebsite')).value = u.website || '';
-  (document.getElementById('pfBio')).value = u.bio || '';
+  document.getElementById('pfName').value = u.name || '';
+  document.getElementById('pfEmail').value = u.email || '';
+  document.getElementById('pfCompany').value = u.company || '';
+  document.getElementById('pfWebsite').value = u.website || '';
+  document.getElementById('pfBio').value = u.bio || '';
 }
 
 async function saveProfile() {
-  const data: any = {
-    name: (document.getElementById('pfName')).value,
-    email: (document.getElementById('pfEmail')).value,
-    company: (document.getElementById('pfCompany')).value,
-    website: (document.getElementById('pfWebsite')).value,
-    bio: (document.getElementById('pfBio')).value,
-  };
   try {
-    const token = localStorage.getItem('logohub_token');
-    const r = await fetch('/api/v1/auth/me', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-      body: JSON.stringify(data),
-    });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || 'Failed');
-    PROFILE_USER = j.data || j;
+    var data = {
+      name: document.getElementById('pfName').value,
+      email: document.getElementById('pfEmail').value,
+      company: document.getElementById('pfCompany').value,
+      website: document.getElementById('pfWebsite').value,
+      bio: document.getElementById('pfBio').value
+    };
+    var r = await LH.api('/api/v1/auth/me', { method: 'PATCH', body: JSON.stringify(data) });
+    PROFILE_USER = r.data || r;
     renderProfile();
     LH.toast('success', 'Profile updated');
-  } catch (e) { LH.toast('error', 'Save failed', (e as Error).message); }
+  } catch(e) { LH.toast('error', 'Save failed', e.message); }
 }
 
 async function changePassword() {
-  const current = (document.getElementById('pfCurrentPass')).value;
-  const newPass = (document.getElementById('pfNewPass')).value;
-  const confirm = (document.getElementById('pfConfirmPass')).value;
+  var cur = document.getElementById('pfCurrentPass').value;
+  var newP = document.getElementById('pfNewPass').value;
+  var conf = document.getElementById('pfConfirmPass').value;
   
-  if (!current || !newPass) return LH.toast('error', 'All fields are required');
-  if (newPass.length < 8) return LH.toast('error', 'Password must be at least 8 characters');
-  if (newPass !== confirm) return LH.toast('error', 'Passwords do not match');
+  if (!cur || !newP) return LH.toast('error', 'All fields are required');
+  if (newP.length < 8) return LH.toast('error', 'Password must be at least 8 characters');
+  if (newP !== conf) return LH.toast('error', 'Passwords do not match');
 
   try {
-    const token = localStorage.getItem('logohub_token');
-    const r = await fetch('/api/v1/auth/change-password', {
+    await LH.api('/api/v1/auth/change-password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-      body: JSON.stringify({ current_password: current, new_password: newPass }),
+      body: JSON.stringify({ current_password: cur, new_password: newP })
     });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || 'Failed');
-    (document.getElementById('pfCurrentPass')).value = '';
-    (document.getElementById('pfNewPass')).value = '';
-    (document.getElementById('pfConfirmPass')).value = '';
+    document.getElementById('pfCurrentPass').value = '';
+    document.getElementById('pfNewPass').value = '';
+    document.getElementById('pfConfirmPass').value = '';
     LH.toast('success', 'Password updated');
-  } catch (e) { LH.toast('error', 'Password change failed', (e as Error).message); }
+  } catch(e) { LH.toast('error', 'Password change failed', e.message); }
 }
 
 async function deleteAccount() {
-  const yes = await LH.confirm({ title: 'Delete your account?', msg: 'All your data will be permanently removed. This cannot be undone.', danger: true });
+  var yes = await LH.confirm({ title: 'Delete your account?', msg: 'All your data will be permanently removed. This cannot be undone.', danger: true });
   if (!yes) return;
   try {
-    const token = localStorage.getItem('logohub_token');
-    const r = await fetch('/api/v1/auth/me', { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
-    if (!r.ok) throw new Error('Failed');
+    await LH.api('/api/v1/auth/me', { method: 'DELETE' });
     localStorage.clear();
     LH.toast('success', 'Account deleted');
-    setTimeout(() => window.location.href = '/', 1500);
-  } catch (e) { LH.toast('error', 'Delete failed', (e as Error).message); }
+    setTimeout(function(){ window.location.href = '/'; }, 1500);
+  } catch(e) { LH.toast('error', 'Delete failed', e.message); }
 }
 
-async function handleAvatarUpload(input: HTMLInputElement) {
-  const file = input.files?.[0];
+function handleAvatarUpload(input) {
+  var file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
+  var reader = new FileReader();
   reader.onload = async function(e) {
-    const url = e.target?.result as string;
-    // Update preview
-    const avatar = document.getElementById('profileAvatar');
-    if (avatar) avatar.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover">';
-    // Save
+    var url = e.target.result;
+    document.getElementById('profileAvatar').innerHTML = '<img src="'+url+'" style="width:100%;height:100%;object-fit:cover">';
     try {
-      const token = localStorage.getItem('logohub_token');
-      await fetch('/api/v1/auth/me', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-        body: JSON.stringify({ avatar_url: url }),
-      });
+      await LH.api('/api/v1/auth/me', { method: 'PATCH', body: JSON.stringify({ avatar_url: url }) });
       LH.toast('success', 'Photo updated');
-    } catch (e) { LH.toast('error', 'Failed to save photo', (e as Error).message); }
+    } catch(err) { LH.toast('error', 'Failed to save photo', err.message); }
   };
   reader.readAsDataURL(file);
 }
