@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/cloudflare-workers';
 import api from './routes/api';
+import auth from './routes/auth';
 import admin from './routes/admin';
+import notificationsRoute from './routes/notifications';
 import playground from './routes/playground';
 import { landingPage, explorerPage, docsPage, adminPage } from './pages/public';
 import { overviewPage, keysPage } from './pages/dashboard';
@@ -23,8 +25,12 @@ app.use('/static/*', serveStatic({ root: './' }));
 
 // Public API
 app.route('/api/v1', api);
+// Auth API (login, register, me, etc.)
+app.route('/api/v1/auth', auth);
 // Admin / dashboard API
 app.route('/api/admin', admin);
+// Notifications API
+app.route('/api/v1/notifications', notificationsRoute);
 // Playground API
 app.route('/api/v1/playground', playground);
 app.get('/api', (c) => c.redirect('/api/v1/stats'));

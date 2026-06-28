@@ -49,13 +49,13 @@ auth.post('/register', async (c) => {
   if (password.length < 8) return bad(c, 'Password must be at least 8 characters');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return bad(c, 'Invalid email format');
 
-  const existing = userStore.getUserByEmail(email);
+  const existing = await userStore.getUserByEmail(email);
   if (existing) return bad(c, 'Email already in use', 409);
 
   if (role && !['consumer', 'creator'].includes(role)) return bad(c, 'Invalid role. Must be "consumer" or "creator"');
 
   const password_hash = await hash(password, 10);
-  const user = userStore.createUser({ name, email, password_hash, role: role || 'consumer' });
+  const user = await userStore.createUser({ name, email, password_hash, role: role || 'consumer' });
 
   const token = sign({ sub: user.id, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
   userStore.createSession(user.id, token);
@@ -84,7 +84,7 @@ auth.post('/login', async (c) => {
 
   if (!email || !password) return bad(c, 'Email and password are required');
 
-  const user = userStore.getUserByEmail(email);
+  const user = await userStore.getUserByEmail(email);
   if (!user) return bad(c, 'Invalid credentials', 401);
 
   if (user.status !== 'active') return bad(c, 'Account is ' + user.status, 403);
@@ -102,9 +102,9 @@ auth.post('/login', async (c) => {
 // ============================================================
 // GET /api/v1/auth/me
 // ============================================================
-auth.get('/me', authMiddleware, (c) => {
+auth.get('/me', authMiddleware, async (c) => {
   const userId = c.get('userId');
-  const user = userStore.getUserSafe(userId);
+  const user = await userStore.getUserSafe(userId);
   if (!user) return bad(c, 'User not found', 404);
   return ok(c, user);
 });
@@ -118,7 +118,7 @@ auth.patch('/me', authMiddleware, async (c) => {
   const patch: any = {};
   if (body.name) patch.name = body.name;
   if (body.avatar_url !== undefined) patch.avatar_url = body.avatar_url;
-  const updated = userStore.updateUser(userId, patch);
+  const updated = await userStore.updateUser(userId, patch);
   if (!updated) return bad(c, 'User not found', 404);
   const { password_hash: _, ...safeUser } = updated;
   return ok(c, safeUser);
@@ -137,8 +137,8 @@ auth.post('/logout', authMiddleware, (c) => {
 // ============================================================
 // Admin: GET /api/v1/admin/users
 // ============================================================
-auth.get('/admin/users', authMiddleware, adminMiddleware, (c) => {
-  return ok(c, userStore.listUsers());
+auth.get('/admin/users', authMiddleware, adminMiddleware, async (c) => {
+  return ok(c, await userStore.listUsers());
 });
 
 // ============================================================
@@ -152,14 +152,12 @@ auth.patch('/admin/users/:id', authMiddleware, adminMiddleware, async (c) => {
   if (body.password_hash) {
     const password_hash = await hash(body.password_hash, 10);
     body.password_hash = password_hash;
-    // If it's a plain password (not hashed), mark it for notification
     if (!body.password_hash.startsWith('$2')) {
-      // already hashed above — we can log the password for admin display
       await store.logActivity({ actor: 'Admin', action: 'reset_password', target: 'User #' + id, type: 'security', details: 'Password reset by admin' });
     }
   }
 
-  const updated = userStore.updateUser(id, body);
+  const updated = await userStore.updateUser(id, body);
   if (!updated) return bad(c, 'User not found', 404);
   const { password_hash: _, ...safeUser } = updated;
   return ok(c, safeUser);
@@ -168,9 +166,9 @@ auth.patch('/admin/users/:id', authMiddleware, adminMiddleware, async (c) => {
 // ============================================================
 // Admin: DELETE /api/v1/admin/users/:id
 // ============================================================
-auth.delete('/admin/users/:id', authMiddleware, adminMiddleware, (c) => {
+auth.delete('/admin/users/:id', authMiddleware, adminMiddleware, async (c) => {
   const id = c.req.param('id');
-  if (!userStore.deleteUser(id)) return bad(c, 'User not found', 404);
+  if (!(await userStore.deleteUser(id))) return bad(c, 'User not found', 404);
   return ok(c, { deleted: true });
 });
 
@@ -184,7 +182,7 @@ auth.post('/admin/users/:id/reset-password', authMiddleware, adminMiddleware, as
   if (newPassword.length < 8) return bad(c, 'Password must be at least 8 characters');
 
   const password_hash = await hash(newPassword, 10);
-  const updated = userStore.updateUser(id, { password_hash });
+  const updated = await userStore.updateUser(id, { password_hash });
   if (!updated) return bad(c, 'User not found', 404);
 
   await store.logActivity({ actor: 'Admin', action: 'reset_password', target: 'User #' + id, type: 'security', details: 'Password reset by admin' });
