@@ -101,6 +101,17 @@ export const HEAD = (title: string, extraScripts: string = '') => `<!DOCTYPE htm
 
   /* Inputs */
   .input, .select, .textarea { width:100%; padding:.6rem .9rem; font-size:.875rem; border-radius:.75rem; background: var(--surface); color: var(--text); border:1px solid var(--border-strong); transition: all .2s ease; outline:none; }
+  .select {
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23b8a9e8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .75rem center;
+    padding-right: 2.2rem; cursor: pointer;
+  }
+  .select option {
+    background: var(--surface); color: var(--text); padding: .5rem .75rem;
+  }
+  .select option:checked { background: rgba(184,169,232,.15); color: #b8a9e8; }
+  .select option:hover { background: var(--panel-2); }
   .input:focus, .select:focus, .textarea:focus { border-color:#b8a9e8; box-shadow: 0 0 0 3px rgba(184,169,232,.18); }
   .input::placeholder, .textarea::placeholder { color: var(--text-mute); }
   .input-pill { border-radius: 9999px; padding:.55rem 1rem .55rem 2.4rem; }
