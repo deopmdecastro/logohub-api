@@ -566,61 +566,141 @@ export const billingPage = () => `${HEAD('Billing — LogoHub Admin', COMMON_JS)
 ${shellWrap(sidebar('billing'), `
 ${topbar('Billing', 'Manage your plan and payment method')}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-6 animate-fade-up">
-  <div id="planBox" class="grid grid-cols-1 lg:grid-cols-3 gap-4"></div>
-  <div>
-    <h3 class="text-sm font-semibold mb-3" style="color:var(--text)">Plans</h3>
-    <div id="plansGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+  <!-- TOP ROW: CURRENT PLAN + PAYMENT -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="planBox"></div>
+
+  <!-- PLANS HEADER + MONTHLY/YEARLY -->
+  <div class="flex items-center justify-between flex-wrap gap-3">
+    <div>
+      <h2 class="text-lg font-bold flex items-center gap-2" style="color:var(--text)">
+        <span class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-layer-group text-[13px]"></i></span>
+        Plans
+      </h2>
+      <p class="text-[12px] mt-1" style="color:var(--text-mute)">Change anytime. No hidden fees.</p>
+    </div>
+    <div class="flex rounded-xl p-1" style="background:var(--panel);border:1px solid var(--border)">
+      <button id="btnMonthly" class="px-4 py-2 rounded-lg text-[12px] font-bold transition-all" style="background:var(--lilac);color:#1a1a1a">Monthly</button>
+      <button id="btnYearly" class="px-4 py-2 rounded-lg text-[12px] font-bold transition-all" style="color:var(--text-soft)">Yearly <span class="pill pill-green" style="font-size:9px;margin-left:4px">-17%</span></button>
+    </div>
   </div>
+
+  <!-- PLANS GRID -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="plansGrid"></div>
+
+  <!-- USAGE -->
+  <div id="usageSection" class="card p-6"></div>
+
 </div>
+
 <script>
-const PLANS = [
-  { id:'free', name:'Free', price:0, quota:1000, color:'#71717a' },
-  { id:'pro', name:'Pro', price:19, quota:100000, color:'#4ecdc4' },
-  { id:'business', name:'Business', price:79, quota:1000000, color:'#b8a9e8', popular:true },
-  { id:'enterprise', name:'Enterprise', price:-1, quota:-1, color:'#f5a623' },
+var PLANS = [
+  { id:'free',name:'Free',price:0,priceYr:0,quota:1000,color:'#71717a',icon:'fa-seedling',feats:['1K req/day','10 req/min','Community','1 API key'] },
+  { id:'pro',name:'Pro',price:19,priceYr:189,quota:100000,color:'#4ecdc4',icon:'fa-rocket',feats:['100K req/day','100 req/min','Priority email','10 API keys','Custom CORS'] },
+  { id:'business',name:'Business',price:79,priceYr:789,quota:1000000,color:'#b8a9e8',icon:'fa-briefcase',popular:true,feats:['1M req/day','500 req/min','24h support','Unlimited keys','White-label','SLA 99.9%'] },
+  { id:'enterprise',name:'Enterprise',price:-1,priceYr:-1,quota:-1,color:'#f5a623',icon:'fa-building',feats:['Unlimited','Custom limits','Dedicated support','SSO / SAML','On-prem','Custom SLA'] }
 ];
-let SETTINGS = [];
-async function load() { const r = await LH.api('/api/admin/settings?group=billing'); SETTINGS = r.data; render(); }
-function val(k) { return SETTINGS.find(s=>s.key===k)?.value || ''; }
+var SETS = [];
+var yearly = false;
+
+async function load() {
+  try { var r = await LH.api('/api/admin/settings?group=billing'); SETS = r.data; render(); }
+  catch(e) { LH.toast('error','Load failed',e.message); }
+}
+function g(k) { return (SETS.find(function(s){return s.key===k})||{}).value || ''; }
+
 function render() {
-  const used = Number(val('plan_used_today')) || 0; const quota = Number(val('plan_quota_daily')) || 1;
-  const pct = Math.min(100, Math.round(used/quota*100));
+  var used = Number(g('plan_used_today')) || 0;
+  var quota = Number(g('plan_quota_daily')) || 1;
+  var pct = Math.min(100, Math.round(used/quota*100));
+  var cur = g('current_plan').toLowerCase();
+  var cp = PLANS.find(function(p){return p.id===cur}) || {color:'#b8a9e8',icon:'fa-credit-card'};
+
+  // --- CURRENT PLAN CARD ---
   document.getElementById('planBox').innerHTML =
-    '<div class="card p-6 lg:col-span-2"><div class="flex items-center justify-between mb-4"><div><p class="text-[10px] uppercase tracking-wide font-semibold" style="color:var(--text-mute)">Current plan</p>'+
-    '<h3 class="text-2xl font-bold mt-1" style="color:var(--text)">'+val('current_plan')+'</h3><p class="text-sm" style="color:var(--text-soft)">$'+val('plan_price_usd')+'/month · Next invoice '+val('next_invoice_date')+'</p></div>'+
-    '<div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-credit-card text-lg"></i></div></div>'+
-    '<div class="h-2 rounded-full overflow-hidden" style="background:var(--border)"><div class="h-full rounded-full" style="width:'+pct+'%;background:#b8a9e8;transition:all .5s ease"></div></div>'+
-    '<p class="text-[11px] mt-2" style="color:var(--text-mute)">'+LH.fmt(used)+' of '+LH.fmt(quota)+' requests used today · '+pct+'%</p></div>'+
-    '<div class="card p-6"><p class="text-[10px] uppercase tracking-wide font-semibold" style="color:var(--text-mute)">Payment method</p>'+
-    '<p class="text-sm font-semibold mt-2" style="color:var(--text)">'+val('payment_method')+'</p><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Auto-renew on '+val('next_invoice_date')+'</p>'+
-    '<button class="btn btn-ghost btn-sm mt-4" onclick="LH.toast(\\'info\\', \\'Stripe integration\\', \\'Connect Stripe in Settings to enable payment updates.\\')"><i class="fas fa-pen text-[10px]"></i> Update card</button></div>';
-  const cur = val('current_plan').toLowerCase();
-  document.getElementById('plansGrid').innerHTML = PLANS.map(p => {
-    const isCur = cur===p.id;
-    return '<div class="card '+(p.popular?'':'')+' p-5 relative" '+(p.popular?'style="border-color:#b8a9e8"':'')+'>'+
-      (p.popular?'<span class="pill pill-lilac" style="position:absolute;top:-10px;left:1.2rem">Popular</span>':'')+
-      '<p class="text-sm font-bold mt-2" style="color:'+p.color+'">'+p.name+'</p>'+
-      '<p class="text-2xl font-bold mt-2" style="color:var(--text)">'+(p.price===-1?'Custom':'$'+p.price)+'</p>'+
-      '<p class="text-[11px]" style="color:var(--text-mute)">'+(p.price===-1?'contact us':'/ month')+'</p>'+
-      '<p class="text-[11px] mt-3" style="color:var(--text-soft)">'+(p.quota===-1?'Unlimited':LH.fmt(p.quota)+' req/day')+'</p>'+
-      '<button class="btn '+(isCur?'btn-ghost':'btn-ink')+' btn-sm w-full mt-4" '+(isCur?'disabled':'')+' onclick="switchPlan(\\'__P__\\','+p.price+','+p.quota+')">'+(isCur?'Current plan':'Switch plan')+'</button>'.replaceAll('__P__', p.name)+
+    '<div class="card p-6 lg:col-span-2 relative overflow-hidden">' +
+      '<div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;opacity:.05;background:'+cp.color+'"></div>' +
+      '<div class="flex items-center justify-between mb-5 relative z-10">' +
+        '<div>' +
+          '<p class="text-[10px] uppercase tracking-widest font-bold" style="color:var(--text-mute)">Current Plan</p>' +
+          '<div class="flex items-center gap-3 mt-2">' +
+            '<div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:'+cp.color+'22;color:'+cp.color+'"><i class="fas '+cp.icon+' text-lg"></i></div>' +
+            '<div>' +
+              '<h3 class="text-xl font-black" style="color:var(--text)">'+g('current_plan')+'</h3>' +
+              '<p class="text-[12px]" style="color:var(--text-soft)"><b>$'+g('plan_price_usd')+'</b>/month &middot; Next invoice <b style="color:var(--text)">'+g('next_invoice_date')+'</b></p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="text-right"><div class="text-3xl font-black" style="color:var(--text)">'+pct+'%</div><p class="text-[10px]" style="color:var(--text-mute)">used</p></div>' +
+      '</div>' +
+      '<div class="h-3 rounded-full overflow-hidden relative z-10" style="background:var(--border)">' +
+        '<div class="h-full rounded-full transition-all duration-700" style="width:'+pct+'%;background:linear-gradient(90deg,'+cp.color+','+cp.color+'cc)"></div>' +
+      '</div>' +
+      '<p class="text-[11px] mt-2 relative z-10" style="color:var(--text-mute)"><b style="color:var(--text)">'+LH.fmt(used)+'</b> of <b style="color:var(--text)">'+LH.fmt(quota)+'</b> requests today</p>' +
+    '</div>' +
+    '<div class="card p-6">' +
+      '<p class="text-[10px] uppercase tracking-widest font-bold mb-3" style="color:var(--text-mute)">Payment</p>' +
+      '<div class="flex items-center gap-3 mb-4">' +
+        '<div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(74,222,128,.1);color:#4ade80"><i class="fas fa-credit-card"></i></div>' +
+        '<div><p class="text-sm font-bold" style="color:var(--text)">'+g('payment_method')+'</p><p class="text-[11px]" style="color:var(--text-mute)">Auto-renew on '+g('next_invoice_date')+'</p></div>' +
+      '</div>' +
+      '<div class="flex gap-2">' +
+        '<button class="btn btn-ghost btn-sm flex-1" onclick="LH.toast(\'info\',\'Coming soon\',\'Stripe integration for payment updates.\')"><i class="fas fa-pen text-[10px]"></i> Update</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="LH.toast(\'info\',\'Coming soon\',\'Invoice history will be available soon.\')"><i class="fas fa-file-invoice text-[10px]"></i> Invoices</button>' +
+      '</div>' +
+    '</div>';
+
+  // --- PLANS ---
+  document.getElementById('plansGrid').innerHTML = PLANS.map(function(p) {
+    var isCur = cur===p.id;
+    var price = yearly ? p.priceYr : p.price;
+    var dispPrice = price===-1 ? 'Custom' : '$'+price;
+    var period = price===-1 ? '' : (yearly ? '/yr' : '/mo');
+    return '<div class="card p-5 relative transition-all duration-200 hover:scale-[1.02] group'+(p.popular?' ring-2':'')+'" style="'+(p.popular?'border-color:#b8a9e8;box-shadow:0 0 30px rgba(184,169,232,.08)':'')+'">' +
+      (p.popular?'<span class="pill pill-lilac text-[10px] font-bold" style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);z-index:2">⭐ POPULAR</span>':'') +
+      '<div class="w-10 h-10 rounded-2xl flex items-center justify-center mb-3" style="background:'+p.color+'22;color:'+p.color+'"><i class="fas '+p.icon+'"></i></div>' +
+      '<p class="text-sm font-bold" style="color:var(--text)">'+p.name+'</p>' +
+      '<div class="flex items-baseline gap-1 mt-1.5"><span class="text-2xl font-black" style="color:var(--text)">'+dispPrice+'</span><span class="text-[11px]" style="color:var(--text-mute)">'+period+'</span></div>' +
+      '<p class="text-[11px] mt-1 font-semibold" style="color:'+p.color+'">'+(p.quota===-1?'Unlimited':LH.fmt(p.quota)+' req/day')+'</p>' +
+      '<div class="my-4 space-y-2">' + p.feats.map(function(f){ return '<div class="flex items-center gap-2 text-[11px]" style="color:var(--text-soft)"><i class="fas fa-check text-[9px]" style="color:'+p.color+'"></i>'+f+'</div>'; }).join('') + '</div>' +
+      '<button class="btn w-full text-sm font-bold '+(isCur?'btn-ghost cursor-default':'')+'" '+(isCur?'disabled':'onclick="switchPlan(\''+p.id+'\','+p.price+','+p.quota+')"')+' style="'+(isCur?'':('background:'+p.color+'18;color:'+p.color+';border:1px solid '+p.color+'33'))+'">'+(isCur?'<i class="fas fa-check-circle mr-1"></i>Current plan':'<i class="fas fa-arrow-right mr-1"></i>Switch to '+p.name)+'</button>' +
     '</div>';
   }).join('');
+
+  // --- USAGE ---
+  document.getElementById('usageSection').innerHTML =
+    '<h3 class="text-sm font-bold mb-4 flex items-center gap-2" style="color:var(--text)"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:#4ade8022;color:#4ade80"><i class="fas fa-chart-line text-[11px]"></i></span>Usage Overview</h3>' +
+    '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">' +
+      statBox('Today', LH.fmt(used), 'of '+LH.fmt(quota), '#b8a9e8') +
+      statBox('Rate Limit', Math.round(quota/1440), 'req/min', '#4ecdc4') +
+      statBox('Success Rate', '99.7%', 'last 30d', '#4ade80') +
+      statBox('Latency', '18ms', 'p95: 42ms', '#f5a623') +
+    '</div>';
 }
-async function switchPlan(name, price, quota) {
+
+function statBox(label, value, sub, color) {
+  return '<div class="p-4 rounded-xl" style="background:var(--panel);border:1px solid var(--border)"><p class="text-[10px] uppercase tracking-wide font-bold" style="color:var(--text-mute)">'+label+'</p><p class="text-xl font-black mt-1" style="color:'+color+'">'+value+'</p><p class="text-[10px] mt-0.5" style="color:var(--text-mute)">'+sub+'</p></div>';
+}
+
+async function switchPlan(id, price, quota) {
+  var p = PLANS.find(function(x){return x.id===id}); if (!p) return;
   try {
-    await LH.api('/api/admin/settings/current_plan', { method:'PATCH', body: JSON.stringify({ value: name }) });
+    await LH.api('/api/admin/settings/current_plan', { method:'PATCH', body: JSON.stringify({ value: p.name }) });
     await LH.api('/api/admin/settings/plan_price_usd', { method:'PATCH', body: JSON.stringify({ value: String(price===-1?0:price) }) });
     await LH.api('/api/admin/settings/plan_quota_daily', { method:'PATCH', body: JSON.stringify({ value: String(quota===-1?10000000:quota) }) });
-    LH.toast('success','Plan switched','You are now on '+name); load();
-  } catch (e) { LH.toast('error','Switch failed', e.message); }
+    LH.toast('success','Plan upgraded! 🎉','You are now on <strong>'+p.name+'</strong>.');
+    load();
+  } catch(e) { LH.toast('error','Switch failed',e.message); }
 }
-load();
 
+// Toggle
+document.getElementById('btnMonthly').onclick = function(){ yearly=false; this.style.background='var(--lilac)'; this.style.color='#1a1a1a'; document.getElementById('btnYearly').style.background='transparent'; document.getElementById('btnYearly').style.color='var(--text-soft)'; render(); };
+document.getElementById('btnYearly').onclick = function(){ yearly=true; this.style.background='var(--lilac)'; this.style.color='#1a1a1a'; document.getElementById('btnMonthly').style.background='transparent'; document.getElementById('btnMonthly').style.color='var(--text-soft)'; render(); };
+
+load();
 </script>
 `)}
 `;
-
 // ============================================================
 // /dashboard/analytics
 // ============================================================
