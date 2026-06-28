@@ -178,8 +178,9 @@ async function loadLanding() {
     if (hi) hi.innerHTML = '<span class="w-2 h-2 rounded-full animate-pulse-dot" style="background:'+(healthOk?'#4ade80':'#ff6b6b')+'"></span><span>'+(healthOk?'All systems operational':'Degraded performance')+'</span>';
 
     renderAll();
+    console.log('Landing page rendered. LANDING:', LANDING ? 'OK' : 'UNDEFINED', 'topLogos:', LANDING && LANDING.topLogos ? LANDING.topLogos.length : 0, 'categories:', LANDING && LANDING.categories ? LANDING.categories.length : 0);
   } catch(e) {
-    console.error('Landing data load failed:', e);
+    console.error('Landing data load failed, using fallback:', e.message || e);
     // Fallback to hardcoded data
     LANDING = { stats: { total_assets: 50000, total_logos: 35000, total_sports: 10000, total_flags: 5000, categories: 18, avg_response_ms: 18, requests_today: 248391, uptime: '99.99', countries: 200, formats: 6 }, topLogos: [
     { slug:'google', name:'Google', category:'technology', primary_color:'#4285F4', verified:true },
@@ -259,7 +260,26 @@ function renderStatsBar() {
 
 // ── Popular brands (from /api/v1/landing) ──
 function renderPopularBrands() {
-  const logos = (LANDING.topLogos || []).slice(0, 20);
+  var logos = (LANDING && LANDING.topLogos || []).slice(0, 20);
+  if (!logos || !logos.length) {
+    logos = [
+      { slug:'google', name:'Google', category:'technology', primary_color:'#4285F4', verified:true },
+      { slug:'apple', name:'Apple', category:'technology', primary_color:'#000000', verified:true },
+      { slug:'microsoft', name:'Microsoft', category:'technology', primary_color:'#00A4EF', verified:true },
+      { slug:'spotify', name:'Spotify', category:'streaming', primary_color:'#1DB954', verified:true },
+      { slug:'github', name:'GitHub', category:'technology', primary_color:'#181717', verified:true },
+      { slug:'stripe', name:'Stripe', category:'fintech', primary_color:'#635BFF', verified:true },
+      { slug:'react', name:'React', category:'framework', primary_color:'#61DAFB', verified:true },
+      { slug:'bitcoin', name:'Bitcoin', category:'crypto', primary_color:'#F7931A', verified:true },
+      { slug:'netflix', name:'Netflix', category:'streaming', primary_color:'#E50914', verified:true },
+      { slug:'figma', name:'Figma', category:'technology', primary_color:'#F24E1E', verified:true },
+      { slug:'docker', name:'Docker', category:'technology', primary_color:'#2496ED', verified:true },
+      { slug:'python', name:'Python', category:'language', primary_color:'#3776AB', verified:true },
+      { slug:'nodejs', name:'Node.js', category:'framework', primary_color:'#339933', verified:true },
+      { slug:'discord', name:'Discord', category:'social', primary_color:'#5865F2', verified:true },
+      { slug:'twitch', name:'Twitch', category:'streaming', primary_color:'#9146FF', verified:true }
+    ];
+  }
   document.getElementById('popularBrandsGrid').innerHTML = logos.map(l =>
     '<a href="/explorer?slug='+l.slug+'" class="card card-hover p-3 flex flex-col items-center justify-center gap-2" style="text-decoration:none">'+
       '<div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style="background:'+(l.primary_color||'#b8a9e8')+'22;color:'+(l.primary_color||'#b8a9e8')+'">'+(l.name||'?')[0]+'</div>'+
@@ -271,9 +291,10 @@ function renderPopularBrands() {
 
 // ── Categories ──
 function renderCategories() {
-  const cats = LANDING.categories && LANDING.categories.length
+  var cats = (LANDING && LANDING.categories && LANDING.categories.length)
     ? LANDING.categories
     : getFallbackCategories();
+  if (!cats || !cats.length) cats = getFallbackCategories();
 
   document.getElementById('categoryGrid').innerHTML = cats.map(c =>
     '<a href="/explorer?category='+c.slug+'" class="card card-hover p-4 flex flex-col items-center justify-center gap-2" style="text-decoration:none">'+
