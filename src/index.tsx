@@ -17,6 +17,7 @@ import { blogListPage, blogPostPage } from './pages/blog_pages';
 import { blogAdminPage } from './pages/admin_blog';
 import { faqAdminPage } from './pages/admin_faq';
 import { supportAdminPage } from './pages/admin_support';
+import { loginPage, registerPage } from './pages/auth_pages';
 
 const app = new Hono();
 
@@ -42,6 +43,10 @@ app.get('/', (c) => c.html(landingPage()));
 app.get('/explorer', (c) => c.html(explorerPage()));
 app.get('/docs', (c) => c.html(docsPage()));
 app.get('/admin', (c) => c.html(adminPage())); // redirects to /dashboard
+
+// Auth pages
+app.get('/login', (c) => c.html(loginPage()));
+app.get('/register', (c) => c.html(registerPage()));
 
 // Playground
 app.get('/playground', (c) => c.html(playgroundPage()));
