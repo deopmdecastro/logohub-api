@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { store } from '../data/store';
 import { createNotification } from './notifications';
+import { sendEmail } from '../services/email';
 
 const admin = new Hono();
 
@@ -96,6 +97,46 @@ admin.post('/team', async (c) => {
 admin.delete('/team/:id', async (c) => {
   const okDel = await store.deleteTeamMember(Number(c.req.param('id')));
   return okDel ? ok(c, { deleted: true }) : bad(c, 'Member not found', 404);
+});
+
+// ============================================================
+// TEAM INVITE EMAIL
+// ============================================================
+admin.post('/team/invite', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const { email, name, role, plan } = body;
+  if (!email) return bad(c, 'Email is required');
+
+  const appUrl = (globalThis as any).process?.env?.APP_URL || 'http://localhost:3000';
+
+  const inviteHtml = '<div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:560px;margin:0 auto;padding:40px 20px;background:#0a0a0f;color:#f4f4f5">' +
+    '<div style="text-align:center;margin-bottom:30px">' +
+      '<div style="width:48px;height:48px;border-radius:12px;background:#b8a9e8;display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#1a1a1a">L</div>' +
+    '</div>' +
+    '<h1 style="font-size:22px;margin-bottom:8px">You\'re invited to LogoHub!</h1>' +
+    '<p style="color:#a1a1aa;line-height:1.6;margin-bottom:8px">'+(name||'A team admin')+' has invited you to join LogoHub as a <strong>'+(role||'viewer')+'</strong> on the <strong>'+(plan||'free')+'</strong> plan.</p>' +
+    '<p style="color:#a1a1aa;line-height:1.6;margin-bottom:24px">LogoHub is the world\'s largest visual identity API — explore 50,000+ logos, icons, and visual assets.</p>' +
+    '<a href="'+appUrl+'/register" style="display:inline-block;padding:12px 24px;background:#b8a9e8;color:#1a1a1a;border-radius:12px;text-decoration:none;font-weight:600;font-size:14px">Create your account →</a>' +
+    '<p style="color:#71717a;font-size:12px;margin-top:32px;border-top:1px solid rgba(255,255,255,.06);padding-top:20px">LogoHub — The World\'s Largest Visual Identity API</p>' +
+  '</div>';
+
+  const result = await sendEmail({
+    to: email,
+    subject: (name||'Someone')+' invited you to join LogoHub 🎉',
+    html: inviteHtml,
+  });
+
+  if (!result.ok) return bad(c, 'Failed to send invitation', 500);
+
+  await createNotification({
+    type: 'info',
+    title: 'Invitation sent',
+    message: 'Email invitation sent to '+email,
+    role: 'admin',
+    link: '/dashboard/team',
+  });
+
+  return ok(c, { sent: true, email, result });
 });
 
 // ============================================================

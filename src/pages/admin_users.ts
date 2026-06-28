@@ -71,6 +71,7 @@ ${topbar('User Management', 'Manage all users: ban, block, reset passwords')}
       <div class="ml-auto flex items-center gap-3">
         <span id="userCount" class="text-[12px] font-medium px-3 py-1 rounded-full" style="background:var(--panel);color:var(--text-soft)">0 / 0</span>
         <button class="btn btn-ghost btn-sm" onclick="loadUsers()" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+        <button class="btn btn-primary btn-sm" onclick="openCreateUser()"><i class="fas fa-user-plus"></i> Create user</button>
       </div>
     </div>
   </div>
@@ -273,6 +274,62 @@ function openEditUser(id) {
       LH.toast('success', 'User updated');
       modal.remove();
       loadUsers();
+// ============ CREATE USER ============
+function openCreateUser() {
+  var roleOpts = ['admin','creator','consumer'].map(function(r){return '<option value="'+r+'">'+r+'</option>';}).join('');
+  var planOpts = ['free','pro','business','enterprise'].map(function(r){return '<option value="'+r+'" '+(r==='free'?'selected':'')+'>'+r+'</option>';}).join('');
+
+  var modalHtml = '<div class="modal-box" style="max-width:550px">' +
+    '<div class="modal-head"><div style="display:flex;align-items:center;gap:.75rem">' +
+      '<div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#4ade8022,#4ade8044);color:#4ade80;display:flex;align-items:center;justify-content:center;font-size:18px"><i class="fas fa-user-plus"></i></div>' +
+      '<div><h2 class="text-base font-bold" style="color:var(--text)">Create User</h2><p class="text-[11px]" style="color:var(--text-mute)">Add a new user to the platform</p></div>' +
+    '</div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>' +
+    '<form id="createUserForm" class="modal-body space-y-4">' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Full Name *</label><input class="input" name="name" placeholder="e.g. Maria Silva" required></div>' +
+        '<div><label class="field-label">Email *</label><input class="input" name="email" type="email" placeholder="maria@example.com" required></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Password *</label><div style="position:relative"><input class="input" name="password" type="password" id="createPass" placeholder="Min. 8 chars" required minlength="8"><button type="button" onclick="(function(){var e=document.getElementById(\'createPass\');e.type=e.type===\'password\'?\'text\':\'password\';})()" style="position:absolute;right:.5rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-mute);cursor:pointer"><i class="fas fa-eye"></i></button></div></div>' +
+        '<div><label class="field-label">Role</label><select class="input" name="role" style="cursor:pointer">'+roleOpts+'</select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Plan</label><select class="input" name="plan" style="cursor:pointer">'+planOpts+'</select></div>' +
+        '<div><label class="field-label">Status</label><select class="input" name="status" style="cursor:pointer"><option value="active" selected>Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="banned">Banned</option></select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Bio</label><input class="input" name="bio" placeholder="Optional"></div>' +
+        '<div><label class="field-label">Company</label><input class="input" name="company" placeholder="Optional"></div>' +
+      '</div>' +
+      '<div class="p-3 rounded-xl" style="background:rgba(74,222,128,.04);border:1px solid rgba(74,222,128,.1)">' +
+        '<p class="text-[11px] font-semibold flex items-center gap-1.5" style="color:#4ade80"><i class="fas fa-envelope"></i> Send welcome email</p>' +
+        '<label class="flex items-center gap-2 mt-1.5 cursor-pointer">' +
+          '<input type="checkbox" name="sendEmail" checked style="accent-color:#4ade80">' +
+          '<span class="text-[11px]" style="color:var(--text-soft)">Send welcome email with login instructions</span>' +
+        '</label>' +
+      '</div>' +
+    '</form>' +
+    '<div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button id="createUserBtn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create user</button></div>' +
+    '</div>';
+
+  var modal = LH.openModal(modalHtml);
+  var saveBtn = modal.querySelector('#createUserBtn');
+  if (saveBtn) saveBtn.onclick = async function() {
+    var form = modal.querySelector('#createUserForm');
+    var fd = new FormData(form);
+    var body = Object.fromEntries(fd);
+    if (!body.name || !body.email || !body.password) { LH.toast('error', 'Name, email, and password are required'); return; }
+    if (body.password.length < 8) { LH.toast('error', 'Password must be at least 8 characters'); return; }
+    var sendEmail = body.sendEmail === 'on'; delete body.sendEmail;
+    try {
+      await LH.api('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(body) });
+      LH.toast('success', 'User created!', body.name + ' can now log in.');
+      modal.remove();
+      loadUsers();
+    } catch (e) { LH.toast('error', 'Failed', e.message); }
+  };
+}
+
     } catch (e) { LH.toast('error', 'Failed', e.message); }
   };
 }
@@ -305,6 +362,62 @@ async function banUser(id) {
     await LH.api('/api/v1/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ status: 'banned' }) });
     LH.toast('success', 'User banned');
     loadUsers();
+// ============ CREATE USER ============
+function openCreateUser() {
+  var roleOpts = ['admin','creator','consumer'].map(function(r){return '<option value="'+r+'">'+r+'</option>';}).join('');
+  var planOpts = ['free','pro','business','enterprise'].map(function(r){return '<option value="'+r+'" '+(r==='free'?'selected':'')+'>'+r+'</option>';}).join('');
+
+  var modalHtml = '<div class="modal-box" style="max-width:550px">' +
+    '<div class="modal-head"><div style="display:flex;align-items:center;gap:.75rem">' +
+      '<div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#4ade8022,#4ade8044);color:#4ade80;display:flex;align-items:center;justify-content:center;font-size:18px"><i class="fas fa-user-plus"></i></div>' +
+      '<div><h2 class="text-base font-bold" style="color:var(--text)">Create User</h2><p class="text-[11px]" style="color:var(--text-mute)">Add a new user to the platform</p></div>' +
+    '</div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>' +
+    '<form id="createUserForm" class="modal-body space-y-4">' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Full Name *</label><input class="input" name="name" placeholder="e.g. Maria Silva" required></div>' +
+        '<div><label class="field-label">Email *</label><input class="input" name="email" type="email" placeholder="maria@example.com" required></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Password *</label><div style="position:relative"><input class="input" name="password" type="password" id="createPass" placeholder="Min. 8 chars" required minlength="8"><button type="button" onclick="(function(){var e=document.getElementById(\'createPass\');e.type=e.type===\'password\'?\'text\':\'password\';})()" style="position:absolute;right:.5rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-mute);cursor:pointer"><i class="fas fa-eye"></i></button></div></div>' +
+        '<div><label class="field-label">Role</label><select class="input" name="role" style="cursor:pointer">'+roleOpts+'</select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Plan</label><select class="input" name="plan" style="cursor:pointer">'+planOpts+'</select></div>' +
+        '<div><label class="field-label">Status</label><select class="input" name="status" style="cursor:pointer"><option value="active" selected>Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="banned">Banned</option></select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Bio</label><input class="input" name="bio" placeholder="Optional"></div>' +
+        '<div><label class="field-label">Company</label><input class="input" name="company" placeholder="Optional"></div>' +
+      '</div>' +
+      '<div class="p-3 rounded-xl" style="background:rgba(74,222,128,.04);border:1px solid rgba(74,222,128,.1)">' +
+        '<p class="text-[11px] font-semibold flex items-center gap-1.5" style="color:#4ade80"><i class="fas fa-envelope"></i> Send welcome email</p>' +
+        '<label class="flex items-center gap-2 mt-1.5 cursor-pointer">' +
+          '<input type="checkbox" name="sendEmail" checked style="accent-color:#4ade80">' +
+          '<span class="text-[11px]" style="color:var(--text-soft)">Send welcome email with login instructions</span>' +
+        '</label>' +
+      '</div>' +
+    '</form>' +
+    '<div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button id="createUserBtn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create user</button></div>' +
+    '</div>';
+
+  var modal = LH.openModal(modalHtml);
+  var saveBtn = modal.querySelector('#createUserBtn');
+  if (saveBtn) saveBtn.onclick = async function() {
+    var form = modal.querySelector('#createUserForm');
+    var fd = new FormData(form);
+    var body = Object.fromEntries(fd);
+    if (!body.name || !body.email || !body.password) { LH.toast('error', 'Name, email, and password are required'); return; }
+    if (body.password.length < 8) { LH.toast('error', 'Password must be at least 8 characters'); return; }
+    var sendEmail = body.sendEmail === 'on'; delete body.sendEmail;
+    try {
+      await LH.api('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(body) });
+      LH.toast('success', 'User created!', body.name + ' can now log in.');
+      modal.remove();
+      loadUsers();
+    } catch (e) { LH.toast('error', 'Failed', e.message); }
+  };
+}
+
   } catch (e) { LH.toast('error', 'Failed', e.message); }
 }
 
@@ -313,6 +426,62 @@ async function unbanUser(id) {
     await LH.api('/api/v1/admin/users/' + id, { method: 'PATCH', body: JSON.stringify({ status: 'active' }) });
     LH.toast('success', 'User unbanned');
     loadUsers();
+// ============ CREATE USER ============
+function openCreateUser() {
+  var roleOpts = ['admin','creator','consumer'].map(function(r){return '<option value="'+r+'">'+r+'</option>';}).join('');
+  var planOpts = ['free','pro','business','enterprise'].map(function(r){return '<option value="'+r+'" '+(r==='free'?'selected':'')+'>'+r+'</option>';}).join('');
+
+  var modalHtml = '<div class="modal-box" style="max-width:550px">' +
+    '<div class="modal-head"><div style="display:flex;align-items:center;gap:.75rem">' +
+      '<div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#4ade8022,#4ade8044);color:#4ade80;display:flex;align-items:center;justify-content:center;font-size:18px"><i class="fas fa-user-plus"></i></div>' +
+      '<div><h2 class="text-base font-bold" style="color:var(--text)">Create User</h2><p class="text-[11px]" style="color:var(--text-mute)">Add a new user to the platform</p></div>' +
+    '</div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>' +
+    '<form id="createUserForm" class="modal-body space-y-4">' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Full Name *</label><input class="input" name="name" placeholder="e.g. Maria Silva" required></div>' +
+        '<div><label class="field-label">Email *</label><input class="input" name="email" type="email" placeholder="maria@example.com" required></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Password *</label><div style="position:relative"><input class="input" name="password" type="password" id="createPass" placeholder="Min. 8 chars" required minlength="8"><button type="button" onclick="(function(){var e=document.getElementById(\'createPass\');e.type=e.type===\'password\'?\'text\':\'password\';})()" style="position:absolute;right:.5rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-mute);cursor:pointer"><i class="fas fa-eye"></i></button></div></div>' +
+        '<div><label class="field-label">Role</label><select class="input" name="role" style="cursor:pointer">'+roleOpts+'</select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Plan</label><select class="input" name="plan" style="cursor:pointer">'+planOpts+'</select></div>' +
+        '<div><label class="field-label">Status</label><select class="input" name="status" style="cursor:pointer"><option value="active" selected>Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="banned">Banned</option></select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Bio</label><input class="input" name="bio" placeholder="Optional"></div>' +
+        '<div><label class="field-label">Company</label><input class="input" name="company" placeholder="Optional"></div>' +
+      '</div>' +
+      '<div class="p-3 rounded-xl" style="background:rgba(74,222,128,.04);border:1px solid rgba(74,222,128,.1)">' +
+        '<p class="text-[11px] font-semibold flex items-center gap-1.5" style="color:#4ade80"><i class="fas fa-envelope"></i> Send welcome email</p>' +
+        '<label class="flex items-center gap-2 mt-1.5 cursor-pointer">' +
+          '<input type="checkbox" name="sendEmail" checked style="accent-color:#4ade80">' +
+          '<span class="text-[11px]" style="color:var(--text-soft)">Send welcome email with login instructions</span>' +
+        '</label>' +
+      '</div>' +
+    '</form>' +
+    '<div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button id="createUserBtn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create user</button></div>' +
+    '</div>';
+
+  var modal = LH.openModal(modalHtml);
+  var saveBtn = modal.querySelector('#createUserBtn');
+  if (saveBtn) saveBtn.onclick = async function() {
+    var form = modal.querySelector('#createUserForm');
+    var fd = new FormData(form);
+    var body = Object.fromEntries(fd);
+    if (!body.name || !body.email || !body.password) { LH.toast('error', 'Name, email, and password are required'); return; }
+    if (body.password.length < 8) { LH.toast('error', 'Password must be at least 8 characters'); return; }
+    var sendEmail = body.sendEmail === 'on'; delete body.sendEmail;
+    try {
+      await LH.api('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(body) });
+      LH.toast('success', 'User created!', body.name + ' can now log in.');
+      modal.remove();
+      loadUsers();
+    } catch (e) { LH.toast('error', 'Failed', e.message); }
+  };
+}
+
   } catch (e) { LH.toast('error', 'Failed', e.message); }
 }
 
@@ -323,10 +492,122 @@ async function deleteUser(id) {
     await LH.api('/api/v1/admin/users/' + id, { method: 'DELETE' });
     LH.toast('success', 'User deleted');
     loadUsers();
+// ============ CREATE USER ============
+function openCreateUser() {
+  var roleOpts = ['admin','creator','consumer'].map(function(r){return '<option value="'+r+'">'+r+'</option>';}).join('');
+  var planOpts = ['free','pro','business','enterprise'].map(function(r){return '<option value="'+r+'" '+(r==='free'?'selected':'')+'>'+r+'</option>';}).join('');
+
+  var modalHtml = '<div class="modal-box" style="max-width:550px">' +
+    '<div class="modal-head"><div style="display:flex;align-items:center;gap:.75rem">' +
+      '<div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#4ade8022,#4ade8044);color:#4ade80;display:flex;align-items:center;justify-content:center;font-size:18px"><i class="fas fa-user-plus"></i></div>' +
+      '<div><h2 class="text-base font-bold" style="color:var(--text)">Create User</h2><p class="text-[11px]" style="color:var(--text-mute)">Add a new user to the platform</p></div>' +
+    '</div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>' +
+    '<form id="createUserForm" class="modal-body space-y-4">' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Full Name *</label><input class="input" name="name" placeholder="e.g. Maria Silva" required></div>' +
+        '<div><label class="field-label">Email *</label><input class="input" name="email" type="email" placeholder="maria@example.com" required></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Password *</label><div style="position:relative"><input class="input" name="password" type="password" id="createPass" placeholder="Min. 8 chars" required minlength="8"><button type="button" onclick="(function(){var e=document.getElementById(\'createPass\');e.type=e.type===\'password\'?\'text\':\'password\';})()" style="position:absolute;right:.5rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-mute);cursor:pointer"><i class="fas fa-eye"></i></button></div></div>' +
+        '<div><label class="field-label">Role</label><select class="input" name="role" style="cursor:pointer">'+roleOpts+'</select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Plan</label><select class="input" name="plan" style="cursor:pointer">'+planOpts+'</select></div>' +
+        '<div><label class="field-label">Status</label><select class="input" name="status" style="cursor:pointer"><option value="active" selected>Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="banned">Banned</option></select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Bio</label><input class="input" name="bio" placeholder="Optional"></div>' +
+        '<div><label class="field-label">Company</label><input class="input" name="company" placeholder="Optional"></div>' +
+      '</div>' +
+      '<div class="p-3 rounded-xl" style="background:rgba(74,222,128,.04);border:1px solid rgba(74,222,128,.1)">' +
+        '<p class="text-[11px] font-semibold flex items-center gap-1.5" style="color:#4ade80"><i class="fas fa-envelope"></i> Send welcome email</p>' +
+        '<label class="flex items-center gap-2 mt-1.5 cursor-pointer">' +
+          '<input type="checkbox" name="sendEmail" checked style="accent-color:#4ade80">' +
+          '<span class="text-[11px]" style="color:var(--text-soft)">Send welcome email with login instructions</span>' +
+        '</label>' +
+      '</div>' +
+    '</form>' +
+    '<div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button id="createUserBtn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create user</button></div>' +
+    '</div>';
+
+  var modal = LH.openModal(modalHtml);
+  var saveBtn = modal.querySelector('#createUserBtn');
+  if (saveBtn) saveBtn.onclick = async function() {
+    var form = modal.querySelector('#createUserForm');
+    var fd = new FormData(form);
+    var body = Object.fromEntries(fd);
+    if (!body.name || !body.email || !body.password) { LH.toast('error', 'Name, email, and password are required'); return; }
+    if (body.password.length < 8) { LH.toast('error', 'Password must be at least 8 characters'); return; }
+    var sendEmail = body.sendEmail === 'on'; delete body.sendEmail;
+    try {
+      await LH.api('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(body) });
+      LH.toast('success', 'User created!', body.name + ' can now log in.');
+      modal.remove();
+      loadUsers();
+    } catch (e) { LH.toast('error', 'Failed', e.message); }
+  };
+}
+
   } catch (e) { LH.toast('error', 'Failed', e.message); }
 }
 
 loadUsers();
+// ============ CREATE USER ============
+function openCreateUser() {
+  var roleOpts = ['admin','creator','consumer'].map(function(r){return '<option value="'+r+'">'+r+'</option>';}).join('');
+  var planOpts = ['free','pro','business','enterprise'].map(function(r){return '<option value="'+r+'" '+(r==='free'?'selected':'')+'>'+r+'</option>';}).join('');
+
+  var modalHtml = '<div class="modal-box" style="max-width:550px">' +
+    '<div class="modal-head"><div style="display:flex;align-items:center;gap:.75rem">' +
+      '<div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#4ade8022,#4ade8044);color:#4ade80;display:flex;align-items:center;justify-content:center;font-size:18px"><i class="fas fa-user-plus"></i></div>' +
+      '<div><h2 class="text-base font-bold" style="color:var(--text)">Create User</h2><p class="text-[11px]" style="color:var(--text-mute)">Add a new user to the platform</p></div>' +
+    '</div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>' +
+    '<form id="createUserForm" class="modal-body space-y-4">' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Full Name *</label><input class="input" name="name" placeholder="e.g. Maria Silva" required></div>' +
+        '<div><label class="field-label">Email *</label><input class="input" name="email" type="email" placeholder="maria@example.com" required></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Password *</label><div style="position:relative"><input class="input" name="password" type="password" id="createPass" placeholder="Min. 8 chars" required minlength="8"><button type="button" onclick="(function(){var e=document.getElementById(\'createPass\');e.type=e.type===\'password\'?\'text\':\'password\';})()" style="position:absolute;right:.5rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-mute);cursor:pointer"><i class="fas fa-eye"></i></button></div></div>' +
+        '<div><label class="field-label">Role</label><select class="input" name="role" style="cursor:pointer">'+roleOpts+'</select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Plan</label><select class="input" name="plan" style="cursor:pointer">'+planOpts+'</select></div>' +
+        '<div><label class="field-label">Status</label><select class="input" name="status" style="cursor:pointer"><option value="active" selected>Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="banned">Banned</option></select></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="field-label">Bio</label><input class="input" name="bio" placeholder="Optional"></div>' +
+        '<div><label class="field-label">Company</label><input class="input" name="company" placeholder="Optional"></div>' +
+      '</div>' +
+      '<div class="p-3 rounded-xl" style="background:rgba(74,222,128,.04);border:1px solid rgba(74,222,128,.1)">' +
+        '<p class="text-[11px] font-semibold flex items-center gap-1.5" style="color:#4ade80"><i class="fas fa-envelope"></i> Send welcome email</p>' +
+        '<label class="flex items-center gap-2 mt-1.5 cursor-pointer">' +
+          '<input type="checkbox" name="sendEmail" checked style="accent-color:#4ade80">' +
+          '<span class="text-[11px]" style="color:var(--text-soft)">Send welcome email with login instructions</span>' +
+        '</label>' +
+      '</div>' +
+    '</form>' +
+    '<div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button id="createUserBtn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create user</button></div>' +
+    '</div>';
+
+  var modal = LH.openModal(modalHtml);
+  var saveBtn = modal.querySelector('#createUserBtn');
+  if (saveBtn) saveBtn.onclick = async function() {
+    var form = modal.querySelector('#createUserForm');
+    var fd = new FormData(form);
+    var body = Object.fromEntries(fd);
+    if (!body.name || !body.email || !body.password) { LH.toast('error', 'Name, email, and password are required'); return; }
+    if (body.password.length < 8) { LH.toast('error', 'Password must be at least 8 characters'); return; }
+    var sendEmail = body.sendEmail === 'on'; delete body.sendEmail;
+    try {
+      await LH.api('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(body) });
+      LH.toast('success', 'User created!', body.name + ' can now log in.');
+      modal.remove();
+      loadUsers();
+    } catch (e) { LH.toast('error', 'Failed', e.message); }
+  };
+}
+
 </script>
 `)}
 `;

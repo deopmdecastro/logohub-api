@@ -190,20 +190,30 @@ function openMember(id) {
   const u = id ? TEAM.find(x=>x.id===id) : null;
   const isEdit = !!u;
   const f = u || { name:'', email:'', role:'viewer', plan:'free', status:'invited' };
-  const html = '<div class="modal-box" style="max-width:480px"><div class="modal-head"><div style="display:flex;align-items:center;gap:.7rem;"><div style="width:36px;height:36px;border-radius:12px;background:#ff6b6b22;color:#ff6b6b;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user-plus"></i></div><div><h2 class="text-base font-bold" style="color:var(--text)">'+(isEdit?'Edit member':'Invite user')+'</h2></div></div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>'+
+  const html = '<div class="modal-box" style="max-width:520px"><div class="modal-head"><div style="display:flex;align-items:center;gap:.7rem;"><div style="width:36px;height:36px;border-radius:12px;background:'+(isEdit?'#f5a62322':'#4ecdc422')+';color:'+(isEdit?'#f5a623':'#4ecdc4')+';display:flex;align-items:center;justify-content:center;"><i class="fas '+(isEdit?'fa-user-pen':'fa-envelope')+'"></i></div><div><h2 class="text-base font-bold" style="color:var(--text)">'+(isEdit?'Edit member':'Invite team member')+'</h2><p class="text-[11px]" style="color:var(--text-mute)">'+(isEdit?'Update role, plan, or status':'Send an email invitation to join your team')+'</p></div></div><button class="btn btn-ghost btn-icon" data-close><i class="fas fa-times"></i></button></div>'+
     '<form id="mf" class="modal-body space-y-4">'+
-      '<div><label class="field-label">Name</label><input class="input" name="name" value="'+esc(f.name)+'"></div>'+
-      '<div><label class="field-label">Email</label><input class="input" name="email" value="'+esc(f.email)+'"></div>'+
+      '<div class="grid grid-cols-2 gap-4"><div><label class="field-label">Full Name</label><input class="input" name="name" value="'+esc(f.name)+'" placeholder="e.g. Ana Costa"></div>'+
+      '<div><label class="field-label">Email</label><input class="input" name="email" type="email" value="'+esc(f.email)+'" placeholder="ana@company.com"></div></div>'+
       '<div class="grid grid-cols-2 gap-4"><div><label class="field-label">Role</label><select class="select" name="role">'+['admin','editor','viewer','billing'].map(r=>'<option value="'+r+'" '+(f.role===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div>'+
       '<div><label class="field-label">Plan</label><select class="select" name="plan">'+['free','pro','business','enterprise'].map(r=>'<option value="'+r+'" '+(f.plan===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div></div>'+
       '<div><label class="field-label">Status</label><select class="select" name="status">'+['active','invited','suspended'].map(r=>'<option value="'+r+'" '+(f.status===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div>'+
+      (!isEdit ? '<div class="p-4 rounded-xl" style="background:rgba(78,205,196,.04);border:1px solid rgba(78,205,196,.12)"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(78,205,196,.15);color:#4ecdc4"><i class="fas fa-paper-plane text-[11px]"></i></div><div><p class="text-sm font-semibold" style="color:var(--text)">Send invitation email</p><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">'+(esc(f.email||'')||'The member')+' will receive an email with a link to create their account and join your team.</p><label class="flex items-center gap-2 mt-2 cursor-pointer"><input type="checkbox" name="sendInviteEmail" checked style="accent-color:#4ecdc4"><span class="text-[11px]" style="color:var(--text-soft)">Send invitation now</span></label></div></div></div>' : '')+
     '</form>'+
-    '<div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button id="ms" class="btn btn-primary"><i class="fas fa-save"></i> '+(isEdit?'Save':'Invite')+'</button></div></div>';
+    '<div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button id="ms" class="btn btn-primary"><i class="fas fa-'+(isEdit?'save':'paper-plane')+'"></i> '+(isEdit?'Save changes':'Send invite')+'</button></div></div>';
   const m = LH.openModal(html);
   m.querySelector('#ms').onclick = async () => {
     const fd = new FormData(m.querySelector('#mf'));
     const body = Object.fromEntries(fd); if (isEdit) body.id = id;
-    try { await LH.api('/api/admin/team', { method:'POST', body: JSON.stringify(body) }); LH.toast('success', isEdit?'Updated':'Invited'); m.remove(); load(); }
+    const sendInvite = body.sendInviteEmail === 'on'; delete body.sendInviteEmail;
+    try { 
+      await LH.api('/api/admin/team', { method:'POST', body: JSON.stringify(body) }); 
+      if (!isEdit && sendInvite && body.email) {
+        // Call invite endpoint
+        await fetch('/api/admin/team/invite', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: body.email, name: body.name, role: body.role, plan: body.plan }) }).catch(function(){});
+      }
+      LH.toast('success', isEdit?'Member updated':'Invitation sent!', body.email);
+      m.remove(); load(); 
+    }
     catch (e) { LH.toast('error', 'Save failed', e.message); }
   };
 }

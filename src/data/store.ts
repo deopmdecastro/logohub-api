@@ -89,9 +89,9 @@ export const store = {
     const { password_hash, ...safe } = u;
     return safe;
   },
-  async createUser(data: { name: string; email: string; password_hash: string; role?: string }) {
+  async createUser(data: { name: string; email: string; password_hash: string; role?: string; plan?: string; status?: string; bio?: string; company?: string }) {
     if (await useDatabase()) {
-      const u = await db.createUser({ name: data.name, email: data.email, password: data.password_hash, role: data.role || 'consumer' });
+      const u = await db.createUser({ name: data.name, email: data.email, password: data.password_hash, role: data.role || 'consumer', plan: data.plan, status: data.status, bio: data.bio, company: data.company });
       if (u) return u;
     }
     const user = {
@@ -100,9 +100,11 @@ export const store = {
       email: data.email.toLowerCase(),
       password_hash: data.password_hash,
       role: data.role || 'consumer',
-      plan: 'free',
-      status: 'active',
-      avatar_url: null, bio: null, website: null, company: null,
+      plan: data.plan || 'free',
+      status: data.status || 'active',
+      bio: data.bio || null,
+      company: data.company || null,
+      avatar_url: null, website: null,
       earnings_balance: 0, requests_today: 0, requests_30d: 0,
       last_login: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     };

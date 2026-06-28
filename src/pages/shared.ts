@@ -115,6 +115,23 @@ export const HEAD = (title: string, extraScripts: string = '') => `<!DOCTYPE htm
   .input:focus, .select:focus, .textarea:focus { border-color:#b8a9e8; box-shadow: 0 0 0 3px rgba(184,169,232,.18); }
   .input::placeholder, .textarea::placeholder { color: var(--text-mute); }
   .input-pill { border-radius: 9999px; padding:.55rem 1rem .55rem 2.4rem; }
+
+  /* Custom select: any <select> styled with .select or .input gets the lilac treatment */
+  select.select, select.input, select.input-pill {
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23b8a9e8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .75rem center;
+    padding-right: 2.2rem; cursor: pointer;
+  }
+  select.select option, select.input option, select.input-pill option {
+    background: var(--surface); color: var(--text); padding: .5rem .75rem;
+  }
+  select.select option:checked, select.input option:checked, select.input-pill option:checked {
+    background: rgba(184,169,232,.15); color: #b8a9e8;
+  }
+  select.select option:hover, select.input option:hover, select.input-pill option:hover {
+    background: var(--panel-2);
+  }
   .field-label { font-size: .68rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem; display: block; }
   .field-hint { font-size: .68rem; color: var(--text-mute); margin-top: .25rem; }
 

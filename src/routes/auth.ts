@@ -55,7 +55,13 @@ auth.post('/register', async (c) => {
   if (role && !['consumer', 'creator'].includes(role)) return bad(c, 'Invalid role. Must be "consumer" or "creator"');
 
   const password_hash = await hash(password, 10);
-  const user = await userStore.createUser({ name, email, password_hash, role: role || 'consumer' });
+  const user = await userStore.createUser({
+    name, email, password_hash, role: role || 'consumer',
+    plan: body.plan || 'free',
+    status: body.status || 'active',
+    bio: body.bio || null,
+    company: body.company || null,
+  });
 
   const token = sign({ sub: user.id, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
   userStore.createSession(user.id, token);

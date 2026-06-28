@@ -251,8 +251,8 @@ export async function findUserById(id: string) {
 }
 export async function createUser(data: any) {
   const { rows } = await q(
-    'INSERT INTO users (name, email, password, role, plan) VALUES ($1,$2,$3,$4,$5) RETURNING *',
-    [data.name, data.email.toLowerCase(), data.password, data.role||'consumer', data.plan||'free']
+    'INSERT INTO users (name, email, password, role, plan, status, bio, company) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *',
+    [data.name, data.email.toLowerCase(), data.password, data.role||'consumer', data.plan||'free', data.status||'active', data.bio||null, data.company||null]
   );
   return rows[0] || null;
 }
