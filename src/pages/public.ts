@@ -181,7 +181,41 @@ async function loadLanding() {
   } catch(e) {
     console.error('Landing data load failed:', e);
     // Fallback to hardcoded data
-    LANDING = { stats: { total_assets: 70, total_logos: 40, total_sports: 23, total_flags: 16, categories: 11, avg_response_ms: 18, requests_today: 248391, uptime: '99.99', countries: 28, formats: 6 }, topLogos: [], categories: [] };
+    LANDING = { stats: { total_assets: 50000, total_logos: 35000, total_sports: 10000, total_flags: 5000, categories: 18, avg_response_ms: 18, requests_today: 248391, uptime: '99.99', countries: 200, formats: 6 }, topLogos: [
+    { slug:'google', name:'Google', category:'technology', primary_color:'#4285F4', verified:true },
+    { slug:'apple', name:'Apple', category:'technology', primary_color:'#000000', verified:true },
+    { slug:'microsoft', name:'Microsoft', category:'technology', primary_color:'#00A4EF', verified:true },
+    { slug:'spotify', name:'Spotify', category:'streaming', primary_color:'#1DB954', verified:true },
+    { slug:'github', name:'GitHub', category:'technology', primary_color:'#181717', verified:true },
+    { slug:'stripe', name:'Stripe', category:'fintech', primary_color:'#635BFF', verified:true },
+    { slug:'react', name:'React', category:'framework', primary_color:'#61DAFB', verified:true },
+    { slug:'bitcoin', name:'Bitcoin', category:'crypto', primary_color:'#F7931A', verified:true },
+    { slug:'real-madrid', name:'Real Madrid', category:'football', primary_color:'#FEBE10', verified:true },
+    { slug:'netflix', name:'Netflix', category:'streaming', primary_color:'#E50914', verified:true },
+    { slug:'amazon', name:'Amazon', category:'technology', primary_color:'#FF9900', verified:true },
+    { slug:'docker', name:'Docker', category:'technology', primary_color:'#2496ED', verified:true },
+    { slug:'figma', name:'Figma', category:'technology', primary_color:'#F24E1E', verified:true },
+    { slug:'python', name:'Python', category:'language', primary_color:'#3776AB', verified:true },
+    { slug:'nodejs', name:'Node.js', category:'framework', primary_color:'#339933', verified:true },
+    { slug:'twitch', name:'Twitch', category:'streaming', primary_color:'#9146FF', verified:true },
+    { slug:'discord', name:'Discord', category:'social', primary_color:'#5865F2', verified:true },
+    { slug:'ethereum', name:'Ethereum', category:'crypto', primary_color:'#627EEA', verified:true },
+    { slug:'barcelona', name:'Barcelona', category:'football', primary_color:'#A50044', verified:true },
+    { slug:'typescript', name:'TypeScript', category:'language', primary_color:'#3178C6', verified:true }
+  ], categories: [
+    { slug:'technology', name:'Technology', icon:'💻', count:12500 },
+    { slug:'social', name:'Social Media', icon:'📱', count:3200 },
+    { slug:'streaming', name:'Streaming', icon:'🎬', count:1800 },
+    { slug:'crypto', name:'Cryptocurrency', icon:'₿', count:2400 },
+    { slug:'framework', name:'Frameworks', icon:'⚛️', count:1500 },
+    { slug:'cloud', name:'Cloud', icon:'☁️', count:900 },
+    { slug:'automotive', name:'Automotive', icon:'🚗', count:600 },
+    { slug:'fintech', name:'Fintech', icon:'💳', count:800 },
+    { slug:'language', name:'Languages', icon:'📝', count:400 },
+    { slug:'database', name:'Databases', icon:'🗄️', count:350 },
+    { slug:'sports', name:'Sports', icon:'⚽', count:10000 },
+    { slug:'flags', name:'Flags', icon:'🏴', count:5000 }
+  ] };
     renderAll();
   }
 }
