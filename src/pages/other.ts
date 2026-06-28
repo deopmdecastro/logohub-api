@@ -28,7 +28,7 @@ async function load() {
   catch (e) { LH.toast('error','Failed to load settings', e.message); }
 }
 function renderAll() { renderGeneral(); renderGit(); renderBrand(); renderStats(); }
-function group(g) { return SETTINGS.filter(s => s.group===g); }
+function group(g) { return SETTINGS.filter(function(s){ return s.group===g || s.group_name===g; }); }
 function settingRow(s) {
   const val = s.type==='secret' ? (s.value?'••••••••••':'(not set)') : s.value;
   const swatch = s.type==='color' ? '<span class="color-swatch mr-2" style="background:'+s.value+'"></span>' : '';
