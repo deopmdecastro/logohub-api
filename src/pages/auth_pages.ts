@@ -187,8 +187,8 @@ export const loginPage = () => `<!DOCTYPE html>
       if (!c) return;
       const d = document.createElement('div');
       d.className = 'toast toast-' + type;
-      const icons: Record<string,string> = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-info-circle' };
-      const colors: Record<string,string> = { success:'#4ade80', error:'#ff6b6b', info:'#b8a9e8' };
+      var icons = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-info-circle' };
+      var colors = { success:'#4ade80', error:'#ff6b6b', info:'#b8a9e8' };
       d.innerHTML = '<i class="fas '+icons[type]+'" style="color:'+colors[type]+'"></i><div><strong>'+title+'</strong>'+(msg?'<p class="text-sm mt-0.5" style="opacity:.8">'+msg+'</p>':'')+'</div>';
       c.appendChild(d);
       setTimeout(() => d.remove(), 4000);
@@ -356,8 +356,8 @@ export const registerPage = () => `<!DOCTYPE html>
       if (!c) return;
       const d = document.createElement('div');
       d.className = 'toast toast-' + type;
-      const icons: Record<string,string> = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-info-circle' };
-      const colors: Record<string,string> = { success:'#4ade80', error:'#ff6b6b', info:'#b8a9e8' };
+      var icons = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-info-circle' };
+      var colors = { success:'#4ade80', error:'#ff6b6b', info:'#b8a9e8' };
       d.innerHTML = '<i class="fas '+icons[type]+'" style="color:'+colors[type]+'"></i><div><strong>'+title+'</strong>'+(msg?'<p class="text-sm mt-0.5" style="opacity:.8">'+msg+'</p>':'')+'</div>';
       c.appendChild(d);
       setTimeout(() => d.remove(), 4000);
