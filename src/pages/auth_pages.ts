@@ -167,7 +167,7 @@ export const loginPage = () => `<!DOCTYPE html>
         });
         const j = await r.json();
         if (!r.ok) throw new Error(j.error || 'data-i18n="auth.login_failed">Login failed');
-        localStorage.setItem('logohub_token', j.meta?.token || j.token || '');
+        localStorage.setItem('logohub_token', j.data?.token || j.token || '');
         localStorage.setItem('logohub_user', JSON.stringify(j.data?.user || j.user || {}));
         showToast('success', 'Welcome back!', 'Redirecting...');
         const role = j.data?.user?.role || 'consumer';
