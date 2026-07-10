@@ -95,10 +95,87 @@ const creatorApis: CreatorApi[] = [
     updated_at: '2026-06-15T00:00:00Z',
   },
 ];
-const apiVersions: ApiVersion[] = [];
-const endpoints: EndpointDef[] = [];
+const apiVersions: ApiVersion[] = [
+  {
+    id: 'ver-uiicons-v1',
+    api_id: 'api-001',
+    version: 'v1',
+    status: 'Public',
+    changelog: 'Initial public release of the icon catalog.',
+    deprecated_at: null,
+    sunset_at: null,
+    published_at: '2026-05-08T00:00:00Z',
+    created_at: '2026-05-02T00:00:00Z',
+  },
+  {
+    id: 'ver-uiicons-v2',
+    api_id: 'api-001',
+    version: 'v2',
+    status: 'Beta',
+    changelog: 'Adds semantic tags and multi-style icon search.',
+    deprecated_at: null,
+    sunset_at: null,
+    published_at: null,
+    created_at: '2026-06-18T00:00:00Z',
+  },
+];
+const endpoints: EndpointDef[] = [
+  {
+    id: 'ep-icons-list',
+    api_version_id: 'ver-uiicons-v2',
+    method: 'GET',
+    path: '/v2/icons',
+    summary: 'List icons',
+    description: 'Paginate icon assets with filters for style, tags, and format.',
+    request_schema: {},
+    response_schema: { data: [{ id: 'ic-cart', name: 'Cart' }], meta: { page: 1, total: 10000 } },
+    requires_auth: true,
+    created_at: '2026-06-18T00:00:00Z',
+  },
+  {
+    id: 'ep-icons-get',
+    api_version_id: 'ver-uiicons-v2',
+    method: 'GET',
+    path: '/v2/icons/:slug',
+    summary: 'Get icon by slug',
+    description: 'Fetch a single icon with downloadable SVG, PNG, and metadata.',
+    request_schema: {},
+    response_schema: { slug: 'cart', formats: ['svg', 'png'], styles: ['rounded', 'solid'] },
+    requires_auth: true,
+    created_at: '2026-06-18T00:00:00Z',
+  },
+  {
+    id: 'ep-icons-search',
+    api_version_id: 'ver-uiicons-v2',
+    method: 'POST',
+    path: '/v2/icons/search',
+    summary: 'Search icons',
+    description: 'Semantic icon search based on keywords, tags, and style constraints.',
+    request_schema: { query: 'shopping cart', styles: ['rounded'] },
+    response_schema: { data: [{ slug: 'cart', score: 0.98 }] },
+    requires_auth: true,
+    created_at: '2026-06-19T00:00:00Z',
+  },
+];
 const codeExamples: CodeExample[] = [];
-const collaborators: ApiCollaborator[] = [];
+const collaborators: ApiCollaborator[] = [
+  {
+    api_id: 'api-001',
+    user_id: 'col-001',
+    user_name: 'Mariana QA',
+    user_email: 'mariana.qa@logohub.dev',
+    permissions: ['view_analytics', 'edit_docs'],
+    status: 'active',
+  },
+  {
+    api_id: 'api-001',
+    user_id: 'col-002',
+    user_name: 'Product Lead',
+    user_email: 'product@logohub.dev',
+    permissions: ['manage_versions'],
+    status: 'pending',
+  },
+];
 
 // ============================================================
 // GET /api/v1/creator/apis — list my APIs

@@ -16,11 +16,16 @@ import supportRoute from './routes/support';
 import changelogRoute from './routes/changelog';
 import monitoringRoute from './routes/monitoring';
 import sdkRoute from './routes/sdk';
-import { landingPage, explorerPage, docsPage, adminPage } from './pages/public';
+import consumerRoute from './routes/consumer';
+import apiReferenceRoute from './routes/api_reference';
+import { landingPage, explorerPage, adminPage } from './pages/public';
+import { publicDocsV2Page } from './pages/public_docs_v2';
 import { overviewPage, keysPage } from './pages/dashboard';
 import { adminUsersPage } from './pages/admin_users';
 import { contentPage } from './pages/content';
-import { settingsPage, teamPage, billingPage, analyticsPage, activityPage, usersPage, creatorDashboardPage, consumerDashboardPage } from './pages/other';
+import { creatorStudioPage } from './pages/creator_studio';
+import { consumerDashboardV2Page } from './pages/consumer_dashboard_v2';
+import { settingsPage, teamPage, billingPage, analyticsPage, activityPage, usersPage, creatorDashboardPage } from './pages/other';
 import { roleSettingsPage } from './pages/role_settings_page';
 import { CREATOR_CTX, CONSUMER_CTX } from './pages/layout';
 import { profilePage } from './pages/profile_page';
@@ -68,6 +73,8 @@ app.route('/api/v1/support', supportRoute);
 app.route('/api/v1/changelog', changelogRoute);
 app.route('/api/v1/monitoring', monitoringRoute);
 app.route('/api/v1/sdks', sdkRoute);
+app.route('/api/v1/consumer', consumerRoute);
+app.route('/api/v1/apis', apiReferenceRoute);
 app.get('/api', (c) => c.redirect('/api/v1/stats'));
 
 // =====================================================================
@@ -75,7 +82,7 @@ app.get('/api', (c) => c.redirect('/api/v1/stats'));
 // =====================================================================
 app.get('/', (c) => c.html(landingPage()));
 app.get('/explorer', (c) => c.html(explorerPage()));
-app.get('/docs', (c) => c.html(docsPage()));
+app.get('/docs', (c) => c.html(publicDocsV2Page()));
 app.get('/admin', (c) => c.html(adminPage())); // redirects to /dashboard
 
 // Auth pages
@@ -147,13 +154,14 @@ app.get('/dashboard/creator', (c) => c.html(creatorDashboardPage()));
 app.get('/dashboard/creator/notifications', (c) => c.html(notificationsPage(CREATOR_CTX)));
 app.get('/dashboard/creator/profile', (c) => c.html(profilePage(CREATOR_CTX)));
 app.get('/dashboard/creator/settings', (c) => c.html(roleSettingsPage(CREATOR_CTX)));
-app.get('/dashboard/creator/content', (c) => c.html(contentPage(CREATOR_CTX)));
+app.get('/dashboard/creator/content', (c) => c.html(creatorStudioPage()));
+app.get('/dashboard/creator/apis', (c) => c.html(creatorStudioPage()));
 app.get('/dashboard/creator/analytics', (c) => c.html(analyticsPage(CREATOR_CTX)));
 
 // =====================================================================
 // DASHBOARD — Consumer environment (fully separate /dashboard/consumer/* namespace)
 // =====================================================================
-app.get('/dashboard/consumer', (c) => c.html(consumerDashboardPage()));
+app.get('/dashboard/consumer', (c) => c.html(consumerDashboardV2Page()));
 app.get('/dashboard/consumer/notifications', (c) => c.html(notificationsPage(CONSUMER_CTX)));
 app.get('/dashboard/consumer/profile', (c) => c.html(profilePage(CONSUMER_CTX)));
 app.get('/dashboard/consumer/settings', (c) => c.html(roleSettingsPage(CONSUMER_CTX)));

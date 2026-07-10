@@ -146,7 +146,7 @@ export const creatorSidebar = (activeId: string) => {
     { id: 'overview', icon: 'fa-chart-pie', label: 'Overview', href: '/dashboard/creator', color: '#b8a9e8' },
     { id: 'playground', icon: 'fa-code', label: 'Playground', href: '/playground', color: '#4ade80' },
     { id: 'notifications', icon: 'fa-bell', label: 'Notifications', href: '/dashboard/creator/notifications', color: '#ff6b6b' },
-    { id: 'content', icon: 'fa-folder-open', label: 'My Content', href: '/dashboard/creator/content', color: '#f5a623' },
+    { id: 'content', icon: 'fa-folder-open', label: 'My APIs', href: '/dashboard/creator/content', color: '#f5a623' },
     { id: 'analytics', icon: 'fa-chart-bar', label: 'Analytics', href: '/dashboard/creator/analytics', color: '#4ecdc4' },
     { id: 'profile', icon: 'fa-user-circle', label: 'My Profile', href: '/dashboard/creator/profile', color: '#4ecdc4' },
     { id: 'settings', icon: 'fa-cog', label: 'Settings', href: '/dashboard/creator/settings', color: '#71717a' },

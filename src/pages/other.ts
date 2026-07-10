@@ -321,7 +321,7 @@ load();
 // /dashboard/creator  — Creator Dashboard
 // ============================================================
 export const creatorDashboardPage = () => `${HEAD('Creator Dashboard \u2014 LogoHub', COMMON_JS)}
-${shellWrap(creatorSidebar('overview'), topbar('Creator Dashboard', 'Your earnings, content & analytics', CREATOR_CTX) + `
+${shellWrap(creatorSidebar('overview'), topbar('Creator Dashboard', 'Your earnings, APIs & analytics', CREATOR_CTX) + `
 <div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
 
   <!-- Welcome + avatar -->
@@ -338,7 +338,7 @@ ${shellWrap(creatorSidebar('overview'), topbar('Creator Dashboard', 'Your earnin
     </div>
     <input type="file" id="pfpCreator" accept="image/*" class="hidden" onchange="handleCreatorAvatar(this)">
     <div class="ml-auto flex gap-2">
-      <a href="/dashboard/creator/content" class="btn btn-primary btn-sm"><i class="fas fa-plus text-[10px]"></i> New Asset</a>
+      <a href="/dashboard/creator/content" class="btn btn-primary btn-sm"><i class="fas fa-plus text-[10px]"></i> New API</a>
       <a href="/dashboard/creator/analytics" class="btn btn-ghost btn-sm"><i class="fas fa-chart-bar text-[10px]"></i> Analytics</a>
     </div>
   </div>
