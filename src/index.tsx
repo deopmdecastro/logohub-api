@@ -5,6 +5,8 @@ import auth from './routes/auth';
 import admin from './routes/admin';
 import notificationsRoute from './routes/notifications';
 import playground from './routes/playground';
+import userKeys from './routes/user_keys';
+import usage from './routes/usage';
 import { landingPage, explorerPage, docsPage, adminPage } from './pages/public';
 import { overviewPage, keysPage } from './pages/dashboard';
 import { adminUsersPage } from './pages/admin_users';
@@ -41,6 +43,10 @@ app.route('/api/admin', admin);
 app.route('/api/v1/notifications', notificationsRoute);
 // Playground API
 app.route('/api/v1/playground', playground);
+// User-facing API key management (spec 1.6)
+app.route('/api/v1/keys', userKeys);
+// Usage analytics + quota (spec 1.8 / 1.10)
+app.route('/api/v1/usage', usage);
 app.get('/api', (c) => c.redirect('/api/v1/stats'));
 
 // =====================================================================

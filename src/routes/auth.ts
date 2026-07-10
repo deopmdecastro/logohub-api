@@ -10,7 +10,7 @@ import { userStore } from '../data/store';
 import { createNotification } from './notifications';
 import { sendEmail, welcomeEmail, passwordResetEmail } from '../services/email';
 
-const auth = new Hono<{ Variables: { userId: string } }>();
+const auth = new Hono<{ Variables: { userId: string; userRole: string } }>();
 auth.use('/*', cors({ origin: '*', allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'], allowHeaders: ['Content-Type', 'Authorization'] }));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'logohub-dev-secret-change-in-production';
@@ -153,12 +153,12 @@ auth.post('/change-password', authMiddleware, async (c) => {
   const { current_password, new_password } = body;
   if (!current_password || !new_password) return bad(c, 'Current and new password are required');
   if (new_password.length < 8) return bad(c, 'New password must be at least 8 characters');
-  const user = await userStore.getUserById(userId);
+  const user = await userStore.getUser(userId);
   if (!user) return bad(c, 'User not found', 404);
   const valid = await compare(current_password, user.password_hash);
   if (!valid) return bad(c, 'Current password is incorrect', 401);
-  const hash = await hash(new_password, 10);
-  await userStore.updateUser(userId, { password_hash: hash });
+  const newHash = await hash(new_password, 10);
+  await userStore.updateUser(userId, { password_hash: newHash });
   return ok(c, { message: 'Password updated successfully' });
 });
 
