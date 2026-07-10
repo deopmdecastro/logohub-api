@@ -76,10 +76,20 @@ function base32Encode(bytes: Uint8Array): string {
 
 // HMAC-SHA1 (simplified — in production use Web Crypto API or crypto-js)
 async function hmacSha1(key: Uint8Array, message: Uint8Array): Promise<Uint8Array> {
+  // Use globalThis.crypto.subtle if available (browser/edge), fallback to Node crypto
+  try {
+    const subtle = (globalThis as any).crypto?.subtle;
+    if (subtle) {
+      const hmacKey = await subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]);
+      const sig = await subtle.sign("HMAC", hmacKey, message);
+      return new Uint8Array(sig);
+    }
+  } catch {}
+  // Node.js fallback
   // Using Node.js crypto
   const crypto = await import('crypto');
-  const hmac = crypto.createHmac('sha1', Buffer.from(key));
-  hmac.update(Buffer.from(message));
+    const hmac = crypto.createHmac('sha1', Buffer.from(key));
+    hmac.update(Buffer.from(message));
   return new Uint8Array(hmac.digest());
 }
 
