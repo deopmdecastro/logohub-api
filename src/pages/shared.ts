@@ -26,6 +26,7 @@ export const HEAD = (title: string, extraScripts: string = '') => `<!DOCTYPE htm
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<link rel="stylesheet" href="/static/style.css">
 <script>
   // Theme bootstrap (before paint to avoid flash)
   (function(){
@@ -255,6 +256,13 @@ LH.confirm = (opts) => new Promise(res => {
   const close = (v) => { o.remove(); res(v); };
   o.addEventListener('click', (e) => { if (e.target===o) close(false); const a = e.target.closest('[data-act]'); if (a) close(a.dataset.act==='yes'); });
 });
+
+LH.token = () => localStorage.getItem('token');
+LH.me = () => { try { return JSON.parse(localStorage.getItem('me')||'null'); } catch { return null; } };
+LH.isLoggedIn = () => !!LH.token();
+LH.authHeaders = () => ({'Content-Type':'application/json', Authorization:'Bearer '+LH.token()});
+LH.logout = () => { localStorage.removeItem('token'); localStorage.removeItem('me'); location.href='/login'; };
+
 LH.openModal = (innerHtml) => {
   const o = document.createElement('div'); o.className='modal-overlay';
   o.innerHTML = innerHtml; document.body.appendChild(o);
