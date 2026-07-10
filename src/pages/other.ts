@@ -320,302 +320,177 @@ load();
 // ============================================================
 // /dashboard/creator  — Creator Dashboard
 // ============================================================
-export const creatorDashboardPage = () => `${HEAD('Creator Dashboard — LogoHub', COMMON_JS)}
-${shellWrap(creatorSidebar('overview'), `
-${topbar('Creator Dashboard', '', CREATOR_CTX)}
-  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
-    <div style="position:relative;cursor:pointer" onclick="document.getElementById('profilePhotoInput').click()">
-      <div id="creatorAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#b8a9e8,#f5a623);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#1a1a1a;overflow:hidden">
+export const creatorDashboardPage = () => `${HEAD('Creator Dashboard \u2014 LogoHub', COMMON_JS)}
+${shellWrap(creatorSidebar('overview'), topbar('Creator Dashboard', 'Your earnings, content & analytics', CREATOR_CTX) + `
+<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
+
+  <!-- Welcome + avatar -->
+  <div class="flex items-center gap-4 flex-wrap">
+    <div class="relative cursor-pointer" onclick="document.getElementById('pfpCreator').click()">
+      <div id="creatorAvatar" class="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black overflow-hidden" style="background:linear-gradient(135deg,var(--lilac),var(--amber));color:#12121a">
         <span id="creatorInitials">DC</span>
       </div>
-      <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:10px;color:#1a1a1a"><i class="fas fa-camera"></i></div>
+      <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center text-[9px]" style="background:var(--lilac);color:#12121a"><i class="fas fa-camera"></i></div>
     </div>
     <div>
-      <h2 class="text-lg font-bold" style="color:var(--text)">Your Creator Dashboard</h2>
-      <p class="text-sm" style="color:var(--text-soft)">Earnings, content & analytics</p>
+      <h2 class="text-lg font-extrabold tracking-tight">Creator Dashboard</h2>
+      <p class="text-xs" style="color:var(--text-mute)">Earnings, content performance & analytics</p>
     </div>
-    <input type="file" id="profilePhotoInput" accept="image/*" class="hidden" onchange="handleProfilePhoto(this)">
-  </div>
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
-  
-  <!-- Stats Cards -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="card p-5 card-hover">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#f5a62322;color:#f5a623"><i class="fas fa-dollar-sign text-[12px]"></i></div>
-      <div class="text-2xl font-bold" style="color:var(--text)">$1,247.50</div>
-      <p class="text-[11px]" style="color:var(--text-mute)">Total earnings</p>
-      <p class="text-[10px] mt-1" style="color:#4ade80"><i class="fas fa-arrow-up text-[8px]"></i> +18.3% this month</p>
-    </div>
-    <div class="card p-5 card-hover">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-image text-[12px]"></i></div>
-      <div class="text-2xl font-bold" style="color:var(--text)">34</div>
-      <p class="text-[11px]" style="color:var(--text-mute)">Published assets</p>
-      <p class="text-[10px] mt-1" style="color:var(--text-soft)">5 pending review</p>
-    </div>
-    <div class="card p-5 card-hover">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-download text-[12px]"></i></div>
-      <div class="text-2xl font-bold" style="color:var(--text)">89.4K</div>
-      <p class="text-[11px]" style="color:var(--text-mute)">Downloads (30d)</p>
-      <p class="text-[10px] mt-1" style="color:#4ade80"><i class="fas fa-arrow-up text-[8px]"></i> +24.1%</p>
-    </div>
-    <div class="card p-5 card-hover">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#4ade8022;color:#4ade80"><i class="fas fa-star text-[12px]"></i></div>
-      <div class="text-2xl font-bold" style="color:var(--text)">4.8</div>
-      <p class="text-[11px]" style="color:var(--text-mute)">Avg rating</p>
-      <p class="text-[10px] mt-1" style="color:var(--text-soft)">From 312 reviews</p>
+    <input type="file" id="pfpCreator" accept="image/*" class="hidden" onchange="handleCreatorAvatar(this)">
+    <div class="ml-auto flex gap-2">
+      <a href="/dashboard/creator/content" class="btn btn-primary btn-sm"><i class="fas fa-plus text-[10px]"></i> New Asset</a>
+      <a href="/dashboard/creator/analytics" class="btn btn-ghost btn-sm"><i class="fas fa-chart-bar text-[10px]"></i> Analytics</a>
     </div>
   </div>
 
-  <!-- My Content -->
-  <div class="card p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-semibold flex items-center gap-2" style="color:var(--text)">
-        <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-folder-open text-[11px]"></i></span>My Content
-      </h3>
-      <button class="btn btn-primary btn-sm" onclick="window.location.href='/dashboard/creator/content'"><i class="fas fa-plus"></i> Upload new</button>
+  <!-- Stats grid -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 anim-stagger" id="creatorStats">
+    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-coins"></i></div><div class="stat-value" id="crEarnings">$1,247</div><div class="stat-label">Total earnings</div><div class="stat-trend" style="color:var(--green)"><i class="fas fa-arrow-up text-[9px]"></i> +18.3%</div></div>
+    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-image"></i></div><div class="stat-value">34</div><div class="stat-label">Published assets</div><div class="stat-trend" style="color:var(--text-mute)">5 pending</div></div>
+    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-download"></i></div><div class="stat-value">89.4K</div><div class="stat-label">Downloads (30d)</div><div class="stat-trend" style="color:var(--green)"><i class="fas fa-arrow-up text-[9px]"></i> +24%</div></div>
+    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(52,211,153,.12);color:var(--green)"><i class="fas fa-star"></i></div><div class="stat-value">4.8</div><div class="stat-label">Avg rating</div><div class="stat-trend" style="color:var(--text-mute)">312 reviews</div></div>
+  </div>
+
+  <!-- Content + chart row -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-4">
+    <!-- My Content -->
+    <div class="card p-5 lg:col-span-3">
+      <div class="flex items-center justify-between mb-4">
+        <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-folder-open text-[11px]"></i></span>My Content</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Recently updated assets</p></div>
+        <a href="/dashboard/creator/content" class="btn btn-ghost btn-sm">View all</a>
+      </div>
+      <div class="overflow-x-auto"><table class="data-table">
+        <thead><tr><th>Asset</th><th class="hidden sm:table-cell">Category</th><th>Downloads</th><th>Earnings</th><th>Status</th></tr></thead>
+        <tbody id="creatorContent">
+          <tr><td class="font-semibold">Modern Dashboard UI Kit</td><td class="hidden sm:table-cell cell-mono">ui-kit</td><td>12,483</td><td>$412.00</td><td><span class="pill pill-green">published</span></td></tr>
+          <tr><td class="font-semibold">Minimalist Logo Pack</td><td class="hidden sm:table-cell cell-mono">logos</td><td>8,921</td><td>$315.50</td><td><span class="pill pill-green">published</span></td></tr>
+          <tr><td class="font-semibold">SaaS Landing Page Icons</td><td class="hidden sm:table-cell cell-mono">icons</td><td>6,742</td><td>$220.00</td><td><span class="pill pill-amber">review</span></td></tr>
+          <tr><td class="font-semibold">Premium Sport Icons v2</td><td class="hidden sm:table-cell cell-mono">sports</td><td>5,341</td><td>$185.00</td><td><span class="pill pill-green">published</span></td></tr>
+          <tr><td class="font-semibold">Dark Mode UI Assets</td><td class="hidden sm:table-cell cell-mono">ui-kit</td><td>4,231</td><td>$115.00</td><td><span class="pill pill-neutral">draft</span></td></tr>
+        </tbody>
+      </table></div>
     </div>
-    <div class="space-y-3">
-      ${[
-        { name:'Modern Dashboard UI Kit', downloads:12483, earnings:412.00, status:'published', color:'#4ade80' },
-        { name:'Minimalist Logo Pack', downloads:8921, earnings:315.50, status:'published', color:'#4ade80' },
-        { name:'SaaS Landing Page Icons', downloads:6742, earnings:220.00, status:'review', color:'#f5a623' },
-        { name:'Premium Sport Icons v2', downloads:5341, earnings:185.00, status:'published', color:'#4ade80' },
-        { name:'Dark Mode UI Assets', downloads:4231, earnings:115.00, status:'draft', color:'#71717a' },
-      ].map(item => `
-        <div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--panel-2)">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,#b8a9e8,#f5a623);color:#1a1a1a">${item.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold truncate" style="color:var(--text)">${item.name}</p>
-            <div class="flex items-center gap-2 mt-0.5">
-              <span class="text-[10px]" style="color:var(--text-mute)">${item.downloads.toLocaleString()} downloads</span>
-              <span class="text-[10px]" style="color:#f5a623">$${item.earnings.toFixed(2)} earned</span>
-            </div>
-          </div>
-          <span class="pill" style="background:${item.color}22;color:${item.color};border-color:${item.color}55">${item.status}</span>
-        </div>`).join('')}
+
+    <!-- Earnings chart -->
+    <div class="card p-5 lg:col-span-2">
+      <div class="mb-4"><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-chart-line text-[11px]"></i></span>Earnings &middot; 6 months</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Revenue breakdown</p></div>
+      <div style="height:200px"><canvas id="earningsChart"></canvas></div>
     </div>
   </div>
 
-  <!-- Earnings Chart -->
-  <div class="card p-6">
-    <h3 class="text-sm font-semibold mb-4 flex items-center gap-2" style="color:var(--text)">
-      <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#f5a62322;color:#f5a623"><i class="fas fa-chart-line text-[11px]"></i></span>Earnings · Last 6 months
-    </h3>
-    <canvas id="earningsChart" height="100"></canvas>
+  <!-- Quick tips -->
+  <div class="card p-5" style="background:linear-gradient(135deg,rgba(184,169,232,.06),rgba(245,166,35,.04))">
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(245,166,35,.15);color:var(--amber);font-size:1.2rem">\u{1F4A1}</div>
+      <div class="flex-1">
+        <p class="text-sm font-bold">Grow your revenue</p>
+        <p class="text-[11px]" style="color:var(--text-mute)">Assets with 5+ tags earn 3x more. Add detailed descriptions to improve discoverability.</p>
+      </div>
+      <a href="/dashboard/creator/content" class="btn btn-primary btn-sm">Optimize content</a>
+    </div>
   </div>
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-new Chart(document.getElementById('earningsChart'),{
-  type:'bar',
-  data:{
-    labels:['Jan','Feb','Mar','Apr','May','Jun'],
-    datasets:[{
-      label:'Earnings (USD)',
-      data:[180,245,310,198,412,247],
-      backgroundColor:'rgba(245,166,35,.3)',
-      borderColor:'#f5a623',
-      borderWidth:2,
-      borderRadius:8
-    }]
-  },
-  options:{
-    responsive:true,
-    plugins:{legend:{labels:{color:'#a1a1aa',font:{size:11}}}},
-    scales:{
-      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#71717a',font:{size:11}}},
-      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#71717a',font:{size:11},callback:v=>'$'+v}}
-    }
-  }
-});
-</script>
-<script>
 LH.guardRole(['creator']);
-function handleProfilePhoto(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover';
-    const avatar = document.getElementById('creatorAvatar');
-    const initials = document.getElementById('creatorInitials');
-    if (initials) initials.style.display = 'none';
-    avatar.appendChild(img);
-    // Save to backend
-    LH.api('/api/v1/auth/me', { method:'PATCH', body: JSON.stringify({ avatar_url: e.target.result }) })
-      .then(() => LH.toast('success', 'Profile photo updated'))
-      .catch(e => LH.toast('error', 'Failed to save photo', e.message));
-  };
-  reader.readAsDataURL(file);
-}
+new Chart(document.getElementById('earningsChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Earnings',data:[180,245,310,198,412,247],backgroundColor:['rgba(184,169,232,.35)','rgba(184,169,232,.45)','rgba(245,166,35,.35)','rgba(184,169,232,.35)','rgba(245,166,35,.45)','rgba(184,169,232,.35)'],borderColor:'var(--lilac)',borderWidth:1,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'var(--text-mute)',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'var(--text-mute)',font:{size:10},callback:function(v){return '$'+v}}}}}});
+function handleCreatorAvatar(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var img=document.createElement('img');img.src=e.target.result;img.style.cssText='width:100%;height:100%;object-fit:cover';var a=document.getElementById('creatorAvatar');a.innerHTML='';a.appendChild(img);LH.api('/api/v1/auth/me',{method:'PATCH',body:JSON.stringify({avatar_url:e.target.result})}).catch(function(){})};r.readAsDataURL(f)}
 </script>
-`)}`;
+`)})`;
+export const consumerDashboardPage = () => `${HEAD('Consumer Dashboard \u2014 LogoHub', COMMON_JS)}
+${shellWrap(consumerSidebar('overview'), topbar('Consumer Dashboard', 'Your usage, keys & plan', CONSUMER_CTX) + `
+<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
 
-// ============================================================
-// /dashboard/consumer  — Consumer Dashboard
-// ============================================================
-export const consumerDashboardPage = () => `${HEAD('Consumer Dashboard — LogoHub', COMMON_JS)}
-${shellWrap(consumerSidebar('overview'), `
-${topbar('Consumer Dashboard', '', CONSUMER_CTX)}
-  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
-    <div style="position:relative;cursor:pointer" onclick="document.getElementById('profilePhotoInputCons').click()">
-      <div id="consumerAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4ecdc4,#b8a9e8);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#1a1a1a;overflow:hidden">
-        <span id="consumerInitials">JD</span>
-      </div>
-      <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:10px;color:#1a1a1a"><i class="fas fa-camera"></i></div>
-    </div>
-    <div>
-      <h2 class="text-lg font-bold" style="color:var(--text)">Your Consumer Dashboard</h2>
-      <p class="text-sm" style="color:var(--text-soft)">Usage, API keys & plan</p>
-    </div>
-    <input type="file" id="profilePhotoInputCons" accept="image/*" class="hidden" onchange="handleProfilePhotoCons(this)">
-  </div>
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
-
-  <!-- Plan Status -->
-  <div class="card p-5" style="border-color:#b8a9e8;background:linear-gradient(135deg,rgba(184,169,232,.08),transparent)">
+  <!-- Plan banner -->
+  <div class="card p-5" style="border-color:rgba(184,169,232,.25);background:linear-gradient(135deg,rgba(184,169,232,.06),transparent 60%)">
     <div class="flex items-center justify-between flex-wrap gap-3">
-      <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span id="planPill" class="pill pill-lilac">…</span>
-          <span id="planQuotaLabel" class="text-[11px]" style="color:var(--text-soft)">—</span>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-sm" style="background:rgba(184,169,232,.15);color:var(--lilac)"><i class="fas fa-crown"></i></div>
+        <div>
+          <div class="flex items-center gap-2"><span id="planPill" class="pill pill-lilac">...</span><span class="text-[11px]" style="color:var(--text-soft)" id="planQuotaLabel">—</span></div>
+          <p class="text-[11px] mt-1" style="color:var(--text-mute)" id="planUsageLine">Loading...</p>
         </div>
-        <p class="text-sm" style="color:var(--text-mute)" id="planUsageLine">Loading usage…</p>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="window.location.href='/#pricing'"><i class="fas fa-arrow-up"></i> Upgrade plan</button>
+      <a href="/#pricing" class="btn btn-primary btn-sm"><i class="fas fa-arrow-up text-[10px]"></i> Upgrade</a>
     </div>
-    <div class="h-2 rounded-full overflow-hidden mt-3" style="background:var(--border)">
-      <div id="planQuotaBar" class="h-full rounded-full transition-all duration-500" style="width:0%;background:#b8a9e8"></div>
+    <div class="progress mt-3"><div class="progress-bar lilac" id="planQuotaBar" style="width:0%"></div></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 anim-stagger" id="consumerStats">
+    <div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>
+    <div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>
+    <div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>
+    <div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>
+  </div>
+
+  <!-- Keys + usage row -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-4">
+    <!-- API Keys -->
+    <div class="card p-5 lg:col-span-3">
+      <div class="flex items-center justify-between mb-4">
+        <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-key text-[11px]"></i></span>My API Keys</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Quick access to your keys</p></div>
+        <a href="/dashboard/consumer/keys" class="btn btn-primary btn-sm"><i class="fas fa-plus text-[10px]"></i> New Key</a>
+      </div>
+      <div class="overflow-x-auto"><table class="data-table">
+        <thead><tr><th>Name</th><th>Key preview</th><th>Status</th><th class="hidden sm:table-cell">Requests</th><th class="hidden sm:table-cell">Last used</th></tr></thead>
+        <tbody id="consumerKeys"><tr><td colspan="5" class="text-center" style="color:var(--text-mute)">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- Usage by key -->
+    <div class="card p-5 lg:col-span-2">
+      <div class="mb-4"><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-chart-bar text-[11px]"></i></span>Usage by key</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Request distribution</p></div>
+      <div class="space-y-3" id="usageByKey"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width:80%"></div></div>
     </div>
   </div>
 
-  <!-- Stats Cards -->
-  <div id="statGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-16"></div><div class="skeleton h-3 w-24 mt-2"></div></div>
-    <div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-16"></div><div class="skeleton h-3 w-24 mt-2"></div></div>
-    <div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-16"></div><div class="skeleton h-3 w-24 mt-2"></div></div>
-    <div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-16"></div><div class="skeleton h-3 w-24 mt-2"></div></div>
-  </div>
-
-  <!-- My API Keys -->
-  <div class="card p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-semibold flex items-center gap-2" style="color:var(--text)">
-        <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#f5a62322;color:#f5a623"><i class="fas fa-key text-[11px]"></i></span>My API Keys
-      </h3>
-      <button class="btn btn-primary btn-sm" onclick="window.location.href='/dashboard/consumer/keys?new=1'"><i class="fas fa-plus"></i> New Key</button>
-    </div>
-    <div id="consumerKeys" class="space-y-3">
-      <div class="skeleton h-14 w-full rounded-xl"></div>
-    </div>
-  </div>
-
-  <!-- Usage by key -->
-  <div class="card p-6">
-    <h3 class="text-sm font-semibold mb-4 flex items-center gap-2" style="color:var(--text)">
-      <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-chart-bar text-[11px]"></i></span>Requests by key
-    </h3>
-    <div id="usageByKey" class="space-y-2">
-      <div class="skeleton h-6 w-full rounded-lg"></div>
+  <!-- Catalog CTA -->
+  <div class="card p-5" style="background:linear-gradient(135deg,rgba(78,205,196,.06),rgba(184,169,232,.04))">
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(78,205,196,.15);color:var(--teal);font-size:1.2rem">\u{1F50D}</div>
+      <div class="flex-1"><p class="text-sm font-bold">Explore the API catalog</p><p class="text-[11px]" style="color:var(--text-mute)">Browse 50,000+ logos, icons, flags and brand assets ready to integrate.</p></div>
+      <a href="/api/v1/catalog" class="btn btn-ghost btn-sm">Browse catalog <i class="fas fa-arrow-right text-[10px]"></i></a>
     </div>
   </div>
 
 </div>
 <script>
-LH.guardRole(['consumer']).then(function(u) { if (u) initConsumerDashboard(); });
-
-async function initConsumerDashboard() {
-  try {
-    const [quota, summary, keys] = await Promise.all([
-      LH.api('/api/v1/usage/quota'),
-      LH.api('/api/v1/usage/summary'),
-      LH.api('/api/v1/keys'),
-    ]);
-    renderPlan(quota.data);
-    renderConsumerStats(quota.data, summary.data);
-    renderConsumerKeys(keys.data);
-    renderUsageByKey(summary.data.by_key);
-  } catch (e) {
-    LH.toast('error', 'Failed to load dashboard', String(e.message||e));
-  }
+LH.guardRole(['consumer']).then(function(u){if(u)initConsumer()});
+async function initConsumer(){
+  try{var qr=await LH.api('/api/v1/usage/quota'),sr=await LH.api('/api/v1/usage/summary'),kr=await LH.api('/api/v1/keys');
+  renderPlan(qr.data);renderStats(qr.data,sr.data);renderKeys(kr.data);renderUsage(sr.data.by_key)}catch(e){LH.toast('error','Failed to load',e.message)}
 }
-
-function renderPlan(q) {
-  const unlimited = q.quota_daily === -1;
-  document.getElementById('planPill').textContent = q.plan.charAt(0).toUpperCase() + q.plan.slice(1) + ' Plan';
-  document.getElementById('planQuotaLabel').textContent = unlimited ? 'Unlimited requests/day' : LH.fmt(q.quota_daily) + ' requests/day';
-  document.getElementById('planUsageLine').innerHTML = unlimited
-    ? 'You have used <strong style="color:var(--text)">' + LH.fmt(q.used_today) + '</strong> requests today'
-    : 'You\\'ve used <strong style="color:var(--text)">' + LH.fmt(q.used_today) + '</strong> of ' + LH.fmt(q.quota_daily) + ' requests today';
-  document.getElementById('planQuotaBar').style.width = unlimited ? '4%' : q.percent_used + '%';
+function renderPlan(q){
+  document.getElementById('planPill').textContent=(q.plan||'free').charAt(0).toUpperCase()+(q.plan||'free').slice(1)+' Plan';
+  document.getElementById('planQuotaLabel').textContent=q.quota_daily===-1?'Unlimited':LH.fmt(q.quota_daily)+' req/day';
+  document.getElementById('planUsageLine').innerHTML='Used <strong style=color:var(--text)>'+LH.fmt(q.used_today||0)+'</strong> of '+(q.quota_daily===-1?'unlimited':LH.fmt(q.quota_daily))+' today';
+  document.getElementById('planQuotaBar').style.width=q.quota_daily===-1?'4%':(q.percent_used||0)+'%';
 }
-
-function renderConsumerStats(q, s) {
-  const successRate = s.total_requests > 0 ? (100 - Math.min(2, (s.revoked_keys / Math.max(1, s.active_keys + s.revoked_keys)) * 100)).toFixed(1) : '100.0';
-  document.getElementById('statGrid').innerHTML =
-    statCardC(LH.fmt(q.used_today), 'Requests today', 'fa-bolt', '#b8a9e8') +
-    statCardC(s.active_keys, 'Active API keys', 'fa-key', '#4ecdc4') +
-    statCardC(LH.fmt(q.used_30d), 'Requests (30d)', 'fa-chart-line', '#f5a623') +
-    statCardC(successRate + '%', 'Success rate', 'fa-check-circle', '#4ade80');
+function renderStats(q,s){
+  var cards=[{icon:'fa-bolt',bg:'rgba(184,169,232,.12)',fg:'var(--lilac)',val:LH.fmt(q.used_today||0),lbl:'Requests today'},
+    {icon:'fa-key',bg:'rgba(245,166,35,.12)',fg:'var(--amber)',val:s.active_keys||0,lbl:'Active keys'},
+    {icon:'fa-chart-line',bg:'rgba(78,205,196,.12)',fg:'var(--teal)',val:LH.fmt(q.used_30d||0),lbl:'Requests (30d)'},
+    {icon:'fa-shield-check',bg:'rgba(52,211,153,.12)',fg:'var(--green)',val:(s.active_keys>0?'100':'—')+'%',lbl:'Success rate'}];
+  document.getElementById('consumerStats').innerHTML=cards.map(function(c){return '<div class="card card-stats card-hover"><div class="stat-icon" style=background:'+c.bg+';color:'+c.fg+'><i class="fas '+c.icon+'"></i></div><div class="stat-value">'+c.val+'</div><div class="stat-label">'+c.lbl+'</div></div>'}).join('');
 }
-function statCardC(value, label, icon, color) {
-  return '<div class="card card-hover p-5">'+
-    '<div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:'+color+'22;color:'+color+'"><i class="fas '+icon+' text-[12px]"></i></div>'+
-    '<div class="text-2xl font-bold" style="color:var(--text)">'+value+'</div>'+
-    '<p class="text-[11px]" style="color:var(--text-mute)">'+label+'</p>'+
-  '</div>';
+function renderKeys(keys){
+  var el=document.getElementById('consumerKeys');
+  if(!keys.length){el.innerHTML='<tr><td colspan=5 style=text-align:center;color:var(--text-mute);padding:2rem>No API keys yet — <a href=/dashboard/consumer/keys style=color:var(--lilac)>create one</a></td></tr>';return}
+  el.innerHTML=keys.slice(0,5).map(function(k){var sp=k.status==='active'?'pill-green':k.status==='revoked'?'pill-coral':'pill-amber';
+    return '<tr><td class=font-semibold>'+k.name+'</td><td class=cell-mono>'+(k.key_preview||k.prefix||'')+'</td><td><span class="pill '+sp+'">'+k.status+'</span></td><td class="hidden sm:table-cell">'+LH.fmt(k.requests||0)+'</td><td class="hidden sm:table-cell">'+LH.rel(k.last_used)+'</td></tr>'}).join('');
 }
-function renderConsumerKeys(keys) {
-  const el = document.getElementById('consumerKeys');
-  if (!keys.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-key text-2xl mb-2 opacity-30 block"></i>No API keys yet — create one to get started.</div>'; return; }
-  el.innerHTML = keys.slice(0, 4).map(k => {
-    const stCls = { active:'pill-green', revoked:'pill-coral' }[k.status] || 'pill-amber';
-    return '<div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--panel-2)">'+
-      '<div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-key text-[12px]"></i></div>'+
-      '<div class="flex-1 min-w-0"><p class="text-sm font-semibold truncate" style="color:var(--text)">'+k.name+'</p>'+
-      '<code class="text-[11px] font-mono truncate block" style="color:var(--text-soft)">'+(k.key_preview||k.prefix+'...')+'</code></div>'+
-      '<span class="pill '+stCls+'">'+k.status+'</span>'+
-      '<span class="text-[11px] hidden sm:inline" style="color:var(--text-mute)">'+LH.fmt(k.requests||0)+' reqs</span>'+
-    '</div>';
-  }).join('');
-}
-function renderUsageByKey(byKey) {
-  const el = document.getElementById('usageByKey');
-  if (!byKey.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-chart-bar text-2xl mb-2 opacity-30 block"></i>No requests recorded yet.</div>'; return; }
-  const max = Math.max(1, ...byKey.map(k => k.requests));
-  el.innerHTML = byKey.map(k => {
-    const pct = Math.round((k.requests / max) * 100);
-    return '<div>'+
-      '<div class="flex items-center justify-between mb-1">'+
-        '<span class="text-[11px] font-medium truncate" style="color:var(--text)">'+k.name+'</span>'+
-        '<span class="text-[11px]" style="color:var(--text-mute)">'+LH.fmt(k.requests)+' reqs · '+(k.last_used?LH.rel(k.last_used):'never used')+'</span>'+
-      '</div>'+
-      '<div class="h-1.5 rounded-full overflow-hidden" style="background:var(--border)"><div class="h-full rounded-full" style="width:'+pct+'%;background:#4ecdc4"></div></div>'+
-    '</div>';
-  }).join('');
-}
-
-function handleProfilePhotoCons(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover';
-    const avatar = document.getElementById('consumerAvatar');
-    const initials = document.getElementById('consumerInitials');
-    if (initials) initials.style.display = 'none';
-    avatar.appendChild(img);
-    LH.api('/api/v1/auth/me', { method:'PATCH', body: JSON.stringify({ avatar_url: e.target.result }) })
-      .then(() => LH.toast('success', 'Profile photo updated'))
-      .catch(e => LH.toast('error', 'Failed to save photo', e.message));
-  };
-  reader.readAsDataURL(file);
+function renderUsage(byKey){
+  var el=document.getElementById('usageByKey');
+  if(!byKey||!byKey.length){el.innerHTML='<div class="empty-state" style=padding:1.5rem><div class=empty-icon><i class="fas fa-chart-bar"></i></div><h3>No data yet</h3></div>';return}
+  var max=Math.max(1,byKey.reduce(function(s,k){return Math.max(s,k.requests||0)},0));
+  el.innerHTML=byKey.map(function(k){var pct=max?Math.round((k.requests||0)/max*100):0;
+    return '<div><div style=display:flex;justify-content:space-between;margin-bottom:.25rem><span style=font-size:.78rem;font-weight:500;color:var(--text)>'+k.name+'</span><span style=font-size:.7rem;color:var(--text-mute)>'+LH.fmt(k.requests||0)+'</span></div><div class=progress><div class="progress-bar teal" style=width:'+pct+'%></div></div></div>'}).join('');
 }
 </script>
-`)}`;
+`)})`;
+
 export const billingPage = () => `${HEAD('Billing — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('billing'), `
 ${topbar('Billing', 'Manage your plan and payment method')}

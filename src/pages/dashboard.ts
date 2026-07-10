@@ -1,159 +1,100 @@
-import { HEAD, COMMON_JS } from './shared';
+import { HEAD, COMMON_JS, renderStatSkeletons } from './shared';
 import { sidebar, topbar, shellWrap, ctxSidebar, PageCtx, ADMIN_CTX, DASH_NAV } from './layout';
 
 // ============================================================
 // /dashboard  — Overview (admin only)
 // ============================================================
 export const overviewPage = () => `${HEAD('Dashboard — LogoHub API', COMMON_JS)}
-${shellWrap(sidebar('overview'), `
-${topbar('Overview', 'Welcome back, Admin!')}
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-6 animate-fade-up">
-  <div id="statGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4">${renderStatSkeletons(4)}</div>
+${shellWrap(sidebar('overview'), topbar('Dashboard', "Welcome back! Here\'s what\'s happening.", ADMIN_CTX) + `
+<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <div class="card p-6 lg:col-span-2">
+  <!-- Stats grid -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 anim-stagger" id="statGrid">
+    ${renderStatSkeletons(4)}
+  </div>
+
+  <!-- Chart + endpoints row -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
+    <div class="card p-5 lg:col-span-2">
       <div class="flex items-center justify-between mb-5">
-        <h3 class="text-sm font-semibold flex items-center gap-2"><span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-chart-line text-[11px]"></i></span>Requests · Last 7 days</h3>
-        <span class="pill pill-green">+12.3% WoW</span>
+        <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-chart-line text-[11px]"></i></span>Requests &middot; Last 7 days</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Aggregated across all keys</p></div>
+        <span class="pill pill-green" id="trendPill">&mdash;</span>
       </div>
-      <canvas id="reqChart" height="120"></canvas>
+      <div style="height:200px"><canvas id="reqChart"></canvas></div>
     </div>
-    <div class="card p-6">
-      <h3 class="text-sm font-semibold mb-5 flex items-center gap-2"><span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#f5a62322;color:#f5a623"><i class="fas fa-code text-[10px]"></i></span>Top endpoints</h3>
-      <div class="space-y-3.5">
-        ${[
-          ['/api/v1/logo/*', 45, '#b8a9e8'],
-          ['/api/v1/search', 28, '#f5a623'],
-          ['/api/v1/flags/*', 14, '#4ecdc4'],
-          ['/api/v1/crypto/*', 9, '#ff6b6b'],
-          ['/api/v1/football/*', 4, '#4ade80'],
-        ].map(([ep, pct, color]) => `
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <code class="text-[11px] font-mono" style="color:var(--text-soft)">${ep}</code>
-              <span class="text-[11px] font-semibold" style="color:var(--text)">${pct}%</span>
-            </div>
-            <div class="h-1.5 rounded-full overflow-hidden" style="background:var(--border)">
-              <div class="h-full rounded-full transition-all duration-500" style="width:${pct}%;background:${color};"></div>
-            </div>
-          </div>`).join('')}
+    <div class="card p-5">
+      <div class="mb-5"><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-list-ol text-[11px]"></i></span>Top endpoints</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">By request volume</p></div>
+      <div class="space-y-3" id="topEndpoints">
+        ${[['/api/v1/logo/*',45,'var(--lilac)'],['/api/v1/search',28,'var(--amber)'],['/api/v1/flags/*',14,'var(--teal)'],['/api/v1/crypto/*',9,'var(--coral)'],['/api/v1/football/*',4,'var(--green)']].map(function(e){return '<div><div style=display:flex;justify-content:space-between;margin-bottom:.25rem><code style=font-size:.72rem;color:var(--text-soft)>'+e[0]+'</code><span style=font-size:.72rem;font-weight:600;color:var(--text)>'+e[1]+'%</span></div><div class=progress><div class=progress-bar style=width:'+e[1]+'%;background:'+e[2]+'></div></div></div>'}).join('')}
       </div>
     </div>
   </div>
 
-  <div class="card p-6">
-    <div class="flex items-center justify-between mb-5">
-      <h3 class="text-sm font-semibold flex items-center gap-2"><span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-history text-[11px]"></i></span>Recent activity</h3>
-      <a href="/dashboard/activity" class="text-[11px] font-medium" style="color:#b8a9e8">View all →</a>
+  <!-- Activity + keys row -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-4">
+    <!-- Recent activity -->
+    <div class="card p-5 lg:col-span-3">
+      <div class="flex items-center justify-between mb-4">
+        <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-history text-[11px]"></i></span>Recent activity</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Latest platform actions</p></div>
+        <a href="/dashboard/activity" class="btn btn-ghost btn-sm">View all <i class="fas fa-arrow-right text-[10px]"></i></a>
+      </div>
+      <div id="recentActivity" class="space-y-0"></div>
     </div>
-    <div id="recentActivity" class="divide-y" style="border-color:var(--border)"></div>
+
+    <!-- Quick actions -->
+    <div class="card p-5 lg:col-span-2 space-y-3">
+      <h3 class="text-sm font-bold flex items-center gap-2 mb-1"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-bolt text-[11px]"></i></span>Quick actions</h3>
+      <a href="/dashboard/keys?new=1" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-plus"></i></div>Create API key</a>
+      <a href="/dashboard/content" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-upload"></i></div>Upload content</a>
+      <a href="/dashboard/admin/users" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(255,107,107,.12);color:var(--coral)"><i class="fas fa-user-plus"></i></div>Manage users</a>
+      <a href="/dashboard/settings" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(156,163,175,.12);color:#9ca3af"><i class="fas fa-sliders"></i></div>Platform settings</a>
+      <a href="/playground" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-code"></i></div>Open playground</a>
+    </div>
   </div>
 
-  <div class="card p-6">
+  <!-- API Keys preview -->
+  <div class="card p-5">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-semibold flex items-center gap-2"><span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#f5a62322;color:#f5a623"><i class="fas fa-key text-[10px]"></i></span>API Keys</h3>
-      <div class="flex gap-2">
-        <a href="/dashboard/keys" class="btn btn-ghost btn-sm">Manage</a>
-        <button class="btn btn-primary btn-sm" onclick="window.location.href='/dashboard/keys?new=1'"><i class="fas fa-plus"></i> Create New Key</button>
-      </div>
+      <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-key text-[11px]"></i></span>API Keys</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Recent keys overview</p></div>
+      <div class="flex gap-2"><a href="/dashboard/keys" class="btn btn-ghost btn-sm">Manage all</a><a href="/dashboard/keys?new=1" class="btn btn-primary btn-sm"><i class="fas fa-plus text-[10px]"></i> New key</a></div>
     </div>
-    <div id="recentKeys" class="space-y-2"></div>
+    <div id="recentKeys"></div>
   </div>
+
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-async function init() {
-  try {
-    const [stats, activity, keys] = await Promise.all([
-      LH.api('/api/admin/stats'),
-      LH.api('/api/admin/activity'),
-      LH.api('/api/admin/keys'),
-    ]);
-    renderStats(stats.data);
-    renderActivity(activity.data.slice(0,6));
-    renderKeysPreview(keys.data.slice(0,3));
-    renderChart();
-  } catch (e) {
-    LH.toast('error', 'Failed to load dashboard', String(e.message||e));
-  }
+async function init(){try{var r=await Promise.all([LH.api('/api/admin/stats'),LH.api('/api/admin/activity'),LH.api('/api/admin/keys')]);renderStats(r[0].data);renderActivity(r[1].data.slice(0,8));renderKeysPreview(r[2].data.slice(0,5))}catch(e){LH.toast('error','Failed',e.message)}}
+function renderStats(s){
+  document.getElementById('statGrid').innerHTML=[
+    {icon:'fa-bolt',bg:'rgba(184,169,232,.12)',fg:'var(--lilac)',val:LH.fmt(s.total_requests_24h||s.total_requests||0),lbl:'Requests (24h)',trend:'+12.3%'},
+    {icon:'fa-gauge-high',bg:'rgba(245,166,35,.12)',fg:'var(--amber)',val:(s.avg_latency_ms||18)+'ms',lbl:'Avg latency'},
+    {icon:'fa-shield-check',bg:'rgba(52,211,153,.12)',fg:'var(--green)',val:(s.success_rate||'99.7')+'%',lbl:'Success rate'},
+    {icon:'fa-exclamation-triangle',bg:'rgba(255,107,107,.12)',fg:'var(--coral)',val:LH.fmt(s.errors_24h||0),lbl:'Errors (24h)',trend:'-67%',trendUp:true}
+  ].map(function(c){return '<div class="card card-stats card-hover"><div class=stat-icon style=background:'+c.bg+';color:'+c.fg+'><i class="fas '+c.icon+'"></i></div><div class=stat-value>'+c.val+'</div><div class=stat-label>'+c.lbl+'</div>'+(c.trend?'<div class=stat-trend style=color:'+(c.trendUp!==false?'var(--green)':'var(--coral)')+'><i class="fas fa-arrow-'+(c.trendUp!==false?'up':'down')+' text-[9px]"></i> '+c.trend+'</div>':'')+'</div>'}).join('');
+  renderChart()
 }
-function statCard(label, value, icon, color, trend, sub) {
-  const t = trend!=null ? '<span class="text-[10px] font-semibold inline-flex items-center gap-0.5" style="color:'+(trend>=0?'#4ade80':'#ff6b6b')+'"><i class="fas fa-arrow-'+(trend>=0?'up':'down')+'-right text-[8px]"></i>'+Math.abs(trend)+'%</span>' : '';
-  return '<div class="card card-hover p-5">'+
-    '<div class="flex items-center justify-between mb-3">'+
-      '<div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:'+color+'22;color:'+color+'"><i class="fas '+icon+' text-[12px]"></i></div>'+
-      t +
-    '</div>'+
-    '<div class="text-2xl font-bold tracking-tight" style="color:var(--text)">'+value+'</div>'+
-    '<p class="text-[11px] font-medium mt-0.5" style="color:var(--text-mute)">'+label+'</p>'+
-    (sub?'<p class="text-[10px] mt-1" style="color:var(--text-soft)">'+sub+'</p>':'')+
-  '</div>';
+function renderActivity(items){
+  var el=document.getElementById('recentActivity');
+  if(!items.length){el.innerHTML='<div class=empty-state style=padding:2rem><div class=empty-icon><i class="fas fa-inbox"></i></div><h3>No activity yet</h3></div>';return}
+  var cols={create:'var(--green)',delete:'var(--coral)',update:'var(--amber)',upload:'var(--teal)',key:'var(--lilac)',publish:'var(--green)',login:'var(--blue)'};
+  var ics={create:'fa-plus',delete:'fa-trash',update:'fa-pen',upload:'fa-upload',key:'fa-key',publish:'fa-rocket',login:'fa-shield'};
+  el.innerHTML=items.map(function(a,i){var co=cols[a.type]||'var(--lilac)',ic=ics[a.type]||'fa-circle';
+    return '<div class="flex items-center gap-3 py-2.5" style="'+(i?'border-top:1px solid var(--border)':'')+'"><div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style=background:'+co+'22;color:'+co+'><i class="fas '+ic+' text-[12px]"></i></div><div class=flex-1><span style=font-weight:600;color:var(--text)>'+a.actor+'</span> <span style=color:var(--text-mute)>'+a.action+'</span> <code style=font-size:.7rem;color:var(--text-mute)>'+a.target+'</code>'+(a.details?'<div style=font-size:.68rem;color:var(--text-mute)>'+a.details+'</div>':'')+'</div><span style=font-size:.68rem;color:var(--text-mute)>'+LH.rel(a.ts||a.created_at)+'</span></div>'}).join('');
 }
-function renderStats(s) {
-  document.getElementById('statGrid').innerHTML =
-    statCard('Total Requests (24h)', LH.fmt(s.total_requests), 'fa-bolt', '#b8a9e8', 12.3) +
-    statCard('Avg Latency', s.avg_latency_ms+'ms', 'fa-bolt', '#f5a623', -2, '2ms faster than yesterday') +
-    statCard('Success Rate', s.success_rate+'%', 'fa-check-circle', '#4ade80', 0.1) +
-    statCard('Errors (24h)', LH.fmt(s.errors_24h), 'fa-exclamation-triangle', '#ff6b6b', -67);
+function renderKeysPreview(keys){
+  var el=document.getElementById('recentKeys');
+  if(!keys.length){el.innerHTML='<div class=empty-state style=padding:2rem><div class=empty-icon><i class="fas fa-key"></i></div><h3>No API keys yet</h3></div>';return}
+  el.innerHTML='<div class=overflow-x-auto><table class=data-table><thead><tr><th>Name</th><th>Prefix</th><th>Status</th><th>Requests</th><th>Last used</th></tr></thead><tbody>'+keys.map(function(k){var sp=k.status==='active'?'pill-green':k.status==='revoked'?'pill-coral':'pill-amber';
+    return '<tr><td class=font-semibold>'+k.name+'</td><td class=cell-mono>'+k.prefix+'</td><td><span class="pill '+sp+'">'+k.status+'</span></td><td>'+LH.fmt(k.requests||0)+'</td><td>'+LH.rel(k.last_used)+'</td></tr>'}).join('')+'</tbody></table></div>';
 }
-function renderActivity(items) {
-  const colorMap = { create:'#4ade80', delete:'#ff6b6b', update:'#f5a623', upload:'#4ecdc4', key:'#b8a9e8', publish:'#4ade80', login:'#b8a9e8', billing:'#ff6b6b' };
-  const iconMap = { create:'fa-plus', delete:'fa-trash', update:'fa-pen', upload:'fa-upload', key:'fa-key', publish:'fa-rocket', login:'fa-shield', billing:'fa-credit-card' };
-  document.getElementById('recentActivity').innerHTML = items.map(a => {
-    const c = colorMap[a.type] || '#b8a9e8';
-    const icon = iconMap[a.type] || 'fa-history';
-    return '<div class="flex items-center gap-3 py-3">'+
-      '<div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background:'+c+'22;color:'+c+'"><i class="fas '+icon+' text-[11px]"></i></div>'+
-      '<div class="flex-1 min-w-0"><p class="text-sm truncate"><span class="font-semibold" style="color:var(--text)">'+a.actor+'</span> <span style="color:var(--text-soft)">· '+a.action+'</span> <code class="text-[11px] font-mono" style="color:var(--text-mute)">'+a.target+'</code></p>'+
-      (a.details?'<p class="text-[11px] truncate" style="color:var(--text-mute)">'+a.details+'</p>':'')+'</div>'+
-      '<span class="text-[11px] shrink-0" style="color:var(--text-mute)">'+LH.rel(a.ts)+'</span>'+
-    '</div>';
-  }).join('');
+function renderChart(){
+  new Chart(document.getElementById('reqChart'),{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:[28500,31200,29800,34100,36800,22500,18200],borderColor:'#b8a9e8',backgroundColor:'rgba(184,169,232,.08)',fill:true,tension:.4,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#b8a9e8',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#1a1a28',titleColor:'#f0f0f5',bodyColor:'#a0a0b0',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:12,cornerRadius:10}},scales:{x:{grid:{display:false},ticks:{color:'#606070',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#606070',font:{size:10},callback:function(v){return v>=1000?(v/1000)+'k':v}}}}});
+  document.getElementById('trendPill').innerHTML='<i class="fas fa-arrow-up text-[8px]"></i> +12.3% WoW';
 }
-function renderKeysPreview(keys) {
-  const envC = { production:'#4ade80', staging:'#f5a623', development:'#4ecdc4' };
-  document.getElementById('recentKeys').innerHTML = keys.map(k => {
-    const c = envC[k.environment] || '#b8a9e8';
-    return '<div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--panel-2)">'+
-      '<div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:'+c+'22;color:'+c+'"><i class="fas fa-key text-[12px]"></i></div>'+
-      '<div class="flex-1 min-w-0"><p class="text-sm font-semibold truncate" style="color:var(--text)">'+k.name+'</p>'+
-      '<code class="text-[11px] font-mono" style="color:var(--text-soft)">'+k.prefix+'</code></div>'+
-      '<span class="pill pill-'+(k.status==='active'?'green':k.status==='inactive'?'amber':'coral')+'">'+k.status+'</span>'+
-      '<span class="text-[11px] hidden sm:inline" style="color:var(--text-mute)">'+LH.fmt(k.requests)+' reqs</span>'+
-    '</div>';
-  }).join('') || '<div class="empty-state">No API keys yet — create one to get started.</div>';
-}
-function renderChart() {
-  new Chart(document.getElementById('reqChart'), {
-    type: 'line',
-    data: {
-      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-      datasets: [{
-        data: [18234, 24561, 19823, 35621, 42183, 28934, 38291],
-        borderColor: '#b8a9e8', backgroundColor: 'rgba(184,169,232,.15)',
-        fill: true, tension: 0.4, pointBackgroundColor: '#b8a9e8', pointRadius: 4,
-        borderWidth: 2.5,
-      }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } },
-      scales: { x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#71717a', font: { size: 11 } } }, y: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#71717a', font: { size: 11 } } } }
-    }
-  });
-}
-LH.guardRole(['admin']).then(function(u) { if (u) init(); });
+LH.guardRole(['admin']).then(function(u){if(u)init()});
 </script>
-`)}
-`;
-
-function renderStatSkeletons(n: number) {
-  return Array.from({ length: n }, () => '<div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-24"></div><div class="skeleton h-3 w-32 mt-2"></div></div>').join('');
-}
-
-// ============================================================
-// /dashboard/keys (admin) · /dashboard/consumer/keys — API Keys CRUD,
-// scoped to the active role's environment.
-// ============================================================
-export const keysPage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('API Keys — LogoHub', COMMON_JS)}
+`)}`;export const keysPage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('API Keys — LogoHub', COMMON_JS)}
 ${shellWrap(ctxSidebar(ctx, 'keys'), `
 ${topbar(ctx.role === 'consumer' ? 'My API Keys' : 'API Keys', 'Manage authentication, tags, and associated files', ctx)}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">

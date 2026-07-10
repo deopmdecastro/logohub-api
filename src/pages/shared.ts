@@ -480,3 +480,11 @@ LH.handleFaviconUpload = function(input) {
 
 </script>
 `;
+
+export function renderStatSkeletons(n) {
+  var out = '';
+  for (var i = 0; i < n; i++) {
+    out += '<div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>';
+  }
+  return out;
+}
