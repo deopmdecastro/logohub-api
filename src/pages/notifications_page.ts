@@ -1,12 +1,14 @@
 import { HEAD, COMMON_JS } from './shared';
-import { sidebar, topbar, shellWrap } from './layout';
+import { ctxSidebar, topbar, shellWrap, PageCtx, ADMIN_CTX } from './layout';
 
 // ============================================================
-// /dashboard/notifications  — Full Notifications Inbox
+// /dashboard/notifications (admin) · /dashboard/creator/notifications ·
+// /dashboard/consumer/notifications — Full Notifications Inbox, scoped to
+// the active role's environment.
 // ============================================================
-export const notificationsPage = () => `${HEAD('Notifications — LogoHub', COMMON_JS)}
-${shellWrap(sidebar('notifications'), `
-${topbar('Notifications', 'All updates, alerts, and messages')}
+export const notificationsPage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('Notifications — LogoHub', COMMON_JS)}
+${shellWrap(ctxSidebar(ctx, 'notifications'), `
+${topbar('Notifications', 'All updates, alerts, and messages', ctx)}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto animate-fade-up">
   
   <!-- Toolbar -->
@@ -33,22 +35,16 @@ ${topbar('Notifications', 'All updates, alerts, and messages')}
 
 <script>
 var PAGE_NOTIFS = [];
+var CTX_ROLE = '${ctx.role}';
 var typeIcon = { info:'fa-info-circle', success:'fa-check-circle', warning:'fa-exclamation-triangle', error:'fa-times-circle' };
 var typeColor = { info:'#b8a9e8', success:'#4ade80', warning:'#f5a623', error:'#ff6b6b' };
 
 async function loadPage() {
   try {
-    var role = getCurrentRole();
-    var r = await LH.api('/api/v1/notifications?limit=100' + (role ? '&role=' + role : ''));
+    var r = await LH.api('/api/v1/notifications?limit=100&role=' + CTX_ROLE);
     PAGE_NOTIFS = r.data || [];
     renderList();
   } catch (e) { LH.toast('error', 'Failed to load notifications', e.message); }
-}
-
-function getCurrentRole() {
-  if (window.location.pathname.indexOf('/dashboard/creator') >= 0) return 'creator';
-  if (window.location.pathname.indexOf('/dashboard/consumer') >= 0) return 'consumer';
-  return 'admin';
 }
 
 function renderList() {
@@ -158,7 +154,7 @@ async function clearAll() {
 
 function esc(s) { return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
-loadPage();
+LH.guardRole(['${ctx.role}']).then(function(u) { if (u) loadPage(); });
 </script>
 `)}
 `;

@@ -336,7 +336,7 @@ function deleteUser(id) {
   });
 }
 
-loadUsers();
+LH.guardRole(['admin']).then(function(u) { if (u) loadUsers(); });
 </script>
 `)}
 `;

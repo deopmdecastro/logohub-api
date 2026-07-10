@@ -366,9 +366,48 @@ LH.logout = function() {
   window.location.href = '/login';
 };
 
+// Which environment the current page belongs to, purely from the URL —
+// used to scope the notification badge and as a fallback for the route guard.
+LH.roleFromPath = function() {
+  var p = window.location.pathname;
+  if (p.indexOf('/dashboard/creator') === 0) return 'creator';
+  if (p.indexOf('/dashboard/consumer') === 0) return 'consumer';
+  if (p.indexOf('/dashboard') === 0) return 'admin';
+  return '';
+};
+
+LH.homeForRole = function(role) {
+  if (role === 'creator') return '/dashboard/creator';
+  if (role === 'consumer') return '/dashboard/consumer';
+  return '/dashboard';
+};
+
+// Route guard: call at the top of a dashboard page's script with the list of
+// roles allowed to view it. Redirects to /login if not authenticated, or to
+// the user's own environment if their role doesn't match — this keeps every
+// route honoring the logged-in user's context and stops accidental
+// cross-environment navigation (switching profile is the only way in).
+LH.guardRole = async function(allowedRoles) {
+  var token = localStorage.getItem('logohub_token');
+  if (!token) { window.location.href = '/login'; return null; }
+  var u = await LH.loadUser();
+  if (!u || !u.role) {
+    localStorage.removeItem('logohub_token');
+    window.location.href = '/login';
+    return null;
+  }
+  if (allowedRoles && allowedRoles.indexOf(u.role) === -1) {
+    window.location.href = LH.homeForRole(u.role);
+    return null;
+  }
+  return u;
+};
+
 LH.loadNotifUnread = async function() {
   try {
-    var r = await fetch('/api/v1/notifications/unread-count', { headers: LH.authHeader() });
+    var role = LH.roleFromPath();
+    var url = '/api/v1/notifications/unread-count' + (role ? '?role=' + role : '');
+    var r = await fetch(url, { headers: LH.authHeader() });
     var data = await r.json();
     var count = (data.data && data.data.unread) || 0;
     var badge = document.getElementById('notifBadge');

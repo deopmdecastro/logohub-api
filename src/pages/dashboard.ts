@@ -1,8 +1,8 @@
 import { HEAD, COMMON_JS } from './shared';
-import { sidebar, topbar, shellWrap, DASH_NAV } from './layout';
+import { sidebar, topbar, shellWrap, ctxSidebar, PageCtx, ADMIN_CTX, DASH_NAV } from './layout';
 
 // ============================================================
-// /dashboard  — Overview
+// /dashboard  — Overview (admin only)
 // ============================================================
 export const overviewPage = () => `${HEAD('Dashboard — LogoHub API', COMMON_JS)}
 ${shellWrap(sidebar('overview'), `
@@ -140,7 +140,7 @@ function renderChart() {
     }
   });
 }
-init();
+LH.guardRole(['admin']).then(function(u) { if (u) init(); });
 </script>
 `)}
 `;
@@ -150,11 +150,12 @@ function renderStatSkeletons(n: number) {
 }
 
 // ============================================================
-// /dashboard/keys  — API Keys CRUD
+// /dashboard/keys (admin) · /dashboard/consumer/keys — API Keys CRUD,
+// scoped to the active role's environment.
 // ============================================================
-export const keysPage = () => `${HEAD('API Keys — LogoHub', COMMON_JS)}
-${shellWrap(sidebar('keys'), `
-${topbar('API Keys', 'Manage authentication, tags, and associated files')}
+export const keysPage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('API Keys — LogoHub', COMMON_JS)}
+${shellWrap(ctxSidebar(ctx, 'keys'), `
+${topbar(ctx.role === 'consumer' ? 'My API Keys' : 'API Keys', 'Manage authentication, tags, and associated files', ctx)}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
   <div class="flex flex-wrap items-center gap-3">
     <div class="relative flex-1 min-w-[200px]">
@@ -365,9 +366,11 @@ async function deleteFile(keyId, fileId) {
   catch(e) { LH.toast('error','Failed',e.message); }
 }
 
-loadKeys();
-
-if (new URLSearchParams(location.search).get('new')==='1') openKeyModal();
+LH.guardRole(['${ctx.role}']).then(function(u) {
+  if (!u) return;
+  loadKeys();
+  if (new URLSearchParams(location.search).get('new')==='1') openKeyModal();
+});
 </script>
 `)}
 `;

@@ -1,12 +1,13 @@
 import { HEAD, COMMON_JS } from './shared';
-import { sidebar, topbar, shellWrap } from './layout';
+import { ctxSidebar, topbar, shellWrap, PageCtx, ADMIN_CTX } from './layout';
 
 // ============================================================
-// /dashboard/profile  — User Profile page
+// /dashboard/profile · /dashboard/creator/profile · /dashboard/consumer/profile
+// — User Profile page, scoped to the active role's environment.
 // ============================================================
-export const profilePage = () => `${HEAD('My Profile — LogoHub', COMMON_JS)}
-${shellWrap(sidebar('profile'), `
-${topbar('My Profile', 'Manage your account, security, and preferences')}
+export const profilePage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('My Profile — LogoHub', COMMON_JS)}
+${shellWrap(ctxSidebar(ctx, 'profile'), `
+${topbar('My Profile', 'Manage your account, security, and preferences', ctx)}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-6 animate-fade-up">
   
   <!-- Profile Header -->
@@ -84,9 +85,9 @@ ${topbar('My Profile', 'Manage your account, security, and preferences')}
 var PROFILE_USER = null;
 
 async function loadProfile() {
+  var u = await LH.guardRole(['${ctx.role}']);
+  if (!u) return;
   try {
-    var token = localStorage.getItem('logohub_token');
-    if (!token) { window.location.href = '/login'; return; }
     var r = await LH.api('/api/v1/auth/me');
     PROFILE_USER = r.data || r.user || r;
     renderProfile();

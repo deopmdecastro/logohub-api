@@ -119,6 +119,6 @@ async function deleteFAQ(id, question) {
 function esc(s) { return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { return String(s||'').replace(/'/g,"\\\\'").replace(/"/g,'&quot;'); }
 
-load();
+LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 </script>
 `)}`;

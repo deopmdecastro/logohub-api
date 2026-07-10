@@ -1,5 +1,5 @@
 import { HEAD, COMMON_JS } from './shared';
-import { sidebar, topbar, shellWrap, creatorSidebar, consumerSidebar } from './layout';
+import { sidebar, topbar, shellWrap, creatorSidebar, consumerSidebar, ctxSidebar, PageCtx, ADMIN_CTX, CREATOR_CTX, CONSUMER_CTX } from './layout';
 
 // ============================================================
 // /dashboard/settings  — including Git
@@ -141,7 +141,7 @@ document.querySelectorAll('#settingsTabs .tab-pill').forEach(b => b.onclick = ()
   ['general','git','brand','stats'].forEach(t => document.getElementById('panel-'+t).classList.toggle('hidden', t!==b.dataset.tab));
 });
 
-load();
+LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 
 </script>
 `)}
@@ -222,7 +222,7 @@ async function delMember(id) {
   if (!yes) return;
   await LH.api('/api/admin/team/'+id, { method:'DELETE' }); LH.toast('success','Removed'); load();
 }
-load();
+LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 
 </script>
 `)}
@@ -322,7 +322,7 @@ load();
 // ============================================================
 export const creatorDashboardPage = () => `${HEAD('Creator Dashboard — LogoHub', COMMON_JS)}
 ${shellWrap(creatorSidebar('overview'), `
-${topbar('Creator Dashboard', '')}
+${topbar('Creator Dashboard', '', CREATOR_CTX)}
   <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
     <div style="position:relative;cursor:pointer" onclick="document.getElementById('profilePhotoInput').click()">
       <div id="creatorAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#b8a9e8,#f5a623);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#1a1a1a;overflow:hidden">
@@ -372,7 +372,7 @@ ${topbar('Creator Dashboard', '')}
       <h3 class="text-sm font-semibold flex items-center gap-2" style="color:var(--text)">
         <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-folder-open text-[11px]"></i></span>My Content
       </h3>
-      <button class="btn btn-primary btn-sm" onclick="window.location.href='/dashboard/content'"><i class="fas fa-plus"></i> Upload new</button>
+      <button class="btn btn-primary btn-sm" onclick="window.location.href='/dashboard/creator/content'"><i class="fas fa-plus"></i> Upload new</button>
     </div>
     <div class="space-y-3">
       ${[
@@ -387,7 +387,7 @@ ${topbar('Creator Dashboard', '')}
           <div class="flex-1 min-w-0">
             <p class="text-sm font-semibold truncate" style="color:var(--text)">${item.name}</p>
             <div class="flex items-center gap-2 mt-0.5">
-              <span class="text-[10px]" style="color:var(--text-mute)">${LH.fmt(item.downloads)} downloads</span>
+              <span class="text-[10px]" style="color:var(--text-mute)">${item.downloads.toLocaleString()} downloads</span>
               <span class="text-[10px]" style="color:#f5a623">$${item.earnings.toFixed(2)} earned</span>
             </div>
           </div>
@@ -431,6 +431,7 @@ new Chart(document.getElementById('earningsChart'),{
 });
 </script>
 <script>
+LH.guardRole(['creator']);
 function handleProfilePhoto(input) {
   const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
@@ -457,7 +458,7 @@ function handleProfilePhoto(input) {
 // ============================================================
 export const consumerDashboardPage = () => `${HEAD('Consumer Dashboard — LogoHub', COMMON_JS)}
 ${shellWrap(consumerSidebar('overview'), `
-${topbar('Consumer Dashboard', '')}
+${topbar('Consumer Dashboard', '', CONSUMER_CTX)}
   <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
     <div style="position:relative;cursor:pointer" onclick="document.getElementById('profilePhotoInputCons').click()">
       <div id="consumerAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4ecdc4,#b8a9e8);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#1a1a1a;overflow:hidden">
@@ -561,6 +562,26 @@ ${topbar('Consumer Dashboard', '')}
   </div>
 
 </div>
+<script>
+LH.guardRole(['consumer']);
+function handleProfilePhotoCons(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover';
+    const avatar = document.getElementById('consumerAvatar');
+    const initials = document.getElementById('consumerInitials');
+    if (initials) initials.style.display = 'none';
+    avatar.appendChild(img);
+    LH.api('/api/v1/auth/me', { method:'PATCH', body: JSON.stringify({ avatar_url: e.target.result }) })
+      .then(() => LH.toast('success', 'Profile photo updated'))
+      .catch(e => LH.toast('error', 'Failed to save photo', e.message));
+  };
+  reader.readAsDataURL(file);
+}
+</script>
 `)}`;
 export const billingPage = () => `${HEAD('Billing — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('billing'), `
@@ -697,16 +718,16 @@ async function switchPlan(id, price, quota) {
 document.getElementById('btnMonthly').onclick = function(){ yearly=false; this.style.background='var(--lilac)'; this.style.color='#1a1a1a'; document.getElementById('btnYearly').style.background='transparent'; document.getElementById('btnYearly').style.color='var(--text-soft)'; render(); };
 document.getElementById('btnYearly').onclick = function(){ yearly=true; this.style.background='var(--lilac)'; this.style.color='#1a1a1a'; document.getElementById('btnMonthly').style.background='transparent'; document.getElementById('btnMonthly').style.color='var(--text-soft)'; render(); };
 
-load();
+LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 </script>
 `)}
 `;
 // ============================================================
-// /dashboard/analytics
+// /dashboard/analytics · /dashboard/creator/analytics · /dashboard/consumer/analytics
 // ============================================================
-export const analyticsPage = () => `${HEAD('Analytics — LogoHub Admin', COMMON_JS)}
-${shellWrap(sidebar('analytics'), `
-${topbar('Analytics', 'Performance and usage insights')}
+export const analyticsPage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('Analytics — LogoHub', COMMON_JS)}
+${shellWrap(ctxSidebar(ctx, ctx.role === 'consumer' ? 'usage' : 'analytics'), `
+${topbar(ctx.role === 'admin' ? 'Analytics' : 'Usage', ctx.role === 'admin' ? 'Performance and usage insights' : 'Your requests, errors, and endpoint usage', ctx)}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-6 animate-fade-up">
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="card p-5"><div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-bolt text-[12px]"></i></div><div class="text-2xl font-bold" style="color:var(--text)">208K</div><p class="text-[11px]" style="color:var(--text-mute)">Total requests · 7d</p></div>
@@ -733,12 +754,13 @@ new Chart(document.getElementById('c1'), { type:'bar', data:{ labels: data.map(d
 new Chart(document.getElementById('c2'), { type:'line', data:{ labels: data.map(d=>d.d), datasets:[{ data: data.map(d=>d.lat), borderColor:'#f5a623', backgroundColor:'rgba(245,166,35,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#f5a623' }]}, options:{ responsive:true, plugins:{ legend:{ display:false } }, scales: chartScales() } });
 new Chart(document.getElementById('c3'), { type:'doughnut', data:{ labels:['/logo/*','/search','/flags/*','/crypto/*','/football/*'], datasets:[{ data:[45,28,14,9,4], backgroundColor:['#b8a9e8','#f5a623','#4ecdc4','#ff6b6b','#4ade80'], borderWidth:0 }]}, options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{ color:'#a1a1aa', font:{ size:11 }, padding:12 } } } } });
 function chartScales() { return { x:{ grid:{ color:'rgba(255,255,255,.04)' }, ticks:{ color:'#71717a', font:{ size:11 } } }, y:{ grid:{ color:'rgba(255,255,255,.04)' }, ticks:{ color:'#71717a', font:{ size:11 } } } }; }
+LH.guardRole(['${ctx.role}']);
 </script>
 `)}
 `;
 
 // ============================================================
-// /dashboard/activity
+// /dashboard/activity  (admin only)
 // ============================================================
 export const activityPage = () => `${HEAD('Activity — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('activity'), `
@@ -767,7 +789,7 @@ async function load() {
     }).join('');
   } catch (e) { LH.toast('error','Load failed', e.message); }
 }
-load();
+LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 
 </script>
 `)}

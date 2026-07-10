@@ -1,13 +1,14 @@
 import { HEAD, COMMON_JS } from './shared';
-import { sidebar, topbar, shellWrap } from './layout';
+import { ctxSidebar, topbar, shellWrap, PageCtx, ADMIN_CTX } from './layout';
 import { renderRowSkeletons } from './dashboard';
 
 // ============================================================
-// /dashboard/content  — CMS-style content editor (grid + editor modal)
+// /dashboard/content (admin) · /dashboard/creator/content — CMS-style
+// content editor (grid + editor modal), scoped to the active role.
 // ============================================================
-export const contentPage = () => `${HEAD('Content — LogoHub Admin', COMMON_JS)}
-${shellWrap(sidebar('content'), `
-${topbar('Content', 'Drag & drop uploads · auto palette · live preview')}
+export const contentPage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('Content — LogoHub', COMMON_JS)}
+${shellWrap(ctxSidebar(ctx, 'content'), `
+${topbar(ctx.role === 'creator' ? 'My Content' : 'Content', 'Drag & drop uploads · auto palette · live preview', ctx)}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
   <div class="flex flex-wrap items-center gap-3">
     <div class="relative flex-1 min-w-[200px]">
@@ -336,7 +337,7 @@ async function deleteContent(id) {
   catch (e) { LH.toast('error','Delete failed', e.message); }
 }
 
-loadContent();
+LH.guardRole(['${ctx.role}']).then(function(u) { if (u) loadContent(); });
 </script>
 `)}
 `;

@@ -134,6 +134,6 @@ function fmtDate(d) { try { return new Date(d).toLocaleDateString('en-US',{month
 function esc(s) { return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { return String(s||'').replace(/'/g,"\\\\'").replace(/"/g,'&quot;'); }
 
-load();
+LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 </script>
 `)}`;

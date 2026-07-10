@@ -10,6 +10,8 @@ import { overviewPage, keysPage } from './pages/dashboard';
 import { adminUsersPage } from './pages/admin_users';
 import { contentPage } from './pages/content';
 import { settingsPage, teamPage, billingPage, analyticsPage, activityPage, usersPage, creatorDashboardPage, consumerDashboardPage } from './pages/other';
+import { roleSettingsPage } from './pages/role_settings_page';
+import { CREATOR_CTX, CONSUMER_CTX } from './pages/layout';
 import { profilePage } from './pages/profile_page';
 import { notificationsPage } from './pages/notifications_page';
 import { playgroundPage } from './pages/playground_page';
@@ -94,11 +96,9 @@ app.get('/terms', (c) => c.html(
 app.get('/about', (c) => c.redirect('/#features'));
 
 // =====================================================================
-// DASHBOARD
+// DASHBOARD — Admin (default /dashboard/* namespace)
 // =====================================================================
 app.get('/dashboard', (c) => c.html(overviewPage()));
-app.get('/dashboard/creator', (c) => c.html(creatorDashboardPage()));
-app.get('/dashboard/consumer', (c) => c.html(consumerDashboardPage()));
 app.get('/dashboard/keys', (c) => c.html(keysPage()));
 app.get('/dashboard/content', (c) => c.html(contentPage()));
 app.get('/dashboard/blog', (c) => c.html(blogAdminPage()));
@@ -112,6 +112,26 @@ app.get('/dashboard/team', (c) => c.html(teamPage()));
 app.get('/dashboard/settings', (c) => c.html(settingsPage()));
 app.get('/dashboard/notifications', (c) => c.html(notificationsPage()));
 app.get('/dashboard/profile', (c) => c.html(profilePage()));
+
+// =====================================================================
+// DASHBOARD — Creator environment (fully separate /dashboard/creator/* namespace)
+// =====================================================================
+app.get('/dashboard/creator', (c) => c.html(creatorDashboardPage()));
+app.get('/dashboard/creator/notifications', (c) => c.html(notificationsPage(CREATOR_CTX)));
+app.get('/dashboard/creator/profile', (c) => c.html(profilePage(CREATOR_CTX)));
+app.get('/dashboard/creator/settings', (c) => c.html(roleSettingsPage(CREATOR_CTX)));
+app.get('/dashboard/creator/content', (c) => c.html(contentPage(CREATOR_CTX)));
+app.get('/dashboard/creator/analytics', (c) => c.html(analyticsPage(CREATOR_CTX)));
+
+// =====================================================================
+// DASHBOARD — Consumer environment (fully separate /dashboard/consumer/* namespace)
+// =====================================================================
+app.get('/dashboard/consumer', (c) => c.html(consumerDashboardPage()));
+app.get('/dashboard/consumer/notifications', (c) => c.html(notificationsPage(CONSUMER_CTX)));
+app.get('/dashboard/consumer/profile', (c) => c.html(profilePage(CONSUMER_CTX)));
+app.get('/dashboard/consumer/settings', (c) => c.html(roleSettingsPage(CONSUMER_CTX)));
+app.get('/dashboard/consumer/keys', (c) => c.html(keysPage(CONSUMER_CTX)));
+app.get('/dashboard/consumer/analytics', (c) => c.html(analyticsPage(CONSUMER_CTX)));
 
 // Pricing → landing page anchor
 app.get('/pricing', (c) => c.redirect('/#pricing'));

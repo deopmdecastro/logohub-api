@@ -207,13 +207,13 @@ notificationsRoute.delete('/:id', (c) => {
 // POST /api/v1/notifications/seed — seed demo notifications
 notificationsRoute.post('/seed', (c) => {
   const demos: Omit<Notification, 'id'>[] = [
-    { type: 'success', title: 'New asset published!', message: 'Your logo "Modern UI Kit" is now live.', user_id: '', role: 'creator', read: false, ts: new Date(Date.now() - 120000).toISOString(), link: '/dashboard/content' },
+    { type: 'success', title: 'New asset published!', message: 'Your logo "Modern UI Kit" is now live.', user_id: '', role: 'creator', read: false, ts: new Date(Date.now() - 120000).toISOString(), link: '/dashboard/creator/content' },
     { type: 'info', title: 'Download milestone', message: 'Your assets reached 89K downloads this month.', user_id: '', role: 'creator', read: false, ts: new Date(Date.now() - 600000).toISOString(), link: '/dashboard/creator' },
     { type: 'warning', title: 'Plan limit alert', message: 'You have used 85% of your daily quota.', user_id: '', role: 'consumer', read: false, ts: new Date(Date.now() - 900000).toISOString(), link: '/dashboard/consumer' },
-    { type: 'error', title: 'API key expired', message: 'Key "Default Key" will expire in 3 days.', user_id: '', role: 'consumer', read: false, ts: new Date(Date.now() - 1800000).toISOString(), link: '/dashboard/keys' },
-    { type: 'info', title: 'New user registered', message: 'Maria Silva joined as a Creator.', user_id: '', role: 'admin', read: false, ts: new Date(Date.now() - 3600000).toISOString(), link: '/dashboard/users' },
-    { type: 'success', title: 'Payment received', message: '$412.00 from Modern Dashboard UI Kit downloads.', user_id: '', role: 'creator', read: true, ts: new Date(Date.now() - 7200000).toISOString(), link: '/dashboard/creator/earnings' },
-    { type: 'info', title: 'Content under review', message: 'Your "SaaS Landing Page Icons" is being reviewed.', user_id: '', role: 'creator', read: true, ts: new Date(Date.now() - 14400000).toISOString(), link: '/dashboard/content' },
+    { type: 'error', title: 'API key expired', message: 'Key "Default Key" will expire in 3 days.', user_id: '', role: 'consumer', read: false, ts: new Date(Date.now() - 1800000).toISOString(), link: '/dashboard/consumer/keys' },
+    { type: 'info', title: 'New user registered', message: 'Maria Silva joined as a Creator.', user_id: '', role: 'admin', read: false, ts: new Date(Date.now() - 3600000).toISOString(), link: '/dashboard/admin/users' },
+    { type: 'success', title: 'Payment received', message: '$412.00 from Modern Dashboard UI Kit downloads.', user_id: '', role: 'creator', read: true, ts: new Date(Date.now() - 7200000).toISOString(), link: '/dashboard/creator' },
+    { type: 'info', title: 'Content under review', message: 'Your "SaaS Landing Page Icons" is being reviewed.', user_id: '', role: 'creator', read: true, ts: new Date(Date.now() - 14400000).toISOString(), link: '/dashboard/creator/content' },
     { type: 'success', title: 'Welcome to LogoHub!', message: 'Start exploring 50K+ visual assets.', user_id: '', role: 'consumer', read: true, ts: new Date(Date.now() - 86400000).toISOString(), link: '/explorer' },
   ];
   demos.forEach(d => createNotification(d));
