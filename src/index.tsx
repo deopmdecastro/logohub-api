@@ -7,6 +7,9 @@ import notificationsRoute from './routes/notifications';
 import playground from './routes/playground';
 import userKeys from './routes/user_keys';
 import usage from './routes/usage';
+import catalog from './routes/catalog';
+import creator from './routes/creator';
+import projects from './routes/projects';
 import { landingPage, explorerPage, docsPage, adminPage } from './pages/public';
 import { overviewPage, keysPage } from './pages/dashboard';
 import { adminUsersPage } from './pages/admin_users';
@@ -47,6 +50,12 @@ app.route('/api/v1/playground', playground);
 app.route('/api/v1/keys', userKeys);
 // Usage analytics + quota (spec 1.8 / 1.10)
 app.route('/api/v1/usage', usage);
+// Catalog routes (spec 1.2/1.3)
+app.route('/api/v1/catalog', catalog);
+// Creator routes (spec 2.x)
+app.route('/api/v1/creator', creator);
+// Projects routes (spec 1.7)
+app.route('/api/v1/projects', projects);
 app.get('/api', (c) => c.redirect('/api/v1/stats'));
 
 // =====================================================================
