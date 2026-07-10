@@ -1,448 +1,245 @@
-// Playground page — online code editor / compiler + LogoHub API Demo
+// LogoHub Playground — standalone full-screen API explorer + live code editor
 import { HEAD, COMMON_JS } from './shared';
 
 export function playgroundPage() {
   return `${HEAD('Playground — LogoHub', `
 <style>
-.playground-container { display: flex; height: calc(100vh - 64px); }
-.editor-panel { width: 50%; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-.preview-panel { width: 50%; display: flex; flex-direction: column; }
-.editor-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--panel); overflow-x: auto; }
-.editor-tab { padding: .55rem 1rem; font-size: .78rem; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-soft); transition: all .15s; white-space: nowrap; }
-.editor-tab.active { color: var(--text); border-bottom-color: var(--lilac); background: var(--panel-2); }
-.editor-tab:hover:not(.active) { color: var(--text); }
-.editor-body { flex: 1; overflow: hidden; position: relative; }
-.editor-body textarea { width: 100%; height: 100%; background: var(--panel-2); color: var(--text); border: none; resize: none; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: .82rem; line-height: 1.6; outline: none; tab-size: 2; }
-.preview-header { display: flex; align-items: center; justify-content: space-between; padding: .5rem 1rem; background: var(--panel); border-bottom:1px solid var(--border); }
-.preview-header .url-bar { flex:1; font-size: .75rem; padding: .3rem .7rem; border-radius: 9999px; background: var(--panel-2); color: var(--text-soft); font-family: monospace; margin-right: .5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.preview-frame { flex: 1; border: none; background: white; }
-@media (max-width: 900px) { .playground-container { flex-direction: column; } .editor-panel, .preview-panel { width: 100%; height: 50%; } }
-
-/* ── API Demo Panel ── */
-.api-demo-panel { display: none; flex: 1; overflow-y: auto; padding: 2rem; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
-.api-demo-panel.visible { display: block; }
-.api-demo-card { max-width: 620px; margin: 0 auto; background: rgba(255,255,255,.06); backdrop-filter: blur(16px); border-radius: 20px; padding: 30px; color: #fff; box-shadow: 0 15px 40px rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); }
-.api-demo-search { display: flex; gap: 10px; margin-bottom: 24px; }
-.api-demo-search input { flex: 1; padding: 12px 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.07); color: #fff; font-size: 15px; outline: none; transition: border .2s; }
-.api-demo-search input:focus { border-color: rgba(255,255,255,.4); background: rgba(255,255,255,.1); }
-.api-demo-search input::placeholder { color: rgba(255,255,255,.35); }
-.api-demo-search button { padding: 12px 22px; border-radius: 14px; border: none; background: #7c3aed; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; transition: background .2s; white-space: nowrap; }
-.api-demo-search button:hover { background: #6d28d9; }
-.api-demo-search button:disabled { opacity: .5; cursor: not-allowed; }
-.api-demo-hint { font-size: .78rem; color: rgba(255,255,255,.35); margin-top: -18px; margin-bottom: 20px; }
-.api-demo-header { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; }
-.api-demo-header img { width: 72px; height: 72px; background: #fff; padding: 10px; border-radius: 16px; object-fit: contain; }
-.api-demo-header h2 { font-size: 28px; margin: 0; }
-.api-demo-slug { color: rgba(255,255,255,.55); font-size: 14px; }
-.api-demo-desc { margin: 18px 0; color: rgba(255,255,255,.8); line-height: 1.65; font-size: 15px; }
-.api-demo-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 22px; }
-.api-demo-item { background: rgba(255,255,255,.06); padding: 12px 14px; border-radius: 12px; }
-.api-demo-label { font-size: 11px; color: rgba(255,255,255,.45); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px; }
-.api-demo-value { font-weight: 600; font-size: 14px; }
-.api-demo-colors { display: flex; gap: 10px; margin: 18px 0; flex-wrap: wrap; }
-.api-demo-color { width: 40px; height: 40px; border-radius: 10px; border: 2px solid rgba(255,255,255,.2); cursor: pointer; transition: transform .15s; }
-.api-demo-color:hover { transform: scale(1.15); }
-.api-demo-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
-.api-demo-tag { background: rgba(255,255,255,.12); padding: 6px 14px; border-radius: 20px; font-size: 13px; }
-.api-demo-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px; transition: color .2s; }
-.api-demo-link:hover { color: #fff; }
-.api-demo-error { color: #f87171; font-size: 14px; margin-top: 8px; }
-.api-demo-loading { text-align: center; padding: 40px; color: rgba(255,255,255,.5); font-size: 15px; }
-.api-demo-subtitle { font-size: 13px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-.api-demo-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.api-demo-suggestion { padding: 5px 12px; border-radius: 12px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.6); font-size: 12px; cursor: pointer; border: none; transition: all .15s; }
-.api-demo-suggestion:hover { background: rgba(255,255,255,.16); color: #fff; }
-.api-demo-section { margin: 20px 0; }
-.api-demo-code { background: rgba(0,0,0,.3); padding: 14px 18px; border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #a78bfa; overflow-x: auto; line-height: 1.7; cursor: pointer; transition: background .15s; }
-.api-demo-code:hover { background: rgba(0,0,0,.45); }
+.pg-root { display:flex; height:100vh; overflow:hidden; }
+/* ── Sidebar (optional, hidden by default) ── */
+.pg-sidebar { width:0; overflow:hidden; transition:width .25s ease; background:var(--surface); border-right:1px solid var(--border); flex-shrink:0; display:flex; flex-direction:column; }
+.pg-sidebar.open { width:280px; }
+.pg-sidebar-inner { width:280px; padding:1rem; overflow-y:auto; }
+.pg-sidebar h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-mute); margin-bottom:.75rem; font-weight:700; }
+.pg-history-item { padding:.55rem .75rem; border-radius:var(--radius); font-size:.78rem; cursor:pointer; color:var(--text-soft); transition:all .15s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px; }
+.pg-history-item:hover { background:var(--panel-2); color:var(--text); }
+.pg-history-item i { margin-right:.4rem; font-size:.7rem; opacity:.5; }
+/* ── Main area ── */
+.pg-main { flex:1; display:flex; flex-direction:column; min-width:0; }
+/* ── Topbar ── */
+.pg-topbar { height:52px; display:flex; align-items:center; padding:0 1rem; gap:.5rem; border-bottom:1px solid var(--border); background:var(--surface); flex-shrink:0; }
+.pg-topbar .pg-logo { font-weight:800; font-size:.95rem; display:flex; align-items:center; gap:.5rem; color:var(--text); text-decoration:none; white-space:nowrap; }
+.pg-topbar .pg-logo span { width:28px;height:28px;border-radius:.5rem;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;background:linear-gradient(135deg,var(--lilac),var(--amber));color:#12121a; }
+.pg-topbar-spacer { flex:1; }
+.pg-topbar .btn { font-size:.75rem; }
+/* ── Panels ── */
+.pg-panels { flex:1; display:flex; overflow:hidden; }
+.pg-editor { width:50%; display:flex; flex-direction:column; border-right:1px solid var(--border); min-width:0; }
+.pg-preview { width:50%; display:flex; flex-direction:column; min-width:0; }
+/* ── Tabs ── */
+.pg-tabs { display:flex; border-bottom:1px solid var(--border); background:var(--panel); overflow-x:auto; flex-shrink:0; }
+.pg-tab { padding:.45rem .9rem; font-size:.72rem; font-weight:600; cursor:pointer; border-bottom:2px solid transparent; color:var(--text-mute); transition:all .15s; white-space:nowrap; display:flex; align-items:center; gap:.35rem; }
+.pg-tab.active { color:var(--text); border-bottom-color:var(--lilac); }
+.pg-tab:hover:not(.active) { color:var(--text-soft); background:rgba(255,255,255,.02); }
+/* ── Editor ── */
+.pg-editor-body { flex:1; overflow:hidden; position:relative; }
+.pg-editor-body textarea { width:100%;height:100%;background:var(--panel);color:var(--text);border:none;resize:none;padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.65;outline:none;tab-size:2; }
+.pg-editor-body textarea::placeholder { color:var(--text-mute); }
+/* ── Preview ── */
+.pg-preview-header { display:flex;align-items:center;gap:.5rem;padding:.35rem .75rem;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0; }
+.pg-url { flex:1; font-size:.7rem; padding:.25rem .6rem; border-radius:9999px; background:var(--panel-2); color:var(--text-soft); font-family:var(--font-mono); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pg-preview-frame { flex:1; border:none; background:#fff; }
+/* ── API Demo Panel (replaces editor when active) ── */
+.pg-api-demo { display:none; flex:1; overflow-y:auto; padding:1.5rem; background:linear-gradient(135deg,#12121f 0%,#1a1a2e 50%,#16213e 100%); }
+.pg-api-demo.visible { display:block; }
+.pg-api-card { max-width:640px; margin:0 auto; background:rgba(255,255,255,.05); backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); border-radius:20px; padding:1.75rem; color:#f0f0f5; box-shadow:0 12px 40px rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.08); }
+.pg-api-card h2 { font-size:1.5rem; margin-bottom:.5rem; }
+.pg-api-search { display:flex; gap:.5rem; margin-bottom:1rem; }
+.pg-api-search input { flex:1; padding:.65rem 1rem; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); color:#fff; font-size:.85rem; outline:none; transition:border .2s; }
+.pg-api-search input:focus { border-color:rgba(184,169,232,.5); background:rgba(255,255,255,.1); }
+.pg-api-search input::placeholder { color:rgba(255,255,255,.3); }
+.pg-api-search button { padding:.65rem 1.2rem; border-radius:12px; border:none; background:var(--lilac); color:#12121a; font-weight:700; font-size:.8rem; cursor:pointer; transition:all .15s; white-space:nowrap; }
+.pg-api-search button:hover { filter:brightness(1.1); }
+.pg-api-search button:disabled { opacity:.5; cursor:not-allowed; }
+.pg-api-suggestions { display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:1.25rem; }
+.pg-api-suggestion { padding:.3rem .7rem; border-radius:9999px; background:rgba(255,255,255,.06); color:rgba(255,255,255,.55); font-size:.7rem; cursor:pointer; border:1px solid rgba(255,255,255,.06); transition:all .15s; }
+.pg-api-suggestion:hover { background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.15); }
+.pg-api-hint { font-size:.7rem; color:rgba(255,255,255,.3); margin-top:-.5rem; margin-bottom:1rem; }
+.pg-api-result { display:none; }
+.pg-api-error { color:#ff6b6b; font-size:.8rem; padding:.5rem 0; display:none; }
+.pg-api-loading { text-align:center; padding:2rem; color:rgba(255,255,255,.35); font-size:.85rem; }
+.pg-api-row { display:flex; gap:.75rem; margin-bottom:1rem; flex-wrap:wrap; }
+.pg-api-item { flex:1; min-width:120px; background:rgba(255,255,255,.04); padding:.65rem .85rem; border-radius:10px; }
+.pg-api-item .lbl { font-size:.62rem; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:.05em; margin-bottom:.2rem; }
+.pg-api-item .val { font-size:.82rem; font-weight:600; }
+.pg-api-colors { display:flex; gap:.5rem; flex-wrap:wrap; margin:.75rem 0; }
+.pg-api-color { width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:transform .15s; }
+.pg-api-color:hover { transform:scale(1.2); }
+.pg-api-tags { display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0; }
+.pg-api-tag { background:rgba(255,255,255,.08);padding:.25rem .65rem;border-radius:9999px;font-size:.7rem; }
+.pg-api-code { background:rgba(0,0,0,.25);padding:.75rem 1rem;border-radius:10px;font-family:var(--font-mono);font-size:.7rem;color:#a78bfa;overflow-x:auto;line-height:1.6;cursor:pointer;transition:background .15s;margin:.5rem 0; }
+.pg-api-code:hover { background:rgba(0,0,0,.4); }
+.pg-api-link { display:inline-flex;align-items:center;gap:.3rem;color:rgba(255,255,255,.6);text-decoration:none;font-size:.78rem;transition:color .15s; }
+.pg-api-link:hover { color:#fff; }
+.pg-api-logo { width:64px;height:64px;border-radius:14px;object-fit:contain;background:#fff;padding:8px; }
+/* ── Responsive ── */
+@media(max-width:850px){ .pg-panels{flex-direction:column} .pg-editor,.pg-preview{width:100%;height:50%} .pg-sidebar.open{width:260px} }
 </style>`)}
-<body style="margin:0;overflow:hidden;background:var(--bg);color:var(--text)">
-  <nav class="nav-blur" style="height:56px;display:flex;align-items:center;padding:0 1rem;position:sticky;top:0;z-index:10">
-    <a href="/" style="display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.1rem;text-decoration:none;color:var(--text)">
-      <span style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;background:var(--lilac);color:#1a1a1a">L</span>LogoHub Playground
-    </a>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:.5rem">
-      <button id="apiDemoRunBtn" style="display:none" onclick="searchLogo()" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Search</button>
-      <button id="editorRunBtn" onclick="runCode()" class="btn btn-primary btn-sm"><i class="fas fa-play"></i> Run</button>
-      <button id="clearAllBtn" onclick="handleClear()" class="btn btn-ghost btn-sm"><i class="fas fa-eraser"></i> Clear</button>
-      <button onclick="LH.toggleTheme()" id="themeBtn" class="btn btn-ghost btn-icon-sm"><i class="fas fa-sun"></i></button>
-    </div>
-  </nav>
+<body style="margin:0;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font)">
+<div class="pg-root">
 
-  <div class="playground-container">
-    <!-- Editor -->
-    <div class="editor-panel" id="editorPanel">
-      <!-- Tabs: Code Editor vs API Demo -->
-      <div class="editor-tabs" id="tabs">
-        <div class="editor-tab active" data-panel="code"><i class="fas fa-code"></i> Code Editor</div>
-        <div class="editor-tab" data-panel="api"><i class="fas fa-plug"></i> API Demo</div>
-        <div class="editor-tab" data-panel="html" style="display:none"><i class="fab fa-html5" style="color:#e44d26"></i> HTML</div>
-        <div class="editor-tab" data-panel="css" style="display:none"><i class="fab fa-css3-alt" style="color:#264de4"></i> CSS</div>
-        <div class="editor-tab" data-panel="js" style="display:none"><i class="fab fa-js-square" style="color:#f7df1e"></i> JavaScript</div>
-        <div class="editor-tab" data-panel="ts" style="display:none"><i class="fas fa-code" style="color:#3178c6"></i> TypeScript</div>
+  <!-- Sidebar (hidden by default, toggled via hamburger) -->
+  <aside class="pg-sidebar" id="pgSidebar">
+    <div class="pg-sidebar-inner">
+      <h3><i class="fas fa-history"></i> Recent Searches</h3>
+      <div id="pgHistory"></div>
+      <div style="margin-top:1.5rem">
+        <h3><i class="fas fa-book"></i> API Reference</h3>
+        <a href="/docs" target="_blank" class="pg-history-item"><i class="fas fa-external-link-alt"></i> Full Documentation</a>
+        <a href="/api/v1/catalog" target="_blank" class="pg-history-item"><i class="fas fa-list"></i> API Catalog</a>
       </div>
-
-      <!-- Code editors body -->
-      <div class="editor-body" id="editorBody">
-        <textarea id="htmlEditor" placeholder="<!-- Write your HTML here -->"><h1>Hello, LogoHub!</h1>
-<p>Edit the code on the left to see the preview on the right.</p>
-<button onclick="alert('Button clicked!')">Click Me</button></textarea>
-        <textarea id="cssEditor" placeholder="/* Write your CSS here */" style="display:none">body {
-  font-family: system-ui, sans-serif;
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
-}
-h1 { color: #4f46e5; }
-button {
-  padding: .5rem 1.2rem;
-  background: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-button:hover { background: #4338ca; }</textarea>
-        <textarea id="jsEditor" placeholder="// Write your JavaScript here" style="display:none">console.log('Hello from JavaScript!');</textarea>
-        <textarea id="tsEditor" placeholder="// Write your TypeScript here (will be transpiled to JS)" style="display:none">// TypeScript gets transpiled to JavaScript automatically
-const message: string = 'Hello from TypeScript!';
-console.log(message);</textarea>
-      </div>
-
-      <!-- API Demo body -->
-      <div class="api-demo-panel" id="apiDemoPanel">
-        <div class="api-demo-card" id="apiDemoCard">
-          <div class="api-demo-search">
-            <input type="text" id="logoSearchInput" placeholder="Search for a logo... e.g. google, netflix, bitcoin"
-              onkeydown="if(event.key==='Enter')searchLogo()">
-            <button id="searchBtn" onclick="searchLogo()">🔍 Search</button>
-          </div>
-          <div class="api-demo-hint">Try: google, apple, spotify, bitcoin, react, python, aws, nike, stripe, discord</div>
-
-          <div class="api-demo-suggestions">
-            <button class="api-demo-suggestion" onclick="quickSearch('google')">Google</button>
-            <button class="api-demo-suggestion" onclick="quickSearch('netflix')">Netflix</button>
-            <button class="api-demo-suggestion" onclick="quickSearch('bitcoin')">Bitcoin</button>
-            <button class="api-demo-suggestion" onclick="quickSearch('react')">React</button>
-            <button class="api-demo-suggestion" onclick="quickSearch('python')">Python</button>
-            <button class="api-demo-suggestion" onclick="quickSearch('stripe')">Stripe</button>
-            <button class="api-demo-suggestion" onclick="quickSearch('aws')">AWS</button>
-            <button class="api-demo-suggestion" onclick="quickSearch('nike')">Nike</button>
-          </div>
-
-          <!-- API endpoint info -->
-          <div class="api-demo-section" style="margin-top:24px">
-            <div class="api-demo-subtitle">API Endpoint</div>
-            <div class="api-demo-code" id="apiUrlDisplay" title="Click to copy">GET /api/v1/logo/:slug</div>
-          </div>
-
-          <div id="apiResult" style="display:none"></div>
-          <div id="apiError" class="api-demo-error" style="display:none"></div>
+      <div style="margin-top:1.5rem">
+        <h3><i class="fas fa-terminal"></i> Keyboard Shortcuts</h3>
+        <div style="font-size:.7rem;color:var(--text-mute);line-height:1.8">
+          <div><kbd style="background:var(--panel-2);padding:0 .3rem;border-radius:3px">Ctrl+Enter</kbd> Run / Search</div>
+          <div><kbd style="background:var(--panel-2);padding:0 .3rem;border-radius:3px">Ctrl+S</kbd> Save snippet</div>
         </div>
       </div>
     </div>
+  </aside>
 
-    <!-- Preview -->
-    <div class="preview-panel" id="previewPanel">
-      <div class="preview-header">
-        <div class="url-bar" id="urlBar">Playground Preview</div>
-        <div style="display:flex;gap:.35rem">
-          <button onclick="refreshPreview()" class="btn btn-ghost btn-icon-sm" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-          <button onclick="openInNewTab()" class="btn btn-ghost btn-icon-sm" title="Open in new tab"><i class="fas fa-external-link-alt"></i></button>
-          <button onclick="downloadHTML()" class="btn btn-ghost btn-icon-sm" title="Download HTML"><i class="fas fa-download"></i></button>
+  <!-- Main -->
+  <div class="pg-main">
+    <!-- Topbar -->
+    <header class="pg-topbar">
+      <button id="pgMenuToggle" class="btn btn-ghost btn-icon-sm" onclick="toggleSidebar()" title="Toggle sidebar"><i class="fas fa-bars"></i></button>
+      <a href="/" class="pg-logo"><span>L</span>LogoHub Playground</a>
+      <div class="pg-topbar-spacer"></div>
+      <div id="pgApiActions" style="display:none"><button onclick="pgSearch()" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Search</button></div>
+      <div id="pgEditorActions"><button onclick="pgRun()" class="btn btn-primary btn-sm"><i class="fas fa-play text-[10px]"></i> Run</button></div>
+      <button onclick="pgClear()" class="btn btn-ghost btn-sm"><i class="fas fa-eraser text-[10px]"></i> Clear</button>
+      <button onclick="LH.toggleTheme()" id="themeBtn" class="btn btn-ghost btn-icon-sm" title="Theme"><i class="fas fa-moon"></i></button>
+      <a href="/" class="btn btn-ghost btn-icon-sm" title="Dashboard"><i class="fas fa-home"></i></a>
+    </header>
+
+    <!-- Panels -->
+    <div class="pg-panels">
+      <!-- Editor / API Demo -->
+      <div class="pg-editor" id="pgEditorPanel">
+        <!-- Tabs -->
+        <div class="pg-tabs">
+          <div class="pg-tab active" data-panel="code" onclick="pgSwitchPanel('code')"><i class="fas fa-code text-[10px]"></i> Editor</div>
+          <div class="pg-tab" data-panel="api" onclick="pgSwitchPanel('api')"><i class="fas fa-plug text-[10px]"></i> API Demo</div>
+        </div>
+        <!-- Code editors -->
+        <div class="pg-editor-body" id="pgEditorBody">
+          <div class="pg-tabs" id="pgEditorTabs" style="border-bottom:none;padding:0 .5rem">
+            <div class="pg-tab active" data-lang="html" onclick="pgSwitchLang('html')"><i class="fab fa-html5" style="color:#e44d26"></i> HTML</div>
+            <div class="pg-tab" data-lang="css" onclick="pgSwitchLang('css')"><i class="fab fa-css3-alt" style="color:#264de4"></i> CSS</div>
+            <div class="pg-tab" data-lang="js" onclick="pgSwitchLang('js')"><i class="fab fa-js" style="color:#f7df1e"></i> JS</div>
+          </div>
+          <textarea id="pgHtml" placeholder="<!-- HTML -->"><h1>Hello, LogoHub!</h1>
+<p>Edit code on the left, see preview on the right.</p>
+<button onclick="alert('Clicked!')">Click Me</button></textarea>
+          <textarea id="pgCss" placeholder="/* CSS */" style="display:none">body{font-family:system-ui,sans-serif;max-width:600px;margin:2rem auto;padding:1rem}h1{color:#4f46e5}button{padding:.5rem 1.2rem;background:#4f46e5;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1rem}button:hover{background:#4338ca}</textarea>
+          <textarea id="pgJs" placeholder="// JavaScript" style="display:none">console.log('Hello from Playground!');</textarea>
+        </div>
+        <!-- API Demo -->
+        <div class="pg-api-demo" id="pgApiPanel">
+          <div class="pg-api-card">
+            <div class="pg-api-search">
+              <input type="text" id="pgSearchInput" placeholder="Search logos... e.g. google, spotify, bitcoin" onkeydown="if(event.key==='Enter')pgSearch()">
+              <button id="pgSearchBtn" onclick="pgSearch()">🔍 Search</button>
+            </div>
+            <div class="pg-api-hint">Try: google, apple, spotify, bitcoin, react, python, aws, nike, stripe</div>
+            <div class="pg-api-suggestions" id="pgSuggestions">
+              <span class="pg-api-suggestion" onclick="pgQuickSearch('google')">Google</span>
+              <span class="pg-api-suggestion" onclick="pgQuickSearch('netflix')">Netflix</span>
+              <span class="pg-api-suggestion" onclick="pgQuickSearch('bitcoin')">Bitcoin</span>
+              <span class="pg-api-suggestion" onclick="pgQuickSearch('react')">React</span>
+              <span class="pg-api-suggestion" onclick="pgQuickSearch('python')">Python</span>
+              <span class="pg-api-suggestion" onclick="pgQuickSearch('stripe')">Stripe</span>
+              <span class="pg-api-suggestion" onclick="pgQuickSearch('aws')">AWS</span>
+              <span class="pg-api-suggestion" onclick="pgQuickSearch('nike')">Nike</span>
+            </div>
+            <div class="pg-api-loading" id="pgApiLoading" style="display:none">🌀 Searching...</div>
+            <div class="pg-api-error" id="pgApiError"></div>
+            <div class="pg-api-result" id="pgApiResult"></div>
+          </div>
         </div>
       </div>
-      <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts allow-modals allow-popups allow-same-origin"></iframe>
+
+      <!-- Preview -->
+      <div class="pg-preview" id="pgPreviewPanel">
+        <div class="pg-preview-header">
+          <div class="pg-url" id="pgUrl" title="Preview">Playground Preview</div>
+          <button onclick="pgRefresh()" class="btn btn-ghost btn-icon-sm" title="Refresh"><i class="fas fa-sync-alt text-[10px]"></i></button>
+          <button onclick="pgOpenTab()" class="btn btn-ghost btn-icon-sm" title="Open in new tab"><i class="fas fa-external-link-alt text-[10px]"></i></button>
+          <button onclick="pgDownload()" class="btn btn-ghost btn-icon-sm" title="Download"><i class="fas fa-download text-[10px]"></i></button>
+        </div>
+        <iframe id="pgFrame" class="pg-preview-frame" sandbox="allow-scripts allow-modals allow-popups allow-same-origin"></iframe>
+      </div>
     </div>
   </div>
+</div>
 
-  <script>
-    let activePanel = 'code';
-    let activeEditor = 'html';
+<script>
+var pgActivePanel='code',pgActiveLang='html',pgHistory=[];
 
-    // ── Panel switching (Code vs API Demo) ──
-    document.querySelectorAll('.editor-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const panel = tab.dataset.panel;
-        if (panel === 'code' || panel === 'api') {
-          // Top-level: switch between Code & API
-          document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          activePanel = panel;
+// ── Sidebar toggle ──
+function toggleSidebar(){ document.getElementById('pgSidebar').classList.toggle('open'); }
+function addHistory(slug){ if(!pgHistory.includes(slug)){pgHistory.unshift(slug);if(pgHistory.length>20)pgHistory.pop();renderHistory()} }
+function renderHistory(){ document.getElementById('pgHistory').innerHTML=pgHistory.map(function(s,i){return '<div class="pg-history-item" onclick="pgQuickSearch(\''+s+'\')"><i class="fas fa-search"></i>'+s+'</div>'}).join('')||'<div style="font-size:.7rem;color:var(--text-mute)">No searches yet</div>'; }
 
-          if (panel === 'code') {
-            document.getElementById('editorBody').style.display = 'block';
-            document.getElementById('apiDemoPanel').classList.remove('visible');
-            document.getElementById('editorRunBtn').style.display = '';
-            document.getElementById('apiDemoRunBtn').style.display = 'none';
-            document.getElementById('clearAllBtn').style.display = '';
-            // Show lang tabs, hide code/api tabs except active
-            showCodeTabs();
-          } else {
-            document.getElementById('editorBody').style.display = 'none';
-            document.getElementById('apiDemoPanel').classList.add('visible');
-            document.getElementById('editorRunBtn').style.display = 'none';
-            document.getElementById('apiDemoRunBtn').style.display = '';
-            document.getElementById('clearAllBtn').style.display = 'none';
-            hideCodeTabs();
-          }
-        } else {
-          // Sub-tab: HTML/CSS/JS/TS
-          activeEditor = panel;
-          showEditor(panel);
-        }
-      });
-    });
-
-    function showCodeTabs() {
-      document.querySelectorAll('.editor-tab[data-panel="html"], .editor-tab[data-panel="css"], .editor-tab[data-panel="js"], .editor-tab[data-panel="ts"]').forEach(t => t.style.display = '');
-      document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
-      const codeTab = document.querySelector('.editor-tab[data-panel="code"]');
-      const editorTab = document.querySelector('.editor-tab[data-panel="'+activeEditor+'"]');
-      if (codeTab) codeTab.classList.add('active');
-      if (editorTab) editorTab.classList.add('active');
-      showEditor(activeEditor);
-    }
-
-    function hideCodeTabs() {
-      document.querySelectorAll('.editor-tab[data-panel="html"], .editor-tab[data-panel="css"], .editor-tab[data-panel="js"], .editor-tab[data-panel="ts"]').forEach(t => t.style.display = 'none');
-    }
-
-    function showEditor(type) {
-      ['html', 'css', 'js', 'ts'].forEach(t => {
-        const el = document.getElementById(t + 'Editor');
-        if (el) el.style.display = t === type ? 'block' : 'none';
-      });
-      document.querySelectorAll('.editor-tab[data-panel="html"], .editor-tab[data-panel="css"], .editor-tab[data-panel="js"], .editor-tab[data-panel="ts"]').forEach(t => {
-        t.classList.toggle('active', t.dataset.panel === type);
-      });
-    }
-
-    // ── API Demo ──
-    async function searchLogo() {
-      const input = document.getElementById('logoSearchInput');
-      const slug = input.value.trim().toLowerCase();
-      if (!slug) return;
-
-      const resultDiv = document.getElementById('apiResult');
-      const errorDiv = document.getElementById('apiError');
-      const searchBtn = document.getElementById('searchBtn');
-      const urlDisplay = document.getElementById('apiUrlDisplay');
-
-      urlDisplay.textContent = 'GET /api/v1/logo/' + slug;
-      resultDiv.style.display = 'none';
-      errorDiv.style.display = 'none';
-      searchBtn.disabled = true;
-      searchBtn.textContent = '⏳ Loading...';
-
-      // Show loading
-      resultDiv.innerHTML = '<div class="api-demo-loading">🌀 Searching for <strong>' + slug + '</strong>...</div>';
-      resultDiv.style.display = 'block';
-
-      try {
-        const res = await fetch('/api/v1/logo/' + encodeURIComponent(slug));
-        const json = await res.json();
-
-        if (!res.ok || json.error) {
-          errorDiv.textContent = '❌ ' + (json.error || 'Logo not found') + ' — try a different search term';
-          errorDiv.style.display = 'block';
-          resultDiv.innerHTML = '';
-          resultDiv.style.display = 'none';
-        } else {
-          const logo = json.data;
-          errorDiv.style.display = 'none';
-          resultDiv.innerHTML = renderLogo(logo, json.meta);
-          resultDiv.style.display = 'block';
-
-          // Update URL bar
-          document.getElementById('urlBar').textContent = 'GET /api/v1/logo/' + slug + ' → 200 OK';
-        }
-      } catch (e) {
-        errorDiv.textContent = '⚠️ Network error — is the API server running?';
-        errorDiv.style.display = 'block';
-        resultDiv.style.display = 'none';
-      } finally {
-        searchBtn.disabled = false;
-        searchBtn.textContent = '🔍 Search';
-      }
-    }
-
-    function quickSearch(slug) {
-      document.getElementById('logoSearchInput').value = slug;
-      searchLogo();
-    }
-
-    function renderLogo(logo, meta) {
-      return \`
-        <div class="api-demo-header">
-          <img src="\${logo.svg || logo.png}" alt="\${logo.name}" onerror="this.style.display='none'">
-          <div>
-            <h2>\${logo.name} \${logo.verified ? '✅' : ''}</h2>
-            <div class="api-demo-slug">@\${logo.slug} · \${logo.industry || logo.category}</div>
-          </div>
-        </div>
-
-        <p class="api-demo-desc">\${logo.description || 'No description available.'}</p>
-
-        <div class="api-demo-grid">
-          <div class="api-demo-item">
-            <div class="api-demo-label">Category</div>
-            <div class="api-demo-value">\${logo.category}</div>
-          </div>
-          <div class="api-demo-item">
-            <div class="api-demo-label">Subcategory</div>
-            <div class="api-demo-value">\${logo.subcategory || '—'}</div>
-          </div>
-          <div class="api-demo-item">
-            <div class="api-demo-label">Country</div>
-            <div class="api-demo-value">\${logo.country || '—'}</div>
-          </div>
-          <div class="api-demo-item">
-            <div class="api-demo-label">Industry</div>
-            <div class="api-demo-value">\${logo.industry || '—'}</div>
-          </div>
-        </div>
-
-        \${logo.colors && logo.colors.length ? \`
-          <div class="api-demo-subtitle">Brand Colors</div>
-          <div class="api-demo-colors">
-            \${logo.colors.map(c => \`
-              <div class="api-demo-color" style="background:\${c}" title="\${c}" onclick="navigator.clipboard.writeText('\${c}').then(()=>alert('Copied: \${c}'))"></div>
-            \`).join('')}
-          </div>
-        \` : ''}
-
-        \${logo.tags && logo.tags.length ? \`
-          <div class="api-demo-subtitle">Tags</div>
-          <div class="api-demo-tags">
-            \${logo.tags.map(t => \`<div class="api-demo-tag">\${t}</div>\`).join('')}
-          </div>
-        \` : ''}
-
-        \${logo.aliases && logo.aliases.length ? \`
-          <p style="margin-top:16px;font-size:.85rem;color:rgba(255,255,255,.55)">
-            <strong>Aliases:</strong> \${logo.aliases.join(', ')}
-          </p>
-        \` : ''}
-
-        \${logo.website ? \`
-          <a href="\${logo.website}" target="_blank" class="api-demo-link">🌐 \${logo.website}</a>
-        \` : ''}
-
-        <!-- API Response metadata -->
-        <div class="api-demo-section" style="margin-top:20px; border-top: 1px solid rgba(255,255,255,.1); padding-top:16px">
-          <div class="api-demo-subtitle">API Response</div>
-          <div class="api-demo-code" onclick="copyApiResponse()" title="Click to copy full JSON">
-{<br>
-  &nbsp;&nbsp;"data": {<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;"id": "\${logo.id}",<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;"slug": "\${logo.slug}",<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;"name": "\${logo.name}",<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;"category": "\${logo.category}",<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;"verified": \${logo.verified},<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;...<br>
-  &nbsp;&nbsp;},<br>
-  &nbsp;&nbsp;"meta": {<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;"version": "\${meta?.version || 'v1'}"<br>
-  &nbsp;&nbsp;}<br>
+// ── Panel switching ──
+function pgSwitchPanel(panel){
+  pgActivePanel=panel;
+  document.querySelectorAll('.pg-tab[data-panel]').forEach(function(t){t.classList.toggle('active',t.dataset.panel===panel)});
+  document.getElementById('pgEditorBody').style.display=panel==='code'?'block':'none';
+  document.getElementById('pgApiPanel').classList.toggle('visible',panel==='api');
+  document.getElementById('pgEditorActions').style.display=panel==='code'?'':'none';
+  document.getElementById('pgApiActions').style.display=panel==='api'?'':'none';
 }
-          </div>
-        </div>
-      \`;
-    }
 
-    window._lastLogoResponse = null;
-    async function copyApiResponse() {
-      try {
-        const slug = document.getElementById('logoSearchInput').value.trim();
-        const res = await fetch('/api/v1/logo/' + encodeURIComponent(slug));
-        const json = await res.json();
-        await navigator.clipboard.writeText(JSON.stringify(json, null, 2));
-        alert('📋 Full API response copied to clipboard!');
-      } catch(e) {
-        alert('⚠️ Could not copy. Try again.');
-      }
-    }
+function pgSwitchLang(lang){
+  pgActiveLang=lang;
+  ['pgHtml','pgCss','pgJs'].forEach(function(id){document.getElementById(id).style.display=id==='pg'+lang.charAt(0).toUpperCase()+lang.slice(1)?'block':'none'});
+  document.querySelectorAll('#pgEditorTabs .pg-tab').forEach(function(t){t.classList.toggle('active',t.dataset.lang===lang)});
+}
 
-    function handleClear() {
-      if (activePanel === 'api') return;
-      if (!confirm('Clear all editors?')) return;
-      document.getElementById('htmlEditor').value = '';
-      document.getElementById('cssEditor').value = '';
-      document.getElementById('jsEditor').value = '';
-      document.getElementById('tsEditor').value = '';
-      document.getElementById('previewFrame').srcdoc = '';
-    }
+// ── Run code ──
+function pgRun(){
+  var h=document.getElementById('pgHtml').value,c=document.getElementById('pgCss').value,j=document.getElementById('pgJs').value;
+  var full='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+c+'</style></head><body>'+h+'<script>'+j+'<'+'/script></body></html>';
+  document.getElementById('pgFrame').srcdoc=full;
+  document.getElementById('pgUrl').textContent='Preview · '+new Date().toLocaleTimeString();
+}
+function pgRefresh(){pgRun()}
+function pgOpenTab(){var w=window.open('','_blank');w.document.write(document.getElementById('pgFrame').srcdoc||'<p>Run first</p>');w.document.close()}
+function pgDownload(){var b=new Blob([document.getElementById('pgFrame').srcdoc||'<html></html>'],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='playground.html';a.click()}
+function pgClear(){if(!confirm('Clear all editors?'))return;['pgHtml','pgCss','pgJs'].forEach(function(id){document.getElementById(id).value=''});document.getElementById('pgFrame').srcdoc=''}
 
-    // ── Code Editor ──
-    function runCode() {
-      const html = document.getElementById('htmlEditor').value;
-      const css = document.getElementById('cssEditor').value;
-      let js = document.getElementById('jsEditor').value;
-      const ts = document.getElementById('tsEditor').value;
+// ── API Demo ──
+async function pgSearch(){
+  var slug=document.getElementById('pgSearchInput').value.trim().toLowerCase();if(!slug)return;
+  var resDiv=document.getElementById('pgApiResult'),errDiv=document.getElementById('pgApiError'),loadDiv=document.getElementById('pgApiLoading'),btn=document.getElementById('pgSearchBtn');
+  resDiv.style.display='none';errDiv.style.display='none';loadDiv.style.display='block';btn.disabled=true;btn.textContent='...';
+  addHistory(slug);
+  try{
+    var r=await fetch('/api/v1/logo/'+encodeURIComponent(slug));var j=await r.json();
+    if(!r.ok||j.error){errDiv.textContent='❌ '+(j.error||'Not found');errDiv.style.display='block';loadDiv.style.display='none'}
+    else{resDiv.innerHTML=pgRenderLogo(j.data,j.meta);resDiv.style.display='block';loadDiv.style.display='none';document.getElementById('pgUrl').textContent='GET /api/v1/logo/'+slug+' → 200 OK'}
+  }catch(e){errDiv.textContent='⚠️ Network error';errDiv.style.display='block';loadDiv.style.display='none'}
+  btn.disabled=false;btn.textContent='🔍 Search';
+}
+function pgQuickSearch(slug){document.getElementById('pgSearchInput').value=slug;pgSearch()}
 
-      if (ts.trim() && !js.trim()) {
-        js = ts
-          .replace(/:\\s*\\w+(\\[\\])?(?=\\s*[=;,)\\]\\}])/g, '')
-          .replace(/interface\\s+\\w+\\s*\\{[^}]*\\}/g, '')
-          .replace(/type\\s+\\w+\\s*=\\s*[^;]+;/g, '')
-          .replace(/export\\s+(default\\s+)?/g, '')
-          .replace(/import\\s+.*?from\\s+['"][^'"]+['"];?/g, '');
-      }
+function pgRenderLogo(logo,meta){
+  var colors=logo.colors&&logo.colors.length?logo.colors.map(function(c){return '<div class="pg-api-color" style="background:'+c+'" title="'+c+'" onclick="navigator.clipboard.writeText(\''+c+'\')"></div>'}).join(''):'';
+  var tags=logo.tags&&logo.tags.length?logo.tags.map(function(t){return '<span class="pg-api-tag">'+t+'</span>'}).join(''):'';
+  return '<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem"><img src="'+(logo.svg||logo.png)+'" class="pg-api-logo" onerror="this.style.display=\\'none\\'" alt="'+logo.name+'"><div><h2>'+logo.name+' '+(logo.verified?'✅':'')+'</h2><div style="font-size:.8rem;opacity:.5">@'+logo.slug+' · '+(logo.industry||logo.category||'')+'</div></div></div>'+
+    (logo.description?'<p style="opacity:.8;line-height:1.6;margin-bottom:1rem;font-size:.85rem">'+logo.description+'</p>':'')+
+    '<div class="pg-api-row"><div class="pg-api-item"><div class="lbl">Category</div><div class="val">'+logo.category+'</div></div><div class="pg-api-item"><div class="lbl">Country</div><div class="val">'+(logo.country||'—')+'</div></div><div class="pg-api-item"><div class="lbl">Industry</div><div class="val">'+(logo.industry||'—')+'</div></div></div>'+
+    (colors?'<div class="lbl" style="margin-top:.5rem">Colors</div><div class="pg-api-colors">'+colors+'</div>':'')+
+    (tags?'<div class="lbl" style="margin-top:.5rem">Tags</div><div class="pg-api-tags">'+tags+'</div>':'')+
+    (logo.website?'<a href="'+logo.website+'" target="_blank" class="pg-api-link">🌐 '+logo.website+'</a>':'')+
+    '<div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.06)"><div class="lbl">API Response</div><div class="pg-api-code" onclick="navigator.clipboard.writeText(JSON.stringify('+JSON.stringify({data:logo,meta:meta||{version:'v1'}}).replace(/"/g,'&quot;')+',null,2))" title="Click to copy JSON">{<br>  "data": { "id": "'+logo.id+'", "slug": "'+logo.slug+'", "name": "'+logo.name+'", ... },<br>  "meta": { "version": "'+(meta&&meta.version||'v1')+'" }<br>}</div></div>';
+}
 
-      const fullHTML = \`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>\${css}</style></head>
-<body>\${html}
-<script>\${js}<\\/script></body></html>\`;
-
-      const frame = document.getElementById('previewFrame');
-      frame.srcdoc = fullHTML;
-      document.getElementById('urlBar').textContent = 'Preview updated at ' + new Date().toLocaleTimeString();
-    }
-
-    function refreshPreview() { runCode(); }
-
-    function openInNewTab() {
-      const html = document.getElementById('htmlEditor').value;
-      const css = document.getElementById('cssEditor').value;
-      let js = document.getElementById('jsEditor').value;
-      const ts = document.getElementById('tsEditor').value;
-      if (ts.trim() && !js.trim()) {
-        js = ts.replace(/:\\s*\\w+(\\[\\])?(?=\\s*[=;,)\\]\\}])/g, '');
-      }
-      const full = \`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>\${css}</style></head><body>\${html}<script>\${js}<\\/script></body></html>\`;
-      const win = window.open('', '_blank');
-      win.document.write(full);
-      win.document.close();
-    }
-
-    function downloadHTML() {
-      const frame = document.getElementById('previewFrame');
-      const html = frame.srcdoc || '<html><body><p>No content yet</p></body></html>';
-      const blob = new Blob([html], { type: 'text/html' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'playground.html';
-      a.click();
-    }
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        if (activePanel === 'api') searchLogo();
-        else runCode();
-      }
-    });
-
-    // Auto-load Google on API Demo open
-    setTimeout(() => {
-      if (activePanel === 'code') runCode();
-    }, 300);
-  </script>
-  ${COMMON_JS}
+// ── Init ──
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();pgActivePanel==='api'?pgSearch():pgRun()}});
+setTimeout(pgRun,300);
+renderHistory();
+</script>
+${COMMON_JS}
 </body></html>`;
 }
