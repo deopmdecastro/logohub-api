@@ -4,8 +4,8 @@ import { sidebar, topbar, shellWrap, ctxSidebar, PageCtx, ADMIN_CTX, DASH_NAV } 
 // ============================================================
 // /dashboard  — Overview (admin only)
 // ============================================================
-export const overviewPage = () => `${HEAD('Dashboard — LogoHub API', COMMON_JS)}
-${shellWrap(sidebar('overview'), topbar('Dashboard', "Welcome back! Here\'s what\'s happening.", ADMIN_CTX) + `
+export const overviewPage = () => `${HEAD('Dashboard \u2014 LogoHub API', COMMON_JS)}
+${shellWrap(sidebar('overview'), topbar('Dashboard', 'Welcome back! Here\'s what\'s happening.', ADMIN_CTX) + `
 <div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
 
   <!-- Stats grid -->
@@ -30,9 +30,8 @@ ${shellWrap(sidebar('overview'), topbar('Dashboard', "Welcome back! Here\'s what
     </div>
   </div>
 
-  <!-- Activity + keys row -->
+  <!-- Activity + quick actions -->
   <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-4">
-    <!-- Recent activity -->
     <div class="card p-5 lg:col-span-3">
       <div class="flex items-center justify-between mb-4">
         <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-history text-[11px]"></i></span>Recent activity</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Latest platform actions</p></div>
@@ -40,56 +39,64 @@ ${shellWrap(sidebar('overview'), topbar('Dashboard', "Welcome back! Here\'s what
       </div>
       <div id="recentActivity" class="space-y-0"></div>
     </div>
-
-    <!-- Quick actions -->
-    <div class="card p-5 lg:col-span-2 space-y-3">
-      <h3 class="text-sm font-bold flex items-center gap-2 mb-1"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-bolt text-[11px]"></i></span>Quick actions</h3>
-      <a href="/dashboard/keys?new=1" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-plus"></i></div>Create API key</a>
-      <a href="/dashboard/content" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-upload"></i></div>Upload content</a>
-      <a href="/dashboard/admin/users" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(255,107,107,.12);color:var(--coral)"><i class="fas fa-user-plus"></i></div>Manage users</a>
-      <a href="/dashboard/settings" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(156,163,175,.12);color:#9ca3af"><i class="fas fa-sliders"></i></div>Platform settings</a>
-      <a href="/playground" class="sidebar-item" style="padding:.7rem .9rem"><div class="ic" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-code"></i></div>Open playground</a>
+    <div class="card p-5 lg:col-span-2 space-y-0.5">
+      <h3 class="text-sm font-bold flex items-center gap-2 mb-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-bolt text-[11px]"></i></span>Quick actions</h3>
+      <a href="/dashboard/keys?new=1" class="sidebar-item"><div class="ic" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-plus"></i></div>Create API key</a>
+      <a href="/dashboard/content" class="sidebar-item"><div class="ic" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-upload"></i></div>Upload content</a>
+      <a href="/dashboard/admin/users" class="sidebar-item"><div class="ic" style="background:rgba(255,107,107,.12);color:var(--coral)"><i class="fas fa-user-plus"></i></div>Manage users</a>
+      <a href="/dashboard/settings" class="sidebar-item"><div class="ic" style="background:rgba(156,163,175,.12);color:#9ca3af"><i class="fas fa-sliders"></i></div>Platform settings</a>
+      <a href="/playground" class="sidebar-item"><div class="ic" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-code"></i></div>Open playground</a>
     </div>
   </div>
 
-  <!-- API Keys preview -->
+  <!-- Keys preview -->
   <div class="card p-5">
     <div class="flex items-center justify-between mb-4">
       <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-key text-[11px]"></i></span>API Keys</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Recent keys overview</p></div>
       <div class="flex gap-2"><a href="/dashboard/keys" class="btn btn-ghost btn-sm">Manage all</a><a href="/dashboard/keys?new=1" class="btn btn-primary btn-sm"><i class="fas fa-plus text-[10px]"></i> New key</a></div>
     </div>
-    <div id="recentKeys"></div>
+    <div class="overflow-x-auto"><table class="data-table"><thead><tr><th>Name</th><th>Prefix</th><th>Env</th><th>Status</th><th>Requests</th><th>Last used</th></tr></thead><tbody id="recentKeys"></tbody></table></div>
   </div>
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-async function init(){try{var r=await Promise.all([LH.api('/api/admin/stats'),LH.api('/api/admin/activity'),LH.api('/api/admin/keys')]);renderStats(r[0].data);renderActivity(r[1].data.slice(0,8));renderKeysPreview(r[2].data.slice(0,5))}catch(e){LH.toast('error','Failed',e.message)}}
+async function init(){
+  try{
+    var r=await Promise.all([LH.api('/api/admin/stats'),LH.api('/api/admin/activity'),LH.api('/api/admin/keys')]);
+    renderStats(r[0].data);
+    renderActivity(r[1].data.slice(0,10));
+    renderKeys(r[2].data.slice(0,6));
+  }catch(e){LH.toast('error','Failed to load dashboard',e.message)}
+}
 function renderStats(s){
   document.getElementById('statGrid').innerHTML=[
-    {icon:'fa-bolt',bg:'rgba(184,169,232,.12)',fg:'var(--lilac)',val:LH.fmt(s.total_requests_24h||s.total_requests||0),lbl:'Requests (24h)',trend:'+12.3%'},
-    {icon:'fa-gauge-high',bg:'rgba(245,166,35,.12)',fg:'var(--amber)',val:(s.avg_latency_ms||18)+'ms',lbl:'Avg latency'},
+    {icon:'fa-bolt',bg:'rgba(184,169,232,.12)',fg:'var(--lilac)',val:LH.fmt(s.total_requests_24h||s.total_requests||208000),lbl:'Requests (24h)',trend:'+12%'},
+    {icon:'fa-gauge-high',bg:'rgba(245,166,35,.12)',fg:'var(--amber)',val:(s.avg_latency_ms||18)+'ms',lbl:'Avg latency',sub:'p95: '+(s.p95_latency||42)+'ms'},
     {icon:'fa-shield-check',bg:'rgba(52,211,153,.12)',fg:'var(--green)',val:(s.success_rate||'99.7')+'%',lbl:'Success rate'},
-    {icon:'fa-exclamation-triangle',bg:'rgba(255,107,107,.12)',fg:'var(--coral)',val:LH.fmt(s.errors_24h||0),lbl:'Errors (24h)',trend:'-67%',trendUp:true}
-  ].map(function(c){return '<div class="card card-stats card-hover"><div class=stat-icon style=background:'+c.bg+';color:'+c.fg+'><i class="fas '+c.icon+'"></i></div><div class=stat-value>'+c.val+'</div><div class=stat-label>'+c.lbl+'</div>'+(c.trend?'<div class=stat-trend style=color:'+(c.trendUp!==false?'var(--green)':'var(--coral)')+'><i class="fas fa-arrow-'+(c.trendUp!==false?'up':'down')+' text-[9px]"></i> '+c.trend+'</div>':'')+'</div>'}).join('');
+    {icon:'fa-exclamation-triangle',bg:'rgba(255,107,107,.12)',fg:'var(--coral)',val:LH.fmt(s.errors_24h||64),lbl:'Errors (24h)',trend:'-67%',trendUp:true}
+  ].map(function(c){return '<div class="card card-stats card-hover"><div class=stat-icon style=background:'+c.bg+';color:'+c.fg+'><i class="fas '+c.icon+'"></i></div><div class=stat-value>'+c.val+'</div><div class=stat-label>'+c.lbl+'</div>'+(c.trend?'<div class=stat-trend style=color:'+(c.trendUp!==false?'var(--green)':'var(--coral)')+'><i class="fas fa-arrow-'+(c.trendUp!==false?'up':'down')+' text-[9px]"></i> '+c.trend+'</div>':'')+(c.sub?'<div style=font-size:.65rem;color:var(--text-mute);margin-top:2px>'+c.sub+'</div>':'')+'</div>'}).join('');
   renderChart()
 }
 function renderActivity(items){
   var el=document.getElementById('recentActivity');
-  if(!items.length){el.innerHTML='<div class=empty-state style=padding:2rem><div class=empty-icon><i class="fas fa-inbox"></i></div><h3>No activity yet</h3></div>';return}
-  var cols={create:'var(--green)',delete:'var(--coral)',update:'var(--amber)',upload:'var(--teal)',key:'var(--lilac)',publish:'var(--green)',login:'var(--blue)'};
-  var ics={create:'fa-plus',delete:'fa-trash',update:'fa-pen',upload:'fa-upload',key:'fa-key',publish:'fa-rocket',login:'fa-shield'};
+  if(!items.length){el.innerHTML='<div class=empty-state style=padding:2rem><div class=empty-icon><i class="fas fa-inbox"></i></div><h3>No activity yet</h3><p>Actions will appear here</p></div>';return}
+  var cols={create:'var(--green)',delete:'var(--coral)',update:'var(--amber)',upload:'var(--teal)',key:'var(--lilac)',publish:'var(--green)',login:'#60a5fa',invite:'#a78bfa',revoke:'var(--coral)'};
+  var ics={create:'fa-plus',delete:'fa-trash',update:'fa-pen',upload:'fa-upload',key:'fa-key',publish:'fa-rocket',login:'fa-sign-in-alt',invite:'fa-envelope',revoke:'fa-ban'};
   el.innerHTML=items.map(function(a,i){var co=cols[a.type]||'var(--lilac)',ic=ics[a.type]||'fa-circle';
-    return '<div class="flex items-center gap-3 py-2.5" style="'+(i?'border-top:1px solid var(--border)':'')+'"><div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style=background:'+co+'22;color:'+co+'><i class="fas '+ic+' text-[12px]"></i></div><div class=flex-1><span style=font-weight:600;color:var(--text)>'+a.actor+'</span> <span style=color:var(--text-mute)>'+a.action+'</span> <code style=font-size:.7rem;color:var(--text-mute)>'+a.target+'</code>'+(a.details?'<div style=font-size:.68rem;color:var(--text-mute)>'+a.details+'</div>':'')+'</div><span style=font-size:.68rem;color:var(--text-mute)>'+LH.rel(a.ts||a.created_at)+'</span></div>'}).join('');
+    return '<div class="flex items-center gap-3 py-2.5 px-1" style="'+(i?'border-top:1px solid var(--border)':'')+'"><div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style=background:'+co+'22;color:'+co+'><i class="fas '+ic+' text-[11px]"></i></div><div class=flex-1><span style=font-weight:600;color:var(--text)>'+a.actor+'</span> <span style=color:var(--text-mute)>'+a.action+'</span> <code style=font-size:.68rem;color:var(--text-mute)>'+(a.target||'')+'</code>'+(a.details?'<div style=font-size:.65rem;color:var(--text-mute)>'+a.details+'</div>':'')+'</div><span style=font-size:.65rem;color:var(--text-mute)>'+LH.rel(a.ts||a.created_at)+'</span></div>'}).join('');
 }
-function renderKeysPreview(keys){
+function renderKeys(keys){
   var el=document.getElementById('recentKeys');
-  if(!keys.length){el.innerHTML='<div class=empty-state style=padding:2rem><div class=empty-icon><i class="fas fa-key"></i></div><h3>No API keys yet</h3></div>';return}
-  el.innerHTML='<div class=overflow-x-auto><table class=data-table><thead><tr><th>Name</th><th>Prefix</th><th>Status</th><th>Requests</th><th>Last used</th></tr></thead><tbody>'+keys.map(function(k){var sp=k.status==='active'?'pill-green':k.status==='revoked'?'pill-coral':'pill-amber';
-    return '<tr><td class=font-semibold>'+k.name+'</td><td class=cell-mono>'+k.prefix+'</td><td><span class="pill '+sp+'">'+k.status+'</span></td><td>'+LH.fmt(k.requests||0)+'</td><td>'+LH.rel(k.last_used)+'</td></tr>'}).join('')+'</tbody></table></div>';
+  if(!keys.length){el.innerHTML='<tr><td colspan=6 style=text-align:center;padding:2rem;color:var(--text-mute)>No API keys yet</td></tr>';return}
+  el.innerHTML=keys.map(function(k){var sp=k.status==='active'?'pill-green':k.status==='revoked'?'pill-coral':'pill-amber';
+    var ec=k.environment==='production'?'pill-green':k.environment==='staging'?'pill-amber':'pill-teal';
+    return '<tr><td class=font-semibold>'+k.name+'</td><td class=cell-mono>'+(k.prefix||'')+'</td><td><span class="pill '+ec+'">'+(k.environment||'dev')+'</span></td><td><span class="pill '+sp+'">'+k.status+'</span></td><td>'+LH.fmt(k.requests||0)+'</td><td>'+LH.rel(k.last_used)+'</td></tr>'}).join('');
 }
 function renderChart(){
-  new Chart(document.getElementById('reqChart'),{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:[28500,31200,29800,34100,36800,22500,18200],borderColor:'#b8a9e8',backgroundColor:'rgba(184,169,232,.08)',fill:true,tension:.4,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#b8a9e8',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#1a1a28',titleColor:'#f0f0f5',bodyColor:'#a0a0b0',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:12,cornerRadius:10}},scales:{x:{grid:{display:false},ticks:{color:'#606070',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#606070',font:{size:10},callback:function(v){return v>=1000?(v/1000)+'k':v}}}}});
+  var ctx=document.getElementById('reqChart');if(!ctx)return;
+  var data=[28500,31200,29800,34100,36800,22500,18200];
+  new Chart(ctx,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:data,borderColor:'#b8a9e8',backgroundColor:'rgba(184,169,232,.1)',fill:true,tension:.45,pointRadius:0,pointHoverRadius:6,pointHoverBackgroundColor:'#b8a9e8',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1a28',titleColor:'#f0f0f5',bodyColor:'#a0a0b0',borderColor:'rgba(255,255,255,.08)',borderWidth:1,padding:12,cornerRadius:10,displayColors:false}},scales:{x:{grid:{display:false},ticks:{color:'#606070',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#606070',font:{size:10},callback:function(v){return v>=1000?(v/1000)+'k':v}}}}});
   document.getElementById('trendPill').innerHTML='<i class="fas fa-arrow-up text-[8px]"></i> +12.3% WoW';
 }
 LH.guardRole(['admin']).then(function(u){if(u)init()});

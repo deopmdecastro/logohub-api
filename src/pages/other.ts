@@ -1,4 +1,4 @@
-import { HEAD, COMMON_JS } from './shared';
+import { HEAD, COMMON_JS, renderStatSkeletons } from './shared';
 import { sidebar, topbar, shellWrap, creatorSidebar, consumerSidebar, ctxSidebar, PageCtx, ADMIN_CTX, CREATOR_CTX, CONSUMER_CTX } from './layout';
 
 // ============================================================
@@ -327,13 +327,13 @@ ${shellWrap(creatorSidebar('overview'), topbar('Creator Dashboard', 'Your earnin
   <!-- Welcome + avatar -->
   <div class="flex items-center gap-4 flex-wrap">
     <div class="relative cursor-pointer" onclick="document.getElementById('pfpCreator').click()">
-      <div id="creatorAvatar" class="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black overflow-hidden" style="background:linear-gradient(135deg,var(--lilac),var(--amber));color:#12121a">
-        <span id="creatorInitials">DC</span>
+      <div id="creatorAvatar" class="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black overflow-hidden transition-transform hover:scale-105" style="background:linear-gradient(135deg,var(--lilac),var(--amber));color:#12121a">
+        <span id="creatorInitials">CD</span>
       </div>
-      <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center text-[9px]" style="background:var(--lilac);color:#12121a"><i class="fas fa-camera"></i></div>
+      <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center text-[9px] shadow-lg" style="background:var(--lilac);color:#12121a"><i class="fas fa-camera"></i></div>
     </div>
     <div>
-      <h2 class="text-lg font-extrabold tracking-tight">Creator Dashboard</h2>
+      <h2 class="text-lg font-extrabold tracking-tight" id="creatorGreeting">Creator Dashboard</h2>
       <p class="text-xs" style="color:var(--text-mute)">Earnings, content performance & analytics</p>
     </div>
     <input type="file" id="pfpCreator" accept="image/*" class="hidden" onchange="handleCreatorAvatar(this)">
@@ -345,60 +345,97 @@ ${shellWrap(creatorSidebar('overview'), topbar('Creator Dashboard', 'Your earnin
 
   <!-- Stats grid -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 anim-stagger" id="creatorStats">
-    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-coins"></i></div><div class="stat-value" id="crEarnings">$1,247</div><div class="stat-label">Total earnings</div><div class="stat-trend" style="color:var(--green)"><i class="fas fa-arrow-up text-[9px]"></i> +18.3%</div></div>
-    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-image"></i></div><div class="stat-value">34</div><div class="stat-label">Published assets</div><div class="stat-trend" style="color:var(--text-mute)">5 pending</div></div>
-    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-download"></i></div><div class="stat-value">89.4K</div><div class="stat-label">Downloads (30d)</div><div class="stat-trend" style="color:var(--green)"><i class="fas fa-arrow-up text-[9px]"></i> +24%</div></div>
-    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(52,211,153,.12);color:var(--green)"><i class="fas fa-star"></i></div><div class="stat-value">4.8</div><div class="stat-label">Avg rating</div><div class="stat-trend" style="color:var(--text-mute)">312 reviews</div></div>
+    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-coins"></i></div><div class="stat-value" id="crEarnings">$0</div><div class="stat-label">Total earnings</div><div class="stat-trend" style="color:var(--text-mute)">Loading...</div></div>
+    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-cube"></i></div><div class="stat-value" id="crTotalApis">0</div><div class="stat-label">Total APIs</div><div class="stat-trend" style="color:var(--text-mute)" id="crPublished">—</div></div>
+    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-bolt"></i></div><div class="stat-value" id="crRequests">0</div><div class="stat-label">Requests (30d)</div><div class="stat-trend" style="color:var(--text-mute)">—</div></div>
+    <div class="card card-stats card-hover"><div class="stat-icon" style="background:rgba(52,211,153,.12);color:var(--green)"><i class="fas fa-star"></i></div><div class="stat-value" id="crRating">—</div><div class="stat-label">Avg rating</div><div class="stat-trend" style="color:var(--text-mute)">—</div></div>
   </div>
 
-  <!-- Content + chart row -->
+  <!-- My APIs + chart row -->
   <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-4">
-    <!-- My Content -->
     <div class="card p-5 lg:col-span-3">
       <div class="flex items-center justify-between mb-4">
-        <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-folder-open text-[11px]"></i></span>My Content</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Recently updated assets</p></div>
+        <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(184,169,232,.12);color:var(--lilac)"><i class="fas fa-folder-open text-[11px]"></i></span>My APIs</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">APIs you own or collaborate on</p></div>
         <a href="/dashboard/creator/content" class="btn btn-ghost btn-sm">View all</a>
       </div>
       <div class="overflow-x-auto"><table class="data-table">
-        <thead><tr><th>Asset</th><th class="hidden sm:table-cell">Category</th><th>Downloads</th><th>Earnings</th><th>Status</th></tr></thead>
-        <tbody id="creatorContent">
-          <tr><td class="font-semibold">Modern Dashboard UI Kit</td><td class="hidden sm:table-cell cell-mono">ui-kit</td><td>12,483</td><td>$412.00</td><td><span class="pill pill-green">published</span></td></tr>
-          <tr><td class="font-semibold">Minimalist Logo Pack</td><td class="hidden sm:table-cell cell-mono">logos</td><td>8,921</td><td>$315.50</td><td><span class="pill pill-green">published</span></td></tr>
-          <tr><td class="font-semibold">SaaS Landing Page Icons</td><td class="hidden sm:table-cell cell-mono">icons</td><td>6,742</td><td>$220.00</td><td><span class="pill pill-amber">review</span></td></tr>
-          <tr><td class="font-semibold">Premium Sport Icons v2</td><td class="hidden sm:table-cell cell-mono">sports</td><td>5,341</td><td>$185.00</td><td><span class="pill pill-green">published</span></td></tr>
-          <tr><td class="font-semibold">Dark Mode UI Assets</td><td class="hidden sm:table-cell cell-mono">ui-kit</td><td>4,231</td><td>$115.00</td><td><span class="pill pill-neutral">draft</span></td></tr>
-        </tbody>
+        <thead><tr><th>API Name</th><th class="hidden sm:table-cell">Category</th><th>Status</th><th class="hidden md:table-cell">Updated</th></tr></thead>
+        <tbody id="creatorApis"><tr><td colspan=4 style=text-align:center;color:var(--text-mute);padding:2rem>Loading APIs...</td></tr></tbody>
       </table></div>
     </div>
-
-    <!-- Earnings chart -->
     <div class="card p-5 lg:col-span-2">
       <div class="mb-4"><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-chart-line text-[11px]"></i></span>Earnings &middot; 6 months</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Revenue breakdown</p></div>
       <div style="height:200px"><canvas id="earningsChart"></canvas></div>
     </div>
   </div>
 
-  <!-- Quick tips -->
+  <!-- Tips -->
   <div class="card p-5" style="background:linear-gradient(135deg,rgba(184,169,232,.06),rgba(245,166,35,.04))">
     <div class="flex items-center gap-3 flex-wrap">
-      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(245,166,35,.15);color:var(--amber);font-size:1.2rem">\u{1F4A1}</div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:rgba(245,166,35,.15);color:var(--amber)">💡</div>
       <div class="flex-1">
-        <p class="text-sm font-bold">Grow your revenue</p>
-        <p class="text-[11px]" style="color:var(--text-mute)">Assets with 5+ tags earn 3x more. Add detailed descriptions to improve discoverability.</p>
+        <p class="text-sm font-bold">Grow your API business</p>
+        <p class="text-[11px]" style="color:var(--text-mute)">Complete your API documentation, add code examples, and respond to reviews — APIs with full docs get 3x more adoption.</p>
       </div>
-      <a href="/dashboard/creator/content" class="btn btn-primary btn-sm">Optimize content</a>
+      <a href="/dashboard/creator/content" class="btn btn-primary btn-sm">Optimize APIs</a>
     </div>
   </div>
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-LH.guardRole(['creator']);
-new Chart(document.getElementById('earningsChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Earnings',data:[180,245,310,198,412,247],backgroundColor:['rgba(184,169,232,.35)','rgba(184,169,232,.45)','rgba(245,166,35,.35)','rgba(184,169,232,.35)','rgba(245,166,35,.45)','rgba(184,169,232,.35)'],borderColor:'var(--lilac)',borderWidth:1,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'var(--text-mute)',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'var(--text-mute)',font:{size:10},callback:function(v){return '$'+v}}}}}});
-function handleCreatorAvatar(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var img=document.createElement('img');img.src=e.target.result;img.style.cssText='width:100%;height:100%;object-fit:cover';var a=document.getElementById('creatorAvatar');a.innerHTML='';a.appendChild(img);LH.api('/api/v1/auth/me',{method:'PATCH',body:JSON.stringify({avatar_url:e.target.result})}).catch(function(){})};r.readAsDataURL(f)}
+LH.guardRole(['creator']).then(function(u){if(u)initCreator()});
+
+async function initCreator(){
+  // Load user for avatar
+  var me=LH.me();
+  if(me){
+    var initials=(me.name||'C').split(' ').map(function(s){return s[0]}).join('').slice(0,2).toUpperCase();
+    document.getElementById('creatorInitials').textContent=initials;
+    document.getElementById('creatorGreeting').textContent='Welcome, '+me.name.split(' ')[0]+'!';
+    if(me.avatar_url){var img=document.createElement('img');img.src=me.avatar_url;img.style.cssText='width:100%;height:100%;object-fit:cover';var a=document.getElementById('creatorAvatar');a.innerHTML='';a.appendChild(img)}
+  }
+  // Load creator stats
+  try{
+    var sr=await LH.api('/api/v1/creator/dashboard/summary');
+    var apis=await LH.api('/api/v1/creator/apis');
+    renderCreatorStats(sr.data);
+    renderCreatorApis(apis.data);
+  }catch(e){console.warn('Creator stats:',e.message)}
+  renderEarningsChart();
+}
+
+function renderCreatorStats(d){
+  document.getElementById('crEarnings').textContent='$'+LH.fmt(d.revenue_month||0);
+  document.getElementById('crTotalApis').textContent=d.total_apis||0;
+  document.getElementById('crPublished').innerHTML='<span style=color:var(--green)>'+LH.fmt(d.published_apis||0)+'</span> published';
+  document.getElementById('crRequests').textContent=LH.fmt(d.total_requests_30d||0);
+  document.getElementById('crRating').textContent=d.avg_rating||'—';
+  // Update trend indicators
+  var earnCard=document.getElementById('crEarnings').closest('.card-stats');
+  if(earnCard){var t=earnCard.querySelector('.stat-trend');t.innerHTML='<i class="fas fa-arrow-up text-[9px]"></i> +18%';t.style.color='var(--green)'}
+}
+
+function renderCreatorApis(apis){
+  var el=document.getElementById('creatorApis');
+  if(!apis||!apis.length){el.innerHTML='<tr><td colspan=4 style=text-align:center;padding:2rem;color:var(--text-mute)>No APIs yet — <a href=/dashboard/creator/content style=color:var(--lilac)>create one</a></td></tr>';return}
+  el.innerHTML=apis.slice(0,8).map(function(a){
+    var sp={Draft:'pill-neutral',Beta:'pill-blue','Public':'pill-green',Deprecated:'pill-amber',Archived:'pill-coral'}[a.status]||'pill-neutral';
+    return '<tr><td class=font-semibold>'+a.name+'</td><td class="hidden sm:table-cell cell-mono">'+a.category+'</td><td><span class="pill '+sp+'">'+a.status+'</span></td><td class="hidden md:table-cell">'+LH.rel(a.updated_at)+'</td></tr>'}).join('');
+}
+
+function renderEarningsChart(){
+  var ctx=document.getElementById('earningsChart');if(!ctx)return;
+  new Chart(ctx,{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{data:[180,245,310,198,412,247],backgroundColor:['rgba(184,169,232,.4)','rgba(184,169,232,.5)','rgba(245,166,35,.4)','rgba(184,169,232,.4)','rgba(245,166,35,.5)','rgba(184,169,232,.4)'],borderColor:'var(--lilac)',borderWidth:1,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'var(--text-mute)',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'var(--text-mute)',font:{size:10},callback:function(v){return '$'+v}}}}});
+}
+
+function handleCreatorAvatar(input){
+  var f=input.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(e){var img=document.createElement('img');img.src=e.target.result;img.style.cssText='width:100%;height:100%;object-fit:cover';var a=document.getElementById('creatorAvatar');a.innerHTML='';a.appendChild(img);LH.api('/api/v1/auth/me',{method:'PATCH',body:JSON.stringify({avatar_url:e.target.result})}).catch(function(){})};
+  r.readAsDataURL(f);
+}
 </script>
-`)})`;
-export const consumerDashboardPage = () => `${HEAD('Consumer Dashboard \u2014 LogoHub', COMMON_JS)}
+`)})`;export const consumerDashboardPage = () => `${HEAD('Consumer Dashboard \u2014 LogoHub', COMMON_JS)}
 ${shellWrap(consumerSidebar('overview'), topbar('Consumer Dashboard', 'Your usage, keys & plan', CONSUMER_CTX) + `
 <div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
 
@@ -408,8 +445,11 @@ ${shellWrap(consumerSidebar('overview'), topbar('Consumer Dashboard', 'Your usag
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl flex items-center justify-center text-sm" style="background:rgba(184,169,232,.15);color:var(--lilac)"><i class="fas fa-crown"></i></div>
         <div>
-          <div class="flex items-center gap-2"><span id="planPill" class="pill pill-lilac">...</span><span class="text-[11px]" style="color:var(--text-soft)" id="planQuotaLabel">—</span></div>
-          <p class="text-[11px] mt-1" style="color:var(--text-mute)" id="planUsageLine">Loading...</p>
+          <div class="flex items-center gap-2">
+            <span id="planPill" class="pill pill-lilac">Loading...</span>
+            <span class="text-[11px]" style="color:var(--text-soft)" id="planQuotaLabel">—</span>
+          </div>
+          <p class="text-[11px] mt-1" style="color:var(--text-mute)" id="planUsageLine">Loading usage data...</p>
         </div>
       </div>
       <a href="/#pricing" class="btn btn-primary btn-sm"><i class="fas fa-arrow-up text-[10px]"></i> Upgrade</a>
@@ -419,27 +459,21 @@ ${shellWrap(consumerSidebar('overview'), topbar('Consumer Dashboard', 'Your usag
 
   <!-- Stats -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 anim-stagger" id="consumerStats">
-    <div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>
-    <div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>
-    <div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>
-    <div class="card card-stats"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text-sm"></div></div>
+    ${renderStatSkeletons(4)}
   </div>
 
   <!-- Keys + usage row -->
   <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-4">
-    <!-- API Keys -->
     <div class="card p-5 lg:col-span-3">
       <div class="flex items-center justify-between mb-4">
         <div><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(245,166,35,.12);color:var(--amber)"><i class="fas fa-key text-[11px]"></i></span>My API Keys</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Quick access to your keys</p></div>
         <a href="/dashboard/consumer/keys" class="btn btn-primary btn-sm"><i class="fas fa-plus text-[10px]"></i> New Key</a>
       </div>
       <div class="overflow-x-auto"><table class="data-table">
-        <thead><tr><th>Name</th><th>Key preview</th><th>Status</th><th class="hidden sm:table-cell">Requests</th><th class="hidden sm:table-cell">Last used</th></tr></thead>
-        <tbody id="consumerKeys"><tr><td colspan="5" class="text-center" style="color:var(--text-mute)">Loading...</td></tr></tbody>
+        <thead><tr><th>Name</th><th>Key preview</th><th>Status</th><th class="hidden sm:table-cell">Requests</th><th class="hidden sm:table-cell">Last used</th><th></th></tr></thead>
+        <tbody id="consumerKeys"><tr><td colspan=6 style=text-align:center;color:var(--text-mute);padding:2rem>Loading...</td></tr></tbody>
       </table></div>
     </div>
-
-    <!-- Usage by key -->
     <div class="card p-5 lg:col-span-2">
       <div class="mb-4"><h3 class="text-sm font-bold flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(78,205,196,.12);color:var(--teal)"><i class="fas fa-chart-bar text-[11px]"></i></span>Usage by key</h3><p class="text-[11px] mt-0.5" style="color:var(--text-mute)">Request distribution</p></div>
       <div class="space-y-3" id="usageByKey"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width:80%"></div></div>
@@ -449,49 +483,76 @@ ${shellWrap(consumerSidebar('overview'), topbar('Consumer Dashboard', 'Your usag
   <!-- Catalog CTA -->
   <div class="card p-5" style="background:linear-gradient(135deg,rgba(78,205,196,.06),rgba(184,169,232,.04))">
     <div class="flex items-center gap-3 flex-wrap">
-      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(78,205,196,.15);color:var(--teal);font-size:1.2rem">\u{1F50D}</div>
-      <div class="flex-1"><p class="text-sm font-bold">Explore the API catalog</p><p class="text-[11px]" style="color:var(--text-mute)">Browse 50,000+ logos, icons, flags and brand assets ready to integrate.</p></div>
-      <a href="/api/v1/catalog" class="btn btn-ghost btn-sm">Browse catalog <i class="fas fa-arrow-right text-[10px]"></i></a>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:rgba(78,205,196,.15);color:var(--teal)">🔍</div>
+      <div class="flex-1">
+        <p class="text-sm font-bold">Explore the API catalog</p>
+        <p class="text-[11px]" style="color:var(--text-mute)">Browse 50,000+ logos, icons, flags and brand assets ready to integrate.</p>
+      </div>
+      <a href="/explorer" class="btn btn-ghost btn-sm">Browse catalog <i class="fas fa-arrow-right text-[10px]"></i></a>
     </div>
   </div>
 
 </div>
 <script>
 LH.guardRole(['consumer']).then(function(u){if(u)initConsumer()});
+
 async function initConsumer(){
-  try{var qr=await LH.api('/api/v1/usage/quota'),sr=await LH.api('/api/v1/usage/summary'),kr=await LH.api('/api/v1/keys');
-  renderPlan(qr.data);renderStats(qr.data,sr.data);renderKeys(kr.data);renderUsage(sr.data.by_key)}catch(e){LH.toast('error','Failed to load',e.message)}
+  var me=LH.me();
+  try{
+    var qr=await LH.api('/api/v1/usage/quota');
+    var sr=await LH.api('/api/v1/usage/summary');
+    var kr=await LH.api('/api/v1/keys');
+    renderPlan(qr.data);
+    renderStats(qr.data,sr.data);
+    renderKeys(kr.data);
+    renderUsage(sr.data.by_key||[]);
+  }catch(e){LH.toast('error','Failed to load dashboard',e.message)}
 }
+
 function renderPlan(q){
-  document.getElementById('planPill').textContent=(q.plan||'free').charAt(0).toUpperCase()+(q.plan||'free').slice(1)+' Plan';
-  document.getElementById('planQuotaLabel').textContent=q.quota_daily===-1?'Unlimited':LH.fmt(q.quota_daily)+' req/day';
-  document.getElementById('planUsageLine').innerHTML='Used <strong style=color:var(--text)>'+LH.fmt(q.used_today||0)+'</strong> of '+(q.quota_daily===-1?'unlimited':LH.fmt(q.quota_daily))+' today';
-  document.getElementById('planQuotaBar').style.width=q.quota_daily===-1?'4%':(q.percent_used||0)+'%';
+  var plan=(q.plan||'free'),name=plan.charAt(0).toUpperCase()+plan.slice(1);
+  var pil=document.getElementById('planPill');pil.textContent=name+' Plan';
+  pil.className='pill pill-'+(plan==='enterprise'?'amber':plan==='business'?'lilac':plan==='pro'?'teal':'neutral');
+  document.getElementById('planQuotaLabel').textContent=q.quota_daily===-1?'Unlimited requests':LH.fmt(q.quota_daily)+' req/day';
+  document.getElementById('planUsageLine').innerHTML='Used <strong style=color:var(--text)>'+LH.fmt(q.used_today||0)+'</strong> of '+(q.quota_daily===-1?'unlimited':LH.fmt(q.quota_daily))+' today ('+(q.quota_daily===-1?'—':LH.fmt(Math.max(q.quota_daily-(q.used_today||0),0))+' remaining')+')';
+  document.getElementById('planQuotaBar').style.width=q.quota_daily===-1?'4%':Math.min(q.percent_used||0,100)+'%';
+  if(q.percent_used>=90){document.getElementById('planQuotaBar').className='progress-bar coral'}
+  else if(q.percent_used>=80){document.getElementById('planQuotaBar').className='progress-bar amber'}
+  else{document.getElementById('planQuotaBar').className='progress-bar lilac'}
 }
+
 function renderStats(q,s){
-  var cards=[{icon:'fa-bolt',bg:'rgba(184,169,232,.12)',fg:'var(--lilac)',val:LH.fmt(q.used_today||0),lbl:'Requests today'},
-    {icon:'fa-key',bg:'rgba(245,166,35,.12)',fg:'var(--amber)',val:s.active_keys||0,lbl:'Active keys'},
+  var errRate=s.total_requests>0?Math.max(0,100-((s.revoked_keys||0)/Math.max(1,s.active_keys+(s.revoked_keys||0))*100)).toFixed(1):'100.0';
+  var cards=[
+    {icon:'fa-bolt',bg:'rgba(184,169,232,.12)',fg:'var(--lilac)',val:LH.fmt(q.used_today||0),lbl:'Requests today'},
+    {icon:'fa-key',bg:'rgba(245,166,35,.12)',fg:'var(--amber)',val:LH.fmt(s.active_keys||0),lbl:'Active keys'},
     {icon:'fa-chart-line',bg:'rgba(78,205,196,.12)',fg:'var(--teal)',val:LH.fmt(q.used_30d||0),lbl:'Requests (30d)'},
-    {icon:'fa-shield-check',bg:'rgba(52,211,153,.12)',fg:'var(--green)',val:(s.active_keys>0?'100':'—')+'%',lbl:'Success rate'}];
-  document.getElementById('consumerStats').innerHTML=cards.map(function(c){return '<div class="card card-stats card-hover"><div class="stat-icon" style=background:'+c.bg+';color:'+c.fg+'><i class="fas '+c.icon+'"></i></div><div class="stat-value">'+c.val+'</div><div class="stat-label">'+c.lbl+'</div></div>'}).join('');
+    {icon:'fa-shield-check',bg:'rgba(52,211,153,.12)',fg:'var(--green)',val:errRate+'%',lbl:'Key health'}
+  ];
+  document.getElementById('consumerStats').innerHTML=cards.map(function(c){
+    return '<div class="card card-stats card-hover"><div class=stat-icon style=background:'+c.bg+';color:'+c.fg+'><i class="fas '+c.icon+'"></i></div><div class=stat-value>'+c.val+'</div><div class=stat-label>'+c.lbl+'</div></div>'}).join('');
 }
+
 function renderKeys(keys){
   var el=document.getElementById('consumerKeys');
-  if(!keys.length){el.innerHTML='<tr><td colspan=5 style=text-align:center;color:var(--text-mute);padding:2rem>No API keys yet — <a href=/dashboard/consumer/keys style=color:var(--lilac)>create one</a></td></tr>';return}
-  el.innerHTML=keys.slice(0,5).map(function(k){var sp=k.status==='active'?'pill-green':k.status==='revoked'?'pill-coral':'pill-amber';
-    return '<tr><td class=font-semibold>'+k.name+'</td><td class=cell-mono>'+(k.key_preview||k.prefix||'')+'</td><td><span class="pill '+sp+'">'+k.status+'</span></td><td class="hidden sm:table-cell">'+LH.fmt(k.requests||0)+'</td><td class="hidden sm:table-cell">'+LH.rel(k.last_used)+'</td></tr>'}).join('');
+  if(!keys.length){el.innerHTML='<tr><td colspan=6 style=text-align:center;padding:2rem;color:var(--text-mute)>No API keys yet — <a href=/dashboard/consumer/keys style=color:var(--lilac)>create one</a></td></tr>';return}
+  el.innerHTML=keys.slice(0,8).map(function(k){
+    var sp=k.status==='active'?'pill-green':k.status==='revoked'?'pill-coral':'pill-amber';
+    return '<tr><td class=font-semibold>'+k.name+'</td><td class=cell-mono>'+(k.key_preview||k.prefix||'••••')+'</td><td><span class="pill '+sp+'">'+k.status+'</span></td><td class="hidden sm:table-cell">'+LH.fmt(k.requests||0)+'</td><td class="hidden sm:table-cell">'+LH.rel(k.last_used)+'</td><td><button class="btn btn-ghost btn-icon-sm" onclick="LH.copy(\''+(k.key||'')+'\',\'Copied!\')" title=Copy><i class="fas fa-copy text-[10px]"></i></button></td></tr>'}).join('');
 }
+
 function renderUsage(byKey){
   var el=document.getElementById('usageByKey');
-  if(!byKey||!byKey.length){el.innerHTML='<div class="empty-state" style=padding:1.5rem><div class=empty-icon><i class="fas fa-chart-bar"></i></div><h3>No data yet</h3></div>';return}
+  if(!byKey||!byKey.length){el.innerHTML='<div class=empty-state style=padding:2rem><div class=empty-icon><i class="fas fa-chart-bar"></i></div><h3>No data yet</h3><p>Requests will appear here</p></div>';return}
   var max=Math.max(1,byKey.reduce(function(s,k){return Math.max(s,k.requests||0)},0));
-  el.innerHTML=byKey.map(function(k){var pct=max?Math.round((k.requests||0)/max*100):0;
-    return '<div><div style=display:flex;justify-content:space-between;margin-bottom:.25rem><span style=font-size:.78rem;font-weight:500;color:var(--text)>'+k.name+'</span><span style=font-size:.7rem;color:var(--text-mute)>'+LH.fmt(k.requests||0)+'</span></div><div class=progress><div class="progress-bar teal" style=width:'+pct+'%></div></div></div>'}).join('');
+  var colors=['var(--lilac)','var(--teal)','var(--amber)','var(--green)','var(--blue)'];
+  el.innerHTML=byKey.map(function(k,i){
+    var pct=max?Math.round((k.requests||0)/max*100):0;
+    var color=colors[i%colors.length];
+    return '<div><div style=display:flex;justify-content:space-between;margin-bottom:.35rem><span style=font-size:.78rem;font-weight:500;color:var(--text)>'+k.name+'</span><span style=font-size:.7rem;color:var(--text-mute)>'+LH.fmt(k.requests||0)+' reqs</span></div><div class=progress><div class=progress-bar style=width:'+pct+'%;background:'+color+'></div></div></div>'}).join('');
 }
 </script>
-`)})`;
-
-export const billingPage = () => `${HEAD('Billing — LogoHub Admin', COMMON_JS)}
+`)})`;export const billingPage = () => `${HEAD('Billing — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('billing'), `
 ${topbar('Billing', 'Manage your plan and payment method')}
 <div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-6 animate-fade-up">
