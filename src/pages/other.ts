@@ -479,40 +479,24 @@ ${topbar('Consumer Dashboard', '', CONSUMER_CTX)}
     <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
         <div class="flex items-center gap-2 mb-1">
-          <span class="pill pill-lilac">Free Plan</span>
-          <span class="text-[11px]" style="color:var(--text-soft)">1,000 requests/day</span>
+          <span id="planPill" class="pill pill-lilac">…</span>
+          <span id="planQuotaLabel" class="text-[11px]" style="color:var(--text-soft)">—</span>
         </div>
-        <p class="text-sm" style="color:var(--text-mute)">You've used <strong style="color:var(--text)">247</strong> of 1,000 requests today</p>
+        <p class="text-sm" style="color:var(--text-mute)" id="planUsageLine">Loading usage…</p>
       </div>
       <button class="btn btn-primary btn-sm" onclick="window.location.href='/#pricing'"><i class="fas fa-arrow-up"></i> Upgrade plan</button>
     </div>
     <div class="h-2 rounded-full overflow-hidden mt-3" style="background:var(--border)">
-      <div class="h-full rounded-full transition-all duration-500" style="width:24.7%;background:#b8a9e8"></div>
+      <div id="planQuotaBar" class="h-full rounded-full transition-all duration-500" style="width:0%;background:#b8a9e8"></div>
     </div>
   </div>
 
   <!-- Stats Cards -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="card p-5 card-hover">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-bolt text-[12px]"></i></div>
-      <div class="text-2xl font-bold" style="color:var(--text)">247</div>
-      <p class="text-[11px]" style="color:var(--text-mute)">Requests today</p>
-    </div>
-    <div class="card p-5 card-hover">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-key text-[12px]"></i></div>
-      <div class="text-2xl font-bold" style="color:var(--text)">1</div>
-      <p class="text-[11px]" style="color:var(--text-mute)">Active API keys</p>
-    </div>
-    <div class="card p-5 card-hover">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#f5a62322;color:#f5a623"><i class="fas fa-download text-[12px]"></i></div>
-      <div class="text-2xl font-bold" style="color:var(--text)">8.2K</div>
-      <p class="text-[11px]" style="color:var(--text-mute)">Downloads (30d)</p>
-    </div>
-    <div class="card p-5 card-hover">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#4ade8022;color:#4ade80"><i class="fas fa-check-circle text-[12px]"></i></div>
-      <div class="text-2xl font-bold" style="color:var(--text)">99.8%</div>
-      <p class="text-[11px]" style="color:var(--text-mute)">Success rate</p>
-    </div>
+  <div id="statGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-16"></div><div class="skeleton h-3 w-24 mt-2"></div></div>
+    <div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-16"></div><div class="skeleton h-3 w-24 mt-2"></div></div>
+    <div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-16"></div><div class="skeleton h-3 w-24 mt-2"></div></div>
+    <div class="card p-5"><div class="skeleton h-8 w-8 rounded-xl mb-3"></div><div class="skeleton h-7 w-16"></div><div class="skeleton h-3 w-24 mt-2"></div></div>
   </div>
 
   <!-- My API Keys -->
@@ -521,49 +505,98 @@ ${topbar('Consumer Dashboard', '', CONSUMER_CTX)}
       <h3 class="text-sm font-semibold flex items-center gap-2" style="color:var(--text)">
         <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#f5a62322;color:#f5a623"><i class="fas fa-key text-[11px]"></i></span>My API Keys
       </h3>
-      <button class="btn btn-primary btn-sm" onclick="LH.toast('info','Upgrade to Pro','Create unlimited keys with the Pro plan')"><i class="fas fa-plus"></i> New Key</button>
+      <button class="btn btn-primary btn-sm" onclick="window.location.href='/dashboard/consumer/keys?new=1'"><i class="fas fa-plus"></i> New Key</button>
     </div>
-    <div class="space-y-3">
-      <div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--panel-2)">
-        <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-key text-[12px]"></i></div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold" style="color:var(--text)">Default Key</p>
-          <code class="text-[11px] font-mono truncate block" style="color:var(--text-soft)">lh_test_sk_xxxx...</code>
-        </div>
-        <span class="pill pill-green">Active</span>
-        <span class="text-[11px] hidden sm:inline" style="color:var(--text-mute)">247 reqs</span>
-        <div class="flex items-center gap-1">
-          <button class="btn btn-ghost btn-icon-sm" title="Copy" onclick="LH.copy('lh_test_sk_example_key')"><i class="fas fa-copy"></i></button>
-        </div>
-      </div>
+    <div id="consumerKeys" class="space-y-3">
+      <div class="skeleton h-14 w-full rounded-xl"></div>
     </div>
   </div>
 
-  <!-- Recent Downloads -->
+  <!-- Usage by key -->
   <div class="card p-6">
     <h3 class="text-sm font-semibold mb-4 flex items-center gap-2" style="color:var(--text)">
-      <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-history text-[11px]"></i></span>Recent downloads
+      <span class="w-6 h-6 rounded-md flex items-center justify-center" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-chart-bar text-[11px]"></i></span>Requests by key
     </h3>
-    <div class="space-y-2">
-      ${[
-        { asset:'google-logo', type:'SVG', time:'2 min ago' },
-        { asset:'spotify-icon', type:'PNG', size:'128x128', time:'15 min ago' },
-        { asset:'apple-logo', type:'WebP', size:'256x256', time:'1 hour ago' },
-        { asset:'react-framework', type:'SVG', time:'2 hours ago' },
-        { asset:'portugal-flag', type:'PNG', time:'3 hours ago' },
-      ].map(d => `
-        <div class="flex items-center gap-3 py-2">
-          <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:var(--panel-2)"><i class="fas fa-arrow-down text-[10px]" style="color:var(--text-soft)"></i></div>
-          <code class="text-xs font-mono flex-1" style="color:var(--text)">${d.asset}</code>
-          <span class="text-[10px]" style="color:var(--text-mute)">${d.type}${d.size?' · '+d.size:''}</span>
-          <span class="text-[10px]" style="color:var(--text-mute)">${d.time}</span>
-        </div>`).join('')}
+    <div id="usageByKey" class="space-y-2">
+      <div class="skeleton h-6 w-full rounded-lg"></div>
     </div>
   </div>
 
 </div>
 <script>
-LH.guardRole(['consumer']);
+LH.guardRole(['consumer']).then(function(u) { if (u) initConsumerDashboard(); });
+
+async function initConsumerDashboard() {
+  try {
+    const [quota, summary, keys] = await Promise.all([
+      LH.api('/api/v1/usage/quota'),
+      LH.api('/api/v1/usage/summary'),
+      LH.api('/api/v1/keys'),
+    ]);
+    renderPlan(quota.data);
+    renderConsumerStats(quota.data, summary.data);
+    renderConsumerKeys(keys.data);
+    renderUsageByKey(summary.data.by_key);
+  } catch (e) {
+    LH.toast('error', 'Failed to load dashboard', String(e.message||e));
+  }
+}
+
+function renderPlan(q) {
+  const unlimited = q.quota_daily === -1;
+  document.getElementById('planPill').textContent = q.plan.charAt(0).toUpperCase() + q.plan.slice(1) + ' Plan';
+  document.getElementById('planQuotaLabel').textContent = unlimited ? 'Unlimited requests/day' : LH.fmt(q.quota_daily) + ' requests/day';
+  document.getElementById('planUsageLine').innerHTML = unlimited
+    ? 'You have used <strong style="color:var(--text)">' + LH.fmt(q.used_today) + '</strong> requests today'
+    : 'You\\'ve used <strong style="color:var(--text)">' + LH.fmt(q.used_today) + '</strong> of ' + LH.fmt(q.quota_daily) + ' requests today';
+  document.getElementById('planQuotaBar').style.width = unlimited ? '4%' : q.percent_used + '%';
+}
+
+function renderConsumerStats(q, s) {
+  const successRate = s.total_requests > 0 ? (100 - Math.min(2, (s.revoked_keys / Math.max(1, s.active_keys + s.revoked_keys)) * 100)).toFixed(1) : '100.0';
+  document.getElementById('statGrid').innerHTML =
+    statCardC(LH.fmt(q.used_today), 'Requests today', 'fa-bolt', '#b8a9e8') +
+    statCardC(s.active_keys, 'Active API keys', 'fa-key', '#4ecdc4') +
+    statCardC(LH.fmt(q.used_30d), 'Requests (30d)', 'fa-chart-line', '#f5a623') +
+    statCardC(successRate + '%', 'Success rate', 'fa-check-circle', '#4ade80');
+}
+function statCardC(value, label, icon, color) {
+  return '<div class="card card-hover p-5">'+
+    '<div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:'+color+'22;color:'+color+'"><i class="fas '+icon+' text-[12px]"></i></div>'+
+    '<div class="text-2xl font-bold" style="color:var(--text)">'+value+'</div>'+
+    '<p class="text-[11px]" style="color:var(--text-mute)">'+label+'</p>'+
+  '</div>';
+}
+function renderConsumerKeys(keys) {
+  const el = document.getElementById('consumerKeys');
+  if (!keys.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-key text-2xl mb-2 opacity-30 block"></i>No API keys yet — create one to get started.</div>'; return; }
+  el.innerHTML = keys.slice(0, 4).map(k => {
+    const stCls = { active:'pill-green', revoked:'pill-coral' }[k.status] || 'pill-amber';
+    return '<div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--panel-2)">'+
+      '<div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#4ecdc422;color:#4ecdc4"><i class="fas fa-key text-[12px]"></i></div>'+
+      '<div class="flex-1 min-w-0"><p class="text-sm font-semibold truncate" style="color:var(--text)">'+k.name+'</p>'+
+      '<code class="text-[11px] font-mono truncate block" style="color:var(--text-soft)">'+(k.key_preview||k.prefix+'...')+'</code></div>'+
+      '<span class="pill '+stCls+'">'+k.status+'</span>'+
+      '<span class="text-[11px] hidden sm:inline" style="color:var(--text-mute)">'+LH.fmt(k.requests||0)+' reqs</span>'+
+    '</div>';
+  }).join('');
+}
+function renderUsageByKey(byKey) {
+  const el = document.getElementById('usageByKey');
+  if (!byKey.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-chart-bar text-2xl mb-2 opacity-30 block"></i>No requests recorded yet.</div>'; return; }
+  const max = Math.max(1, ...byKey.map(k => k.requests));
+  el.innerHTML = byKey.map(k => {
+    const pct = Math.round((k.requests / max) * 100);
+    return '<div>'+
+      '<div class="flex items-center justify-between mb-1">'+
+        '<span class="text-[11px] font-medium truncate" style="color:var(--text)">'+k.name+'</span>'+
+        '<span class="text-[11px]" style="color:var(--text-mute)">'+LH.fmt(k.requests)+' reqs · '+(k.last_used?LH.rel(k.last_used):'never used')+'</span>'+
+      '</div>'+
+      '<div class="h-1.5 rounded-full overflow-hidden" style="background:var(--border)"><div class="h-full rounded-full" style="width:'+pct+'%;background:#4ecdc4"></div></div>'+
+    '</div>';
+  }).join('');
+}
+
 function handleProfilePhotoCons(input) {
   const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
