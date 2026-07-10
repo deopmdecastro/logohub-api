@@ -10,6 +10,12 @@ import usage from './routes/usage';
 import catalog from './routes/catalog';
 import creator from './routes/creator';
 import projects from './routes/projects';
+import billingRoute from './routes/billing';
+import securityRoute from './routes/account';
+import supportRoute from './routes/support';
+import changelogRoute from './routes/changelog';
+import monitoringRoute from './routes/monitoring';
+import sdkRoute from './routes/sdk';
 import { landingPage, explorerPage, docsPage, adminPage } from './pages/public';
 import { overviewPage, keysPage } from './pages/dashboard';
 import { adminUsersPage } from './pages/admin_users';
@@ -56,6 +62,12 @@ app.route('/api/v1/catalog', catalog);
 app.route('/api/v1/creator', creator);
 // Projects routes (spec 1.7)
 app.route('/api/v1/projects', projects);
+app.route('/api/v1/billing', billingRoute);
+app.route('/api/v1/account', securityRoute);
+app.route('/api/v1/support', supportRoute);
+app.route('/api/v1/changelog', changelogRoute);
+app.route('/api/v1/monitoring', monitoringRoute);
+app.route('/api/v1/sdks', sdkRoute);
 app.get('/api', (c) => c.redirect('/api/v1/stats'));
 
 // =====================================================================
