@@ -42,7 +42,7 @@ import { HEAD } from './pages/shared';
 const app = new Hono();
 
 // Static assets
-app.use('/static/*', serveStatic({ root: './' }));
+app.use('/static/*', serveStatic({ root: './public' }));
 
 // Health check
 app.get('/health', (c) => c.json({ status: 'ok', uptime: process.uptime() }));

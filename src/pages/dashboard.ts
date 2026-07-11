@@ -6,7 +6,7 @@ import { sidebar, topbar, shellWrap, ctxSidebar, PageCtx, ADMIN_CTX, DASH_NAV } 
 // ============================================================
 export const overviewPage = () => `${HEAD('Dashboard \u2014 LogoHub API', COMMON_JS)}
 ${shellWrap(sidebar('overview'), topbar('Dashboard', 'Welcome back! Here\'s what\'s happening.', ADMIN_CTX) + `
-<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
+<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-1440 mx-auto space-y-5 anim-fade-up">
 
   <!-- Stats grid -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 anim-stagger" id="statGrid">
@@ -104,9 +104,9 @@ LH.guardRole(['admin']).then(function(u){if(u)init()});
 `)}`;export const keysPage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('API Keys — LogoHub', COMMON_JS)}
 ${shellWrap(ctxSidebar(ctx, 'keys'), `
 ${topbar(ctx.role === 'consumer' ? 'My API Keys' : 'API Keys', 'Manage authentication, tags, and associated files', ctx)}
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-1400 mx-auto space-y-5 animate-fade-up">
   <div class="flex flex-wrap items-center gap-3">
-    <div class="relative flex-1 min-w-[200px]">
+    <div class="relative flex-1 min-w-0">
       <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[12px]" style="color:var(--text-mute)"></i>
       <input id="keySearch" placeholder="Search keys, descriptions, tags…" class="input input-pill" oninput="renderKeys()">
     </div>

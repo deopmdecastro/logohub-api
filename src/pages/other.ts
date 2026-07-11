@@ -7,7 +7,7 @@ import { sidebar, topbar, shellWrap, creatorSidebar, consumerSidebar, ctxSidebar
 export const settingsPage = () => `${HEAD('Settings — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('settings'), `
 ${topbar('Settings', 'Platform, Git integration, branding and stats')}
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-1400 mx-auto space-y-5 animate-fade-up">
   <div class="tab-pill-group" id="settingsTabs">
     <button class="tab-pill active" data-tab="general"><i class="fas fa-cog text-[#b8a9e8]"></i> General</button>
     <button class="tab-pill" data-tab="git"><i class="fas fa-code-branch text-[#f5a623]"></i> Git</button>
@@ -153,7 +153,7 @@ LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 export const teamPage = () => `${HEAD('Team — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('team'), `
 ${topbar('Team', 'Invite and manage members')}
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-1400 mx-auto space-y-5 animate-fade-up">
   <div class="flex items-center gap-3">
     <h3 class="text-sm font-semibold" style="color:var(--text)">Team members</h3>
     <span id="tCount" class="text-[11px]" style="color:var(--text-mute)">—</span>
@@ -238,7 +238,7 @@ LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 export const usersPage = () => `${HEAD('Users — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('users'), `
 ${topbar('Users', 'Manage all users: Admin, Creator, Consumer')}
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-5 animate-fade-up">
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-1400 mx-auto space-y-5 animate-fade-up">
   <div class="flex items-center gap-3">
     <h3 class="text-sm font-semibold" style="color:var(--text)">All Users</h3>
     <span id="uCount" class="text-[11px]" style="color:var(--text-mute)">—</span>
@@ -322,7 +322,7 @@ load();
 // ============================================================
 export const creatorDashboardPage = () => `${HEAD('Creator Dashboard \u2014 LogoHub', COMMON_JS)}
 ${shellWrap(creatorSidebar('overview'), topbar('Creator Dashboard', 'Your earnings, APIs & analytics', CREATOR_CTX) + `
-<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
+<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-1440 mx-auto space-y-5 anim-fade-up">
 
   <!-- Welcome + avatar -->
   <div class="flex items-center gap-4 flex-wrap">
@@ -437,7 +437,7 @@ function handleCreatorAvatar(input){
 </script>
 `)})`;export const consumerDashboardPage = () => `${HEAD('Consumer Dashboard \u2014 LogoHub', COMMON_JS)}
 ${shellWrap(consumerSidebar('overview'), topbar('Consumer Dashboard', 'Your usage, keys & plan', CONSUMER_CTX) + `
-<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-[1440px] mx-auto space-y-5 anim-fade-up">
+<div class="px-4 lg:px-6 py-5 lg:py-7 max-w-1440 mx-auto space-y-5 anim-fade-up">
 
   <!-- Plan banner -->
   <div class="card p-5" style="border-color:rgba(184,169,232,.25);background:linear-gradient(135deg,rgba(184,169,232,.06),transparent 60%)">
@@ -555,7 +555,7 @@ function renderUsage(byKey){
 `)})`;export const billingPage = () => `${HEAD('Billing — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('billing'), `
 ${topbar('Billing', 'Manage your plan and payment method')}
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-6 animate-fade-up">
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-1400 mx-auto space-y-6 animate-fade-up">
 
   <!-- TOP ROW: CURRENT PLAN + PAYMENT -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="planBox"></div>
@@ -697,7 +697,7 @@ LH.guardRole(['admin']).then(function(u) { if (u) load(); });
 export const analyticsPage = (ctx: PageCtx = ADMIN_CTX) => `${HEAD('Analytics — LogoHub', COMMON_JS)}
 ${shellWrap(ctxSidebar(ctx, ctx.role === 'consumer' ? 'usage' : 'analytics'), `
 ${topbar(ctx.role === 'admin' ? 'Analytics' : 'Usage', ctx.role === 'admin' ? 'Performance and usage insights' : 'Your requests, errors, and endpoint usage', ctx)}
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto space-y-6 animate-fade-up">
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-1400 mx-auto space-y-6 animate-fade-up">
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="card p-5"><div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#b8a9e822;color:#b8a9e8"><i class="fas fa-bolt text-[12px]"></i></div><div class="text-2xl font-bold" style="color:var(--text)">208K</div><p class="text-[11px]" style="color:var(--text-mute)">Total requests · 7d</p></div>
     <div class="card p-5"><div class="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style="background:#ff6b6b22;color:#ff6b6b"><i class="fas fa-exclamation-triangle text-[12px]"></i></div><div class="text-2xl font-bold" style="color:var(--text)">64</div><p class="text-[11px]" style="color:var(--text-mute)">Errors · 7d</p></div>
@@ -734,7 +734,7 @@ LH.guardRole(['${ctx.role}']);
 export const activityPage = () => `${HEAD('Activity — LogoHub Admin', COMMON_JS)}
 ${shellWrap(sidebar('activity'), `
 ${topbar('Activity', 'Complete audit log of every change')}
-<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-[1400px] mx-auto animate-fade-up">
+<div class="px-5 lg:px-8 py-6 lg:py-8 max-w-1400 mx-auto animate-fade-up">
   <div class="card overflow-hidden"><div id="aList" class="divide-y" style="border-color:var(--border)"></div></div>
 </div>
 <script>

@@ -24,7 +24,6 @@ export const HEAD = (title: string, extraScripts: string = '') => `<!DOCTYPE htm
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
 <link rel="stylesheet" href="/static/style.css">
 <script>
@@ -220,6 +219,43 @@ export const HEAD = (title: string, extraScripts: string = '') => `<!DOCTYPE htm
 
   /* Empty state */
   .empty-state { text-align:center; padding: 3rem 1rem; color: var(--text-mute); }
+
+
+
+.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.block{display:block}
+.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.flex-1{flex:1}.shrink-0{flex-shrink:0}
+.items-center{align-items:center}.items-start{align-items:flex-start}
+.justify-center{justify-content:center}.justify-between{justify-content:space-between}.justify-end{justify-content:flex-end}
+.gap-1{gap:.25rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}
+.space-y-2>*+*{margin-top:.5rem}.space-y-3>*+*{margin-top:.75rem}.space-y-4>*+*{margin-top:1rem}.space-y-5>*+*{margin-top:1.25rem}.space-y-6>*+*{margin-top:1.5rem}
+.rounded-lg{border-radius:1rem}.rounded-xl{border-radius:1.25rem}.rounded-2xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}
+.text-xs{font-size:.75rem}.text-sm{font-size:.875rem}.text-base{font-size:1rem}.text-lg{font-size:1.125rem}.text-2xl{font-size:1.5rem}
+.font-medium{font-weight:500}.font-semibold{font-weight:600}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-black{font-weight:900}
+.text-center{text-align:center}.text-right{text-align:right}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}
+.relative{position:relative}.absolute{position:absolute}.fixed{position:fixed}.sticky{position:sticky}
+.top-0{top:0}.left-0{left:0}.right-0{right:0}.z-10{z-index:10}.z-30{z-index:30}.z-50{z-index:50}
+.w-6{width:1.5rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-10{width:2.5rem}.w-11{width:2.75rem}.w-14{width:3.5rem}.w-64{width:16rem}
+.h-6{height:1.5rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-10{height:2.5rem}.h-11{height:2.75rem}.h-14{height:3.5rem}.h-screen{height:100vh}
+.max-w-1400{max-width:1400px}.max-w-1440{max-width:1440px}.min-w-0{min-width:0}
+.mx-auto{margin-left:auto;margin-right:auto}.ml-auto{margin-left:auto}
+.mt-0{margin-top:0}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}
+.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}
+.ml-1{margin-left:.25rem}.ml-2{margin-left:.5rem}.mr-1{margin-right:.25rem}.mr-2{margin-right:.5rem}
+.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-8{padding:2rem}
+.px-1{padding-left:.25rem;padding-right:.25rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}
+.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}
+.pt-2{padding-top:.5rem}.pt-4{padding-top:1rem}
+.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-.01em}
+.transition-all{transition:all .2s ease}.transition-transform{transition:transform .2s ease}.duration-200{transition-duration:.2s}.duration-500{transition-duration:.5s}
+.cursor-pointer{cursor:pointer}
+.grid-cols-1{grid-template-columns:repeat(1,1fr)}.grid-cols-2{grid-template-columns:repeat(2,1fr)}.grid-cols-3{grid-template-columns:repeat(3,1fr)}.grid-cols-4{grid-template-columns:repeat(4,1fr)}.grid-cols-5{grid-template-columns:repeat(5,1fr)}
+.-translate-x-full{transform:translateX(-100%)}
+@media(min-width:640px){.sm\:table-cell{display:table-cell}.sm\:inline{display:inline}}
+@media(min-width:768px){.md\:table-cell{display:table-cell}}
+@media(min-width:1024px){.lg\:block{display:block}.lg\:flex{display:flex}.lg\:hidden{display:none}.lg\:grid-cols-2{grid-template-columns:repeat(2,1fr)}.lg\:grid-cols-3{grid-template-columns:repeat(3,1fr)}.lg\:grid-cols-4{grid-template-columns:repeat(4,1fr)}.lg\:grid-cols-5{grid-template-columns:repeat(5,1fr)}.lg\:col-span-2{grid-column:span 2}.lg\:col-span-3{grid-column:span 3}.lg\:translate-x-0{transform:translateX(0)}.lg\:px-6{padding-left:1.5rem;padding-right:1.5rem}.lg\:px-8{padding-left:2rem;padding-right:2rem}.lg\:py-7{padding-top:1.75rem;padding-bottom:1.75rem}.lg\:py-8{padding-top:2rem;padding-bottom:2rem}.lg\:gap-4{gap:1rem}.lg\:sticky{position:sticky}}
+
 </style>
 ${extraScripts}
 </head>`;
